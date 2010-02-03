@@ -1,0 +1,32 @@
+table.mediaTable th{
+    text-align:center;
+    padding-bottom:12px;
+    font-size:1.3em;
+}
+table.mediaTable td{
+    vertical-align:top;
+    font-size:1.2em;
+    padding:0 25px;
+}
+table.mediaTable td.mediaTitle{
+    padding-bottom:7px;
+}
+table.mediaTable td.mediaDownload a{
+    background:#FFF url(download.gif) no-repeat;
+    display:block;
+    width:83px;
+    height:64px;
+    text-indent:-5000px;
+    overflow:hidden;
+}
+table.mediaTable td.mediaPlay a{
+    background:#FFF url(play.gif) no-repeat;
+    display:block;
+    width:39px;
+    height:77px;
+    text-indent:-5000px;
+    overflow:hidden;
+}
+table.mediaTable td.mediaPlay a.mediaStop{
+    background:#FFF url(stop.gif) no-repeat;
+}
