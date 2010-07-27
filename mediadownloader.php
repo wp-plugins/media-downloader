@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.3
+Version: 0.1.4
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -77,15 +77,15 @@ function listMedia($t){
             $ihtml='';
             $ifiles=array();
             $ititles=array();
-            $zip='';
-            $pdf='';
+            $zip=array();
+            $pdf=array();
             $ipath = $mpath . '/' . $folder;
             if ( is_dir($ipath) ){
                 $idir = dir( $ipath );
                 while (false !== ($ifile = $idir->read())) {
                     if(substr($ifile,-4)=='.mp3') $ifiles[]=substr($ifile,0,-4);
-                    if(substr($ifile,-4)=='.zip') $zip=$ifile;
-                    if(substr($ifile,-4)=='.pdf') $pdf=$ifile;
+                    if(substr($ifile,-4)=='.zip') $zip[]=$ifile;
+                    if(substr($ifile,-4)=='.pdf') $pdf[]=$ifile;
                 }
             }
             if ( count($ifiles) ){
@@ -126,7 +126,7 @@ function listMedia($t){
                     $ititles[$ifile] = $ititle ;
                 }
                 
-                if ( $zip.$pdf ) $ihtml .= '<table class="bookInfo">
+                if ( count($zip)+count($pdf) ) $ihtml .= '<table class="bookInfo">
 <thead>
 <tr>
 <th class="chapterCol">'._md( 'By Chapter' ).'</th>
@@ -162,7 +162,7 @@ function listMedia($t){
                     $ihtml .= '</tr>'."\n" ;
                 }
                 $ihtml .= '</tbody></table>'."\n" ;
-                if ( $zip.$pdf ) {
+                if ( count($zip)+count($pdf) ) {
                     $afolder = explode( '/', $folder ) ;
                     for ( $a=0; $a<count($afolder); $a++ ) $afolder[$a] = rawurlencode( $afolder[$a] ) ;
                     $cfolder = implode( '/', $afolder ) ;
@@ -170,8 +170,14 @@ function listMedia($t){
 <td class="wholeBookCol">
 
 <ul>' ;
-                    if ( $zip ) $ihtml .= '<li class="dZip"><a href="'.$mrelative.'/'.($cfolder).'/'.rawurlencode( $zip ).'">'._md( 'Download ZIP' ).' <small>'._md( '(Audio chapters)' ).'</small></a></li>' ;
-                    if ( $pdf ) $ihtml.='<li class="dPdf"><a href="'.$mrelative.'/'.($cfolder).'/'.rawurlencode( $pdf ).'">'._md( 'Download PDF' ).' <small>'._md( '(Text file)' ).'</small></a></li>' ;
+                    $czf = 0; if ( count($zip) ) foreach($zip as $zipf){
+                        $czf++;
+                        $ihtml .= '<li class="dZip"><a href="'.$mrelative.'/'.($cfolder).'/'.rawurlencode( $zipf ).'">'._md( 'Download ZIP' ).(count($zip)>1?' '.$czf:'').' <small>'._md( '(Audio chapters)' ).'</small></a></li>' ;
+                    }
+                    $cpf=0; if ( count($pdf) ) foreach($pdf as $pdff){
+                        $cpf++;
+                        $ihtml.='<li class="dPdf"><a href="'.$mrelative.'/'.($cfolder).'/'.rawurlencode( $pdff ).'">'._md( 'Download PDF' ).(count($pdf)>1?' '.$cpf:'').' <small>'._md( '(Text file)' ).'</small></a></li>' ;
+                    }
                     $ihtml.='</ul>
 
 </td>
