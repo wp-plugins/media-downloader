@@ -3,7 +3,7 @@ Contributors: Ederson Peka
 Tags: media, audio, podcast, post, player, mp3, flash
 Requires at least: 2.7
 Tested up to: 2.9
-Stable tag: 0.1.3
+Stable tag: 0.1.4
 
 Lists MP3 files from a folder.
 
