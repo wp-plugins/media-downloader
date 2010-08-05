@@ -79,6 +79,7 @@ function listMedia($t){
             $ititles=array();
             $zip=array();
             $pdf=array();
+            $epub=array();
             $ipath = $mpath . '/' . $folder;
             if ( is_dir($ipath) ){
                 $idir = dir( $ipath );
@@ -86,6 +87,7 @@ function listMedia($t){
                     if(substr($ifile,-4)=='.mp3') $ifiles[]=substr($ifile,0,-4);
                     if(substr($ifile,-4)=='.zip') $zip[]=$ifile;
                     if(substr($ifile,-4)=='.pdf') $pdf[]=$ifile;
+                    if(substr($ifile,-5)=='.epub') $epub[]=$ifile;
                 }
             }
             if ( count($ifiles) ){
@@ -126,7 +128,7 @@ function listMedia($t){
                     $ititles[$ifile] = $ititle ;
                 }
                 
-                if ( count($zip)+count($pdf) ) $ihtml .= '<table class="bookInfo">
+                if ( count($zip)+count($pdf)+count($epub) ) $ihtml .= '<table class="bookInfo">
 <thead>
 <tr>
 <th class="chapterCol">'._md( 'By Chapter' ).'</th>
@@ -162,7 +164,7 @@ function listMedia($t){
                     $ihtml .= '</tr>'."\n" ;
                 }
                 $ihtml .= '</tbody></table>'."\n" ;
-                if ( count($zip)+count($pdf) ) {
+                if ( count($zip)+count($pdf)+count($epub) ) {
                     $afolder = explode( '/', $folder ) ;
                     for ( $a=0; $a<count($afolder); $a++ ) $afolder[$a] = rawurlencode( $afolder[$a] ) ;
                     $cfolder = implode( '/', $afolder ) ;
@@ -177,6 +179,10 @@ function listMedia($t){
                     $cpf=0; if ( count($pdf) ) foreach($pdf as $pdff){
                         $cpf++;
                         $ihtml.='<li class="dPdf"><a href="'.$mrelative.'/'.($cfolder).'/'.rawurlencode( $pdff ).'">'._md( 'Download PDF' ).(count($pdf)>1?' '.$cpf:'').' <small>'._md( '(Text file)' ).'</small></a></li>' ;
+                    }
+                    $cef=0; if ( count($epub) ) foreach($epub as $epubf){
+                        $cef++;
+                        $ihtml.='<li class="dEpub"><a href="'.$mrelative.'/'.($cfolder).'/'.rawurlencode( $epubf ).'">'._md( 'Download EPUB' ).(count($epub)>1?' '.$cef:'').' <small>'._md( '(Text file)' ).'</small></a></li>' ;
                     }
                     $ihtml.='</ul>
 
