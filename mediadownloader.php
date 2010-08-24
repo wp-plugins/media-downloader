@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.4
+Version: 0.1.5
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -203,7 +203,7 @@ function mediadownloader($t){
     if ( TRUE == get_option( 'removeextension' ) ) {
         $t=preg_replace(
             '/href\=[\\\'\"](.*)\.mp3[\\\'\"]/im',
-            "href=\"".WP_PLUGIN_URL."/mediadownloader/getfile.php?f=$1\"",
+            "href=\"".WP_PLUGIN_URL."/media-downloader/getfile.php?f=$1\"",
             $t
         );
     }
@@ -273,7 +273,7 @@ function mediadownloaderAtom(){
     $t='';
     $matches=mediadownloaderEnclosures();
     foreach($matches as $m){
-        //$t.='<link rel="enclosure" title="'.basename($m).'" length="'.mediadownloaderMP3Size($m).'" href="'.WP_PLUGIN_URL.'/mediadownloader/getfile.php?f='.urlencode($m).'" type="audio/mpeg" />';
+        //$t.='<link rel="enclosure" title="'.basename($m).'" length="'.mediadownloaderMP3Size($m).'" href="'.WP_PLUGIN_URL.'/media-downloader/getfile.php?f='.urlencode($m).'" type="audio/mpeg" />';
         $t.='<link rel="enclosure" title="'.basename($m).'" length="'.mediadownloaderMP3Size($m).'" href="'.($m.'.mp3').'" type="audio/mpeg" />';
 	}
     echo $t;
@@ -283,7 +283,7 @@ function mediadownloaderRss(){
     $t='';
     $matches=mediadownloaderEnclosures();
     foreach($matches as $m){
-        //$t.='<enclosure title="'.basename($m).'" url="'.WP_PLUGIN_URL.'/mediadownloader/getfile.php?f='.urlencode($m).'" length="'.mediadownloaderMP3Size($m).'" type="audio/mpeg" />';
+        //$t.='<enclosure title="'.basename($m).'" url="'.WP_PLUGIN_URL.'/media-downloader/getfile.php?f='.urlencode($m).'" length="'.mediadownloaderMP3Size($m).'" type="audio/mpeg" />';
         $t.='<enclosure title="'.basename($m).'" url="'.($m.'.mp3').'" length="'.mediadownloaderMP3Size($m).'" type="audio/mpeg" />';
 	}
     echo $t;
@@ -300,11 +300,11 @@ add_action('rss2_item', 'mediadownloaderRss');
 
 $customcss = trim( get_option( 'customcss' ) );
 if ( '' != $customcss ) {
-    wp_register_style('mediadownloaderCss', WP_PLUGIN_URL."/mediadownloader/css/mediadownloader-css.php");
+    wp_register_style('mediadownloaderCss', WP_PLUGIN_URL."/media-downloader/css/mediadownloader-css.php");
     wp_enqueue_style('mediadownloaderCss');
 }
 wp_enqueue_script('jQuery', 'http://jqueryjs.googlecode.com/files/jquery-1.3.2.min.js');
-wp_enqueue_script('mediadownloaderJs', WP_PLUGIN_URL."/mediadownloader/js/mediadownloader.js" );
+wp_enqueue_script('mediadownloaderJs', WP_PLUGIN_URL."/media-downloader/js/mediadownloader.js" );
 
 function tiraDoParagrafo($tag, $t){
     return str_replace('<p>'.$tag.'</p>', $tag, $t);
