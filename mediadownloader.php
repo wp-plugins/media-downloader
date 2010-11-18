@@ -191,6 +191,33 @@ function listMedia($t){
 </tbody>
 </table>' ;
                 }
+            }elseif( count($zip)+count($pdf)+count($epub) ){
+                $afolder = explode( '/', $folder ) ;
+                for ( $a=0; $a<count($afolder); $a++ ) $afolder[$a] = rawurlencode( $afolder[$a] ) ;
+                $cfolder = implode( '/', $afolder ) ;
+                $allf = array_merge($zip, $pdf, $epub);
+                asort(&$allf);
+                $ihtml .= '<table class="mediaTable bookInfo">' . "\n";
+                $ihtml .= '<thead>
+<tr>
+<th>'._md('Download').'</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="wholeBookCol">
+<ul>';
+                foreach($allf as $thisf){
+                    $arrf = explode('.', $thisf);
+                    $fext = array_pop(&$arrf);
+                    $fname = implode('.', $arrf);
+                    $ihtml .= '<li class="d' . strtoupper(substr($fext,0,1)) . substr($fext,1) . '"><a href="'.$mrelative.'/'.($cfolder).'/'.rawurlencode( $thisf ).'">'.$fname.'</a></li>' ;
+                }
+                $ihtml.='</ul>
+</td>
+</tr>
+</tbody>
+</table>' ;
             }
             $t = str_replace( '[media:'.$folder.']', $ihtml, $t ) ;
         }
