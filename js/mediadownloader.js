@@ -25,9 +25,7 @@ function initMediaDownloader(){
 $(document).ready(initMediaDownloader);
 
 function playerStr(url, title){
-    return '<tr class="mediaPlayer"><td colspan="3" align="center"><object type="application/x-shockwave-flash" width="100%" height="20" data="'+pluginURL+'js/xspf_player_slim.swf?song_url='+url+'&amp;song_title='+title+'&amp;autoplay=true"><param name="movie" value="'+pluginURL+'js/xspf_player_slim.swf?song_url='+url+'&amp;song_title='+title+'&amp;autoplay=true" /></object></td></tr>';
-    //return '<tr class="mediaPlayer"><td colspan="3" align="center"><object width="300" height="42"><param name="src" value="'+url+'"><param name="autoplay" value="true"><param name="controller" value="true"><param name="bgcolor" value="#FF9900"><embed src="'+url+'" type="application/x-mplayer2" autostart="true" loop="false" width="300" height="42" controller="true" bgcolor="#FF9900"></embed><br /><small><a href="'+url+'">MP3 plugin not found. Download MP3 file.</a></small></object></td></tr>';
-    //return '<tr class="mediaPlayer"><td colspan="3" align="center"><embed src="http://www.odeo.com/flash/audio_player_standard_gray.swf" quality="high" width="300" height="42" allowScriptAccess="always" wmode="transparent" type="application/x-shockwave-flash" flashvars="valid_sample_rate=true&amp;external_url='+url+'" pluginspage="http://www.macromedia.com/go/getflashplayer"></embed></td></tr>';
+    return '<tr class="mediaPlayer"><td colspan="3" align="center">' + '<object type="application/x-shockwave-flash" name="audioplayer_1" style="outline: none" data="'+pluginURL+'js/audio-player.swf?ver=2.0.4.1" width="100%" height="25" id="audioplayer_1">' + '<param name="bgcolor" value="#FFFFFF">' + '<param name="menu" value="false">' + '<param name="flashvars" value="animation=yes&amp;encode=no&amp;initialvolume=60&amp;remaining=no&amp;noinfo=no&amp;buffer=5&amp;' + 'checkpolicy=no&amp;rtl=no&amp;bg=E7E7E7&amp;text=333333&amp;leftbg=CCCCCC&amp;lefticon=333333&amp;volslider=666666&amp;' + 'voltrack=FFFFFF&amp;rightbg=B4B4B4&amp;rightbghover=999999&amp;righticon=333333&amp;righticonhover=FFFFFF&amp;' + 'track=FFFFFF&amp;loader=A2CC39&amp;border=CCCCCC&amp;tracker=DDDDDD&amp;skip=666666&amp;autostart=yes&amp;soundFile=' + url + '&amp;playerID=audioplayer_1"></object></td></tr>';
 }
     
 var playingURL='';
@@ -40,6 +38,6 @@ function mediaplayerPlay(url, title){
 }
 
 function mediaplayerStop(){
-    $('tr.mediaPlayer').remove();
+    $('tr.mediaPlayer').find('object').remove().end().remove();
     playingURL='';
 }
