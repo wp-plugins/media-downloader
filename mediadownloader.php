@@ -140,7 +140,7 @@ function listMedia($t){
                             $tagvalue = str_replace( $prefix, '', $tagvalue );
                             $tagvalue = replaceUnderscores( $tagvalue ) ;
                             if ( $mdoencode ) $tagvalue = utf8_encode( $tagvalue ) ;
-                            $ititle .= '<dt class="mdTag'.$mshowtag.'">'.ucwords( $mshowtag ).':</dt>' ;
+                            $ititle .= '<dt class="mdTag'.$mshowtag.'">'.ucwords( _md( $mshowtag ) ).':</dt>' ;
                             $ititle .= '<dd class="mdTag'.$mshowtag.'">'.$tagvalue.'</dd>' ;
                         }
                     }
