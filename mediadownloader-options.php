@@ -73,6 +73,11 @@ foreach( $mdsettings as $mdsetting => $mdsanitizefunction ) $mdoptions[$mdsettin
 </p>
 
 <p>
+<input type="checkbox" name="reversefiles" id="md_reversefiles" value="1" <?php if ( $mdoptions['reversefiles'] ) echo ' checked="checked" ' ;?> />
+<label for="md_reversefiles"><?php _mde( 'Reverse order' ) ;?></label>
+</p>
+
+<p>
 <label for="md_tagencoding"><?php _mde( 'MP3 tag encoding:' ) ;?></label>
 <select name="tagencoding" id="md_tagencoding">
 <?php foreach ( $mdencodings as $mdencoding) { ?>
