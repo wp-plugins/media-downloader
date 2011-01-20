@@ -124,7 +124,7 @@ function listMedia($t){
                     $ftags['directory'] = array( $hlevel ) ;
                     $ftags['file'] = array( $ifile ) ;
                     foreach ( $mshowtags as $mshowtag )
-                        $tagvalues[$mshowtag][$ifile] = Markdown( $ftags[$mshowtag][0] ) ;
+                        $tagvalues[$mshowtag][$ifile] = ( 'comments' == $mshowtag ) ? Markdown( $ftags[$mshowtag][0] ) : $ftags[$mshowtag][0] ;
                 }
                 $tagprefixes = array() ;
                 foreach ( $mshowtags as $mshowtag )
