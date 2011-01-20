@@ -119,7 +119,7 @@ function listMedia($t){
                 foreach ( $ifiles as $ifile ) {
                     $finfo = mediadownloaderMP3Info( $mrelative.'/'.$folder.'/'.$ifile ) ;
                     $ftags = $finfo['tags']['id3v2'] ;
-                    $ftags['bitrate'] = array( byte_convert( $finfo['audio']['bitrate'] ) ) ;
+                    $ftags['bitrate'] = array( floatval( $finfo['audio']['bitrate'] ) / 1000 . 'kbps' ) ;
                     $ftags['filesize'] = array( byte_convert( $finfo['filesize'] ) ) ;
                     $ftags['directory'] = array( $hlevel ) ;
                     $ftags['file'] = array( $ifile ) ;
