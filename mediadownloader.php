@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.7
+Version: 0.1.8
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -18,7 +18,7 @@ $mdsettings = array(
     'tagencoding'=>'sanitizeTagEncoding',
     'cachedir'=>'sanitizeWDir'
 );
-$mdtags = array( 'title', 'artist', 'album', 'year', 'genre', 'comment', 'directory', 'file' );
+$mdtags = array( 'title', 'artist', 'album', 'year', 'genre', 'comments', 'track_number', 'bitrate', 'filesize', 'directory', 'file' );
 
 // Pre-2.6 compatibility ( From: http://codex.wordpress.org/Determining_Plugin_and_Content_Directories )
 if ( ! defined( 'WP_CONTENT_URL' ) )
@@ -29,6 +29,25 @@ if ( ! defined( 'WP_PLUGIN_URL' ) )
       define( 'WP_PLUGIN_URL', WP_CONTENT_URL. '/plugins' );
 if ( ! defined( 'WP_PLUGIN_DIR' ) )
       define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
+
+// MarkDown, used for text formatting
+if( !function_exists( 'Markdown' ) ) include_once( "markdown/markdown.php" );
+
+if( !function_exists( 'byte_convert' ) ){
+    function byte_convert($bytes){
+        $symbol = array('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
+
+        $exp = 0;
+        $converted_value = 0;
+        if( $bytes > 0 )
+        {
+          $exp = floor( log($bytes)/log(1024) );
+          $converted_value = ( $bytes/pow(1024,floor($exp)) );
+        }
+
+        return sprintf( '%.2f '.$symbol[$exp], $converted_value );
+    }
+}
 
 function calculatePrefix($arr){
     $prefix='';
@@ -100,10 +119,12 @@ function listMedia($t){
                 foreach ( $ifiles as $ifile ) {
                     $finfo = mediadownloaderMP3Info( $mrelative.'/'.$folder.'/'.$ifile ) ;
                     $ftags = $finfo['tags']['id3v2'] ;
+                    $ftags['bitrate'] = array( byte_convert( $finfo['audio']['bitrate'] ) ) ;
+                    $ftags['filesize'] = array( byte_convert( $finfo['filesize'] ) ) ;
                     $ftags['directory'] = array( $hlevel ) ;
                     $ftags['file'] = array( $ifile ) ;
                     foreach ( $mshowtags as $mshowtag )
-                        $tagvalues[$mshowtag][$ifile] = $ftags[$mshowtag][0] ;
+                        $tagvalues[$mshowtag][$ifile] = Markdown( $ftags[$mshowtag][0] ) ;
                 }
                 $tagprefixes = array() ;
                 foreach ( $mshowtags as $mshowtag )
