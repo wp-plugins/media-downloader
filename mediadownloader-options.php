@@ -73,6 +73,19 @@ foreach( $mdsettings as $mdsetting => $mdsanitizefunction ) $mdoptions[$mdsettin
 </p>
 
 <p>
+<label for="md_embedwhere"><?php _mde( 'Embed player\'s button position:' ) ;?></label>
+<select name="embedwhere" id="md_embedwhere">
+    <option value="before" <?php if ( 'before' == $mdoptions['embedwhere'] ) echo 'selected="selected"' ;?> ><?php _mde( 'Before download link' ) ;?></option>
+    <option value="after" <?php if ( 'after' == $mdoptions['embedwhere'] ) echo 'selected="selected"' ;?> ><?php _mde( 'After download link' ) ;?></option>
+</select>
+</p>
+
+<p>
+<input type="checkbox" name="sortfiles" id="md_sortfiles" value="1" <?php if ( $mdoptions['sortfiles'] ) echo ' checked="checked" ' ;?> />
+<label for="md_sortfiles"><?php _mde( 'Sort files (by title)' ) ;?></label>
+</p>
+
+<p>
 <input type="checkbox" name="reversefiles" id="md_reversefiles" value="1" <?php if ( $mdoptions['reversefiles'] ) echo ' checked="checked" ' ;?> />
 <label for="md_reversefiles"><?php _mde( 'Reverse order' ) ;?></label>
 </p>
