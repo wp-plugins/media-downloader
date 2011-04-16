@@ -16,7 +16,6 @@ function initMediaDownloader(){
           pluginURL='/wp-content/plugins/media-downloader/';
           var link=$(this).attr('href');
         }
-console.log(link)
         var title=$(this).attr('title').replace('Download:','Play:');
         var text=$(this).html().replace('Download:','Play:');
         var tdcont='<td class="mediaPlay"><a href="'+link+'" title="'+title+'">'+text+'</a></td>';
