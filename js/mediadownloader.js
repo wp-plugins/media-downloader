@@ -52,7 +52,7 @@ var playingURL='';
 function mediaplayerPlay(url, title){
     if(url!=playingURL){
         mediaplayerStop();
-        jQuery('a[href='+url+']').parent().parent().after(playerStr(url, title));
+        jQuery('a[href="'+url+'"]').parent().parent().after(playerStr(url, title));
         playingURL=url;
     }
 }
