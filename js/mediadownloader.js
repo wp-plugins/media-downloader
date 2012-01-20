@@ -42,15 +42,19 @@ function initMediaDownloader(){
     });
 }
 
-$.noConflict();
+//$.noConflict();
 jQuery(document).ready(function($) {
     initMediaDownloader();
 });
 
 function playerStr(url, title){
     var strColors = '';
-    for (i in mdEmbedColors) strColors += i + '=' + mdEmbedColors[i] + '&amp;';
-    return '<tr class="mediaPlayer"><td colspan="3" align="center">' + '<object type="application/x-shockwave-flash" name="audioplayer_1" style="outline: none" data="'+pluginURL+'js/audio-player.swf?ver=2.0.4.1" width="100%" height="25" id="audioplayer_1">' + '<param name="bgcolor" value="#' + mdEmbedColors.bg + '">' + '<param name="movie" value="'+pluginURL+'js/audio-player.swf?ver=2.0.4.1">' + '<param name="menu" value="false">' + '<param name="flashvars" value="animation=yes&amp;encode=no&amp;initialvolume=80&amp;remaining=no&amp;noinfo=no&amp;buffer=5&amp;' + 'checkpolicy=no&amp;rtl=no&amp;' + strColors + 'autostart=yes&amp;soundFile=' + escape(url) + '&amp;playerID=audioplayer_1"></object></td></tr>';
+    var mdBgColor = 'FFF';
+    if ( typeof(mdEmbedColors) != 'undefined' ) {
+        for (i in mdEmbedColors) strColors += i + '=' + mdEmbedColors[i] + '&amp;';
+        mdBgColor = mdEmbedColors.bg;
+    }
+    return '<tr class="mediaPlayer"><td colspan="3" align="center">' + '<object type="application/x-shockwave-flash" name="audioplayer_1" style="outline: none" data="'+pluginURL+'js/audio-player.swf?ver=2.0.4.1" width="100%" height="25" id="audioplayer_1">' + '<param name="bgcolor" value="#' + mdBgColor + '">' + '<param name="movie" value="'+pluginURL+'js/audio-player.swf?ver=2.0.4.1">' + '<param name="menu" value="false">' + '<param name="flashvars" value="animation=yes&amp;encode=no&amp;initialvolume=80&amp;remaining=no&amp;noinfo=no&amp;buffer=5&amp;' + 'checkpolicy=no&amp;rtl=no&amp;' + strColors + 'autostart=yes&amp;soundFile=' + escape(url) + '&amp;playerID=audioplayer_1"></object></td></tr>';
 }
     
 var playingURL='';

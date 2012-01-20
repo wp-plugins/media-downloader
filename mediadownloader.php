@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.95
+Version: 0.1.96
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
