@@ -8,7 +8,8 @@ foreach( $mdsettings as $mdsetting => $mdsanitizefunction ) $mdoptions[$mdsettin
 
 
 <div class="wrap">
-<h2><?php _mde( 'Media Downloader' ) ;?></h2>
+
+<?php include('mediadownloader-options-header.php'); ?>
 
 <form method="post" action="options.php">
 <?php settings_fields( 'md_options' ); ?>

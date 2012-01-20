@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.94
+Version: 0.1.95
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -19,9 +19,27 @@ $mdsettings = array(
     'embedplayer'=>'sanitizeBoolean',
     'embedwhere'=>'sanitizeBeforeAfter',
     'tagencoding'=>'sanitizeTagEncoding',
-    'cachedir'=>'sanitizeWDir'
+    'cachedir'=>'sanitizeWDir',
 );
-$mdtags = array( 'title', 'artist', 'album', 'year', 'genre', 'comments', 'track_number', 'bitrate', 'filesize', 'directory', 'file' );
+$mdtags = array( 'title', 'artist', 'album', 'year', 'genre', 'comments', 'track_number', 'bitrate', 'filesize', 'filedate', 'directory', 'file' );
+
+$mdembedplayerdefaultcolors = array(
+    'bg' => 'E7E7E7',
+    'text' => '333333',
+    'leftbg' => 'CCCCCC',
+    'lefticon' => '333333',
+    'volslider' => '666666',
+    'voltrack' => 'FFFFFF',
+    'rightbg' => 'B4B4B4',
+    'rightbghover' => '999999',
+    'righticon' => '333333',
+    'righticonhover' => 'FFFFFF',
+    'track' => 'FFFFFF',
+    'loader' => 'A2CC39',
+    'border' => 'CCCCCC',
+    'tracker' => 'DDDDDD',
+    'skip' => '666666',
+);
 
 // Pre-2.6 compatibility ( From: http://codex.wordpress.org/Determining_Plugin_and_Content_Directories )
 if ( ! defined( 'WP_CONTENT_URL' ) )
@@ -129,6 +147,7 @@ function listMedia($t){
                     $ftags = $finfo['tags']['id3v2'] ;
                     $ftags['bitrate'] = array( floatval( $finfo['audio']['bitrate'] ) / 1000 . 'kbps' ) ;
                     $ftags['filesize'] = array( byte_convert( $finfo['filesize'] ) ) ;
+                    $ftags['filedate'] = array( date_i18n( get_option('date_format'), filemtime( $finfo['filepath'] . '/' . $finfo['filename'] ) ) ) ;
                     $ftags['directory'] = array( $hlevel ) ;
                     $ftags['file'] = array( $ifile ) ;
                     foreach ( $mshowtags as $mshowtag )
@@ -179,8 +198,8 @@ function listMedia($t){
                 $ihtml .= '<table class="' . implode( ' ', $tableClass ) . '">' . "\n";
                 $ihtml .= '<thead>
 <tr>
-<th>&nbsp;</th>
-<th>'._md('Download').'</th>
+<th class="mediaTitle">&nbsp;</th>
+<th class="mediaDownload">'._md('Download').'</th>
 </tr>
 </thead>
 <tbody>';
@@ -195,7 +214,7 @@ function listMedia($t){
                     // 20100107 - I took it away: strtoupper( $hlevel )
                     $ihtml .= '<tr>'."\n" ;
                     $ihtml .= '<td class="mediaTitle">'.$ititle.'</td>'."\n" ;
-                    $ihtml .= '<td class="mediaDownload"><a href="'.$mrelative.'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.mp3" title="' . htmlentities( $showifile ) . '">'._md( 'Download' ).( $ifile?': '.$showifile:'' ).'</a></td>'."\n" ;
+                    $ihtml .= '<td class="mediaDownload"><a href="'.$mrelative.'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.mp3" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '">'._md( 'Download' ).( $ifile?': '.$showifile:'' ).'</a></td>'."\n" ;
                     $ihtml .= '</tr>'."\n" ;
                 }
                 $ihtml .= '</tbody></table>'."\n" ;
@@ -364,14 +383,29 @@ add_action('atom_entry', 'mediadownloaderAtom');
 //add_action('rss_item', 'mediadownloaderRss');
 add_action('rss2_item', 'mediadownloaderRss');
 
-$customcss = trim( get_option( 'customcss' ) );
-if ( '' != $customcss ) {
-    wp_register_style('mediadownloaderCss', WP_PLUGIN_URL."/media-downloader/css/mediadownloader-css.php");
-    wp_enqueue_style('mediadownloaderCss');
+function mediaDownloaderEnqueueScripts() {
+    $customcss = trim( get_option( 'customcss' ) );
+    if ( '' != $customcss ) {
+        wp_register_style('mediadownloaderCss', WP_PLUGIN_URL."/media-downloader/css/mediadownloader-css.php");
+        wp_enqueue_style('mediadownloaderCss');
+    }
+    wp_enqueue_script('jquery');
+    wp_enqueue_script('mediadownloaderJs', WP_PLUGIN_URL."/media-downloader/js/mediadownloader.js" );
+    
+    add_action( 'get_header', 'mediaDownloaderLocalizeScript' );
 }
-wp_enqueue_script('jQuery', 'http://jqueryjs.googlecode.com/files/jquery-1.3.2.min.js');
-wp_enqueue_script('mediadownloaderJs', WP_PLUGIN_URL."/media-downloader/js/mediadownloader.js" );
-
+add_action('init', 'mediaDownloaderEnqueueScripts');
+    
+function mediaDownloaderLocalizeScript() {
+    global $mdembedplayerdefaultcolors;
+    $mdembedcolors = array();
+    foreach( $mdembedplayerdefaultcolors as $mdcolor => $mddefault ) {
+        $mdembedcolors[$mdcolor] = get_option( $mdcolor . '_embed_color' );
+        if ( !trim($mdembedcolors[$mdcolor]) ) $mdembedcolors[$mdcolor] = $mddefault;
+    }
+    wp_localize_script( 'mediadownloaderJs', 'mdEmbedColors', $mdembedcolors );
+}
+    
 function tiraDoParagrafo($tag, $t){
     return str_replace('<p>'.$tag.'</p>', $tag, $t);
 }
@@ -435,11 +469,15 @@ function listarIdiomas($t){
 add_action('admin_menu', 'mediadownloader_menu');
 
 function mediadownloader_menu() {
-    add_options_page('Media Downloader Options', 'Media Downloader', 'administrator', 'mediadownloader-options', 'mediadownloader_options');
+    add_options_page('Media Downloader Options', 'Media Downloader', 'manage_options', 'mediadownloader-options', 'mediadownloader_options');
 }
 
 function mediadownloader_options() {
-    require_once("mediadownloader-options.php");
+    if ( isset( $_GET['more-options'] ) ) {
+        require_once("mediadownloader-more-options.php");
+    } else {
+        require_once("mediadownloader-options.php");
+    }
 }
 
 add_action('admin_init', 'mediadownloader_settings');
@@ -447,6 +485,8 @@ add_action('admin_init', 'mediadownloader_settings');
 function mediadownloader_settings() {
     global $mdsettings;
     foreach( $mdsettings as $mdsetting => $mdsanitizefunction ) register_setting( 'md_options', $mdsetting, $mdsanitizefunction );
+    global $mdembedplayerdefaultcolors;
+    foreach( $mdembedplayerdefaultcolors as $mdcolor => $mddefault ) register_setting( 'md_more_options', $mdcolor . '_embed_color', 'sanitizeHEXColor' );
 }
 
 function sanitizeRDir( $d ){
@@ -467,6 +507,9 @@ function sanitizeTagEncoding( $t ){
 }
 function sanitizeBoolean( $b ){
     return $b == 1 ;
+}
+function sanitizeHEXColor( $c ){
+    return preg_match( '/^\s*#?[0-9A-F]{3,6}\s*$/i', $c, $m ) ? trim( str_replace( '#', '', $c ) ) : '';
 }
 
 function _md( $t ) {
