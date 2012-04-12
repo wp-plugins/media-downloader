@@ -1,21 +1,14 @@
 <?php
+// Load WordPress "framework"
 require_once('../../../wp-load.php');
 
-/*
-getfile.php?f=/files/ATJones/ATJones%20-%20The%20Third%20Angels%20Message%2005
-*/
-
-//$file=str_replace('\\\'','\'',urldecode($_GET['f']));
+// Calculate file path
 $file=urldecode($_GET['f']);
 $relURL=str_replace('http://'.$_SERVER['SERVER_NAME'], '', get_option( 'siteurl' ));
 $filepath = ABSPATH . str_replace($relURL, '', $file) . '.mp3';
 if(substr($file,0,1)=='/') $file=substr($file,1);
-if(file_exists($filepath)){
-	dl_file_resumable($filepath);
-}else{
-    die("<b>404 File not found! <!-- $filepath --></b>");
-}
-
+// Serve file
+dl_file_resumable($filepath);
 
 // Resumable Download ( From: http://www.php.net/fread )
 function dl_file_resumable($file, $is_resume=TRUE)
