@@ -20,6 +20,16 @@ function initMediaDownloader(){
         }
         var title=jQuery(this).attr('title').replace('Download:','Play:');
         var text=jQuery(this).html().replace('Download:','Play:');
+        var arrrel = (jQuery(this).attr('rel')+'').split(';');
+        for ( var r=0; r<arrrel.length; r++ ) {
+            var arrparm = arrrel[r].split(':');
+            if ( arrparm.length == 2 ) {
+                if ( arrparm[0] == 'mediaDownloaderPlayText' ) {
+                    text = unescape( arrparm[1].replace( /\+/g, ' ' ) );
+                    break;
+                }
+            }
+        }
         var tdcont='<td class="mediaPlay"><a href="'+link+'" title="'+title+'">'+text+'</a></td>';
         if(jQuery(this).parents('table.mediaTable').hasClass('embedposafter')){
             jQuery(this).parent().after(tdcont);

@@ -3,28 +3,48 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.96
+Version: 0.1.97
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
 
 // Possible encodings (dealing with only two so far)
 $mdencodings = array( 'UTF-8', 'ISO-8859-1' );
-// Default settings and respective sanitize functions
+// Possible fields by which file list should be sorted,
+// and respective sorting functions
+$mdsortingfields = array(
+    'none' => null,
+    'title' => 'orderByTitle',
+    'file date' => 'orderByFileDate',
+    'track number' => 'orderByTrackNumber',
+    'album' => 'orderByAlbum',
+    'artist' => 'orderByArtist',
+    'file size' => 'orderByFileSize',
+);
+// Settings and respective sanitize functions
 $mdsettings = array(
-    'mp3folder'=>'sanitizeRDir',
-    'sortfiles'=>'sanitizeBoolean',
-    'reversefiles'=>'sanitizeBoolean',
-    'showtags'=>null,
-    'customcss'=>null,
-    'removeextension'=>'sanitizeBoolean',
-    'embedplayer'=>'sanitizeBoolean',
-    'embedwhere'=>'sanitizeBeforeAfter',
-    'tagencoding'=>'sanitizeTagEncoding',
-    'cachedir'=>'sanitizeWDir',
+    'mp3folder' => 'sanitizeRDir',
+    'sortfiles' => 'sanitizeSortingField',
+    'reversefiles' => 'sanitizeBoolean',
+    'showtags' => null,
+    'customcss' => null,
+    'removeextension' => 'sanitizeBoolean',
+    'embedplayer' => 'sanitizeBoolean',
+    'embedwhere' => 'sanitizeBeforeAfter',
+    'tagencoding' => 'sanitizeTagEncoding',
+    'filenameencoding' => 'sanitizeTagEncoding',
+    'cachedir' => 'sanitizeWDir',
+    'scriptinfooter' => 'sanitizeBoolean'
 );
 // Possible ID3 tags
 $mdtags = array( 'title', 'artist', 'album', 'year', 'genre', 'comments', 'track_number', 'bitrate', 'filesize', 'filedate', 'directory', 'file' );
+
+// Markup settings and respective sanitize functions
+$mdmarkupsettings = array(
+    'downloadtext' => null,
+    'playtext' => null,
+    'replaceheaders' => null,
+);
 
 // Default player colors
 $mdembedplayerdefaultcolors = array(
@@ -101,7 +121,8 @@ function replaceUnderscores( $t ) {
 
 // Searches post content for our smarttag and do all the magic
 function listMedia( $t ){
-    global $mdtags, $tagvalues;
+    global $mdtags, $tagvalues, $mdsortingfields;
+    $errors = array();
 
     // MP3 folder
     $mdir = '/' . get_option( 'mp3folder' );
@@ -116,9 +137,14 @@ function listMedia( $t ){
 
     // Should we re-encode the tags?
     $mdoencode = ( get_option( 'tagencoding' ) != 'UTF-8' ) ;
+
+    // Should we re-encode the file names?
+    $mdofnencode = ( get_option( 'filenameencoding' ) != 'UTF-8' ) ;
     
-    // Should we sort the files by name?
-    $msort = ( get_option( 'sortfiles' ) == true ) ;
+    // How should we sort the files?
+    $msort = get_option( 'sortfiles' );
+    // "Backward compatibilaziness": it used to be a boolean value
+    if ( isset( $msort ) && !array_key_exists( $msort, $mdsortingfields ) ) $msort = 'title';
 
     // Should the sorting be reversed?
     $mreverse = ( get_option( 'reversefiles' ) == true ) ;
@@ -127,6 +153,16 @@ function listMedia( $t ){
     $mshowtags = array_intersect( explode( ',', get_option( 'showtags' ) ), $mdtags ) ;
     // If none, shows the first tag (title)
     if ( !count($mshowtags) ) $mshowtags = array( $mdtags[0] ) ;
+    
+    // Markup options
+    $downloadtext = get_option( 'downloadtext' );
+    $playtext = get_option( 'playtext' );
+    $replaceheaders = array();
+    $arrreplaceheaders = explode( "\n", trim( get_option( 'replaceheaders' ) ) );
+    foreach ( $arrreplaceheaders as $line ) {
+        $arrline = explode( ':', trim( $line ) );
+        if ( count( $arrline ) >= 2 ) $replaceheaders[ trim( array_shift( $arrline ) ) ] = implode( ':', $arrline );
+    }
 
     // Searching for our smarttags
     $t = preg_replace( '/<p>\[media:([^\]]*)\]<\/p>/i', '[media:$1]', $t );
@@ -151,12 +187,16 @@ function listMedia( $t ){
             $ipath = $mpath . '/' . $folder;
             // Populating arrays with respective files
             if ( is_dir( $ipath ) ) {
-                $idir = dir( $ipath );
-                while (false !== ($ifile = $idir->read())) {
-                    if ( substr( $ifile, -4 ) == '.mp3' ) $ifiles[] = substr( $ifile, 0, -4 );
-                    if ( substr( $ifile, -4 ) == '.zip' ) $zip[] = $ifile;
-                    if ( substr( $ifile, -4 ) == '.pdf' ) $pdf[] = $ifile;
-                    if ( substr( $ifile, -5 ) == '.epub' ) $epub[] = $ifile;
+                if ( is_readable( $ipath ) ) {
+                    $idir = dir( $ipath );
+                    while (false !== ($ifile = $idir->read())) {
+                        if ( substr( $ifile, -4 ) == '.mp3' ) $ifiles[] = substr( $ifile, 0, -4 );
+                        if ( substr( $ifile, -4 ) == '.zip' ) $zip[] = $ifile;
+                        if ( substr( $ifile, -4 ) == '.pdf' ) $pdf[] = $ifile;
+                        if ( substr( $ifile, -5 ) == '.epub' ) $epub[] = $ifile;
+                    }
+                } else {
+                    $errors[] = _md( 'Could not read: ' . $ipath );
                 }
             }
             // Any MP3 file?
@@ -168,6 +208,7 @@ function listMedia( $t ){
                 // Initializing array of tag values
                 $tagvalues = array() ;
                 foreach ( $mshowtags as $mshowtag ) $tagvalues[$mshowtag] = array() ;
+                $alltags = array();
                 foreach ( $ifiles as $ifile ) {
                     // Getting ID3 info
                     $finfo = mediadownloaderMP3Info( $mrelative.'/'.$folder.'/'.$ifile ) ;
@@ -178,6 +219,7 @@ function listMedia( $t ){
                     $ftags['filedate'] = array( date_i18n( get_option('date_format'), filemtime( $finfo['filepath'] . '/' . $finfo['filename'] ) ) ) ;
                     $ftags['directory'] = array( $hlevel ) ;
                     $ftags['file'] = array( $ifile ) ;
+                    $alltags[$ifile] = $ftags;
                     // Populating array of tag values with selected tags
                     foreach ( $mshowtags as $mshowtag )
                         $tagvalues[$mshowtag][$ifile] = ( 'comments' == $mshowtag ) ? Markdown( $ftags[$mshowtag][0] ) : $ftags[$mshowtag][0] ;
@@ -188,9 +230,9 @@ function listMedia( $t ){
                     if ( 'file' == $mshowtag || 'title' == $mshowtag )
                         $tagprefixes[$mshowtag] = calculatePrefix( $tagvalues[$mshowtag] );
                 // If set, sorting array
-                if ( $msort ) {
+                if ( $msort != 'none' ) {
                     sort( &$ifiles );
-                    uasort( &$ifiles, 'ordenaPorTags' );
+                    uasort( &$ifiles, $mdsortingfields[$msort] );
                 }
                 // If set, reversing array
                 if ( $mreverse ) $ifiles = array_reverse( $ifiles );
@@ -209,9 +251,15 @@ function listMedia( $t ){
                             // Cleaning...
                             $tagvalue = replaceUnderscores( $tagvalue ) ;
                             // Encoding...
-                            if ( $mdoencode ) $tagvalue = utf8_encode( $tagvalue ) ;
+                            if ( 'file' == $mshowtag || 'directory' == $mshowtag ) {
+                                if ( $mdofnencode ) $tagvalue = utf8_encode( $tagvalue ) ;
+                            } elseif ( $mdoencode ) {
+                                $tagvalue = utf8_encode( $tagvalue ) ;
+                            }
                             // Item markup
-                            $ititle .= '<dt class="mdTag'.$mshowtag.'">'.ucwords( _md( $mshowtag ) ).':</dt>' ;
+                            $columnheader = ucwords( _md( $mshowtag ) );
+                            if ( array_key_exists( $mshowtag, $replaceheaders ) ) $columnheader = $replaceheaders[$mshowtag];
+                            $ititle .= '<dt class="mdTag'.$mshowtag.'">'.$columnheader.':</dt>' ;
                             $ititle .= '<dd class="mdTag'.$mshowtag.'">'.$tagvalue.'</dd>' ;
                         }
                     }
@@ -261,6 +309,22 @@ function listMedia( $t ){
                         $showifile = str_replace( $tagprefixes['file'], '', $showifile ) ;
                     // Cleaning
                     $showifile = replaceUnderscores( $showifile );
+                    $alltags[$ifile]['file'][0] = $showifile;
+                    // Download text
+                    $idownloadtext = $downloadtext ? $downloadtext : 'Download: [file]';
+                    $iplaytext = $playtext ? $playtext : 'Play: [file]';
+                    foreach ( $mdtags as $mdtag ) {
+                        if ( !array_key_exists( $mdtag, $alltags[$ifile] ) ) $alltags[$ifile][$mdtag] = array( '' );
+                        $tagvalue = $alltags[$ifile][$mdtag][0];
+                        if ( 'file' == $mdtag || 'directory' == $mdtag ) {
+                            if ( $mdofnencode ) $tagvalue = utf8_encode( $tagvalue ) ;
+                        } elseif ( $mdoencode ) {
+                            $tagvalue = utf8_encode( $tagvalue ) ;
+                        }
+                        $idownloadtext = str_replace( '[' . $mdtag . ']', $tagvalue, $idownloadtext );
+                        $iplaytext = str_replace( '[' . $mdtag . ']', $tagvalue, $iplaytext );
+                    }
+                    
                     // Getting stored markup
                     $ititle = $ititles[$ifile] ;
                     $ititle = str_replace( $prefix, '', $ititle ) ;
@@ -269,7 +333,7 @@ function listMedia( $t ){
                     // 20100107 - I took it away: strtoupper( $hlevel )
                     $ihtml .= '<tr>'."\n" ;
                     $ihtml .= '<td class="mediaTitle">'.$ititle.'</td>'."\n" ;
-                    $ihtml .= '<td class="mediaDownload"><a href="'.$mrelative.'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.mp3" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '">'._md( 'Download' ).( $ifile?': '.$showifile:'' ).'</a></td>'."\n" ;
+                    $ihtml .= '<td class="mediaDownload"><a href="'.$mrelative.'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.mp3" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" rel="mediaDownloaderPlayText:' . urlencode( htmlentities( $iplaytext, ENT_COMPAT, 'UTF-8' ) ) . '">'.$idownloadtext.'</a></td>'."\n" ;
                     $ihtml .= '</tr>'."\n" ;
                 }
                 $ihtml .= '</tbody></table>'."\n" ;
@@ -339,16 +403,47 @@ function listMedia( $t ){
             }
             /* -- END CASE SPECIFIC; -- */
             
+            if ( count( $errors ) ) {
+                $errorHtml = '<div class="mediaDownloaderErrors">';
+                foreach ( $errors as $error ) $errorHtml .= '<p><strong>' . _md( 'Error:' ) . '</strong> ' . $error . '</p>';
+                $errorHtml .= '</div>';
+                $ihtml .= $errorHtml;
+            }
             // Finally, replacing our smart tag
             $t = str_replace( '[media:'.$folder.']', $ihtml, $t ) ;
         }
     }
     return $t ;
 }
-// To sort file array by "title" tags
-function ordenaPorTags( $a, $b ) {
+// To sort file array by some tag
+function orderByTag( $a, $b, $tag ) {
+    if ( !is_array( $tag ) ) $tag = array( $tag );
     global $tagvalues;
-    return strnatcmp( $tagvalues['title'][$a], $tagvalues['title'][$b] );
+    $ret = 0;
+    foreach ( $tag as $t ) {
+        $ret = strnatcmp( $tagvalues[$t][$a], $tagvalues[$t][$b] );
+        if ( 0 != $ret ) break;
+    }
+    if ( 0 == $ret ) $ret = strnatcmp( $a, $b );
+    return $ret;
+}
+function orderByTitle( $a, $b ) {
+    return orderByTag( $a, $b, array( 'title', 'filedate' ) );
+}
+function orderByFileDate( $a, $b ) {
+    return orderByTag( $a, $b, 'filedate' );
+}
+function orderByTrackNumber( $a, $b ) {
+    return orderByTag( $a, $b, 'track_number' );
+}
+function orderByAlbum( $a, $b ) {
+    return orderByTag( $a, $b, array( 'album', 'track_number' ) );
+}
+function orderByArtist( $a, $b ) {
+    return orderByTag( $a, $b, array( 'artist', 'album', 'track_number' ) );
+}
+function orderByFileSize( $a, $b ) {
+    return orderByTag( $a, $b, 'filesize' );
 }
 
 function mediadownloader( $t ) {
@@ -456,12 +551,11 @@ function mediaDownloaderEnqueueScripts() {
     // If any custom css, we enqueue our php that throws this css
     $customcss = trim( get_option( 'customcss' ) );
     if ( '' != $customcss ) {
-        wp_register_style( 'mediadownloaderCss', WP_PLUGIN_URL."/media-downloader/css/mediadownloader-css.php" );
+        wp_register_style( 'mediadownloaderCss', WP_PLUGIN_URL . '/media-downloader/css/mediadownloader-css.php' );
         wp_enqueue_style( 'mediadownloaderCss' );
     }
     // Enqueuing our javascript
-    wp_enqueue_script( 'jquery' );
-    wp_enqueue_script( 'mediadownloaderJs', WP_PLUGIN_URL."/media-downloader/js/mediadownloader.js" );
+    wp_enqueue_script( 'mediadownloaderJs', WP_PLUGIN_URL . '/media-downloader/js/mediadownloader.js', 'jquery', date( 'YmdHis', filemtime( __DIR__ . '/js/mediadownloader.js' ) ), get_option( 'scriptinfooter' ) );
     
     // Passing options to our javascript
     add_action( 'get_header', 'mediaDownloaderLocalizeScript' );
@@ -489,7 +583,9 @@ function mediadownloader_menu() {
 
 function mediadownloader_options() {
     // Basically, user input forms...
-    if ( isset( $_GET['more-options'] ) ) {
+    if ( isset( $_GET['markup-options'] ) ) {
+        require_once("mediadownloader-markup-options.php");
+    } elseif ( isset( $_GET['more-options'] ) ) {
         require_once("mediadownloader-more-options.php");
     } else {
         require_once("mediadownloader-options.php");
@@ -503,6 +599,10 @@ add_action( 'admin_init', 'mediadownloader_settings' );
 function mediadownloader_settings() {
     global $mdsettings;
     foreach ( $mdsettings as $mdsetting => $mdsanitizefunction ) register_setting( 'md_options', $mdsetting, $mdsanitizefunction );
+
+    global $mdmarkupsettings;
+    foreach ( $mdmarkupsettings as $mdmarkupsetting => $mdsanitizefunction ) register_setting( 'md_markup_options', $mdmarkupsetting, $mdsanitizefunction );
+
     global $mdembedplayerdefaultcolors;
     foreach ( $mdembedplayerdefaultcolors as $mdcolor => $mddefault ) register_setting( 'md_more_options', $mdcolor . '_embed_color', 'sanitizeHEXColor' );
 }
@@ -517,6 +617,10 @@ function sanitizeWDir( $d ){
 }
 function sanitizeArray( $i, $a ){
     return in_array( $i, $a ) ? $i : '' ;
+}
+function sanitizeSortingField( $t ){
+    global $mdsortingfields;
+    return sanitizeArray( $t, array_keys( $mdsortingfields ) );
 }
 function sanitizeBeforeAfter( $t ){
     return sanitizeArray( $t, array( 'before', 'after' ) );
