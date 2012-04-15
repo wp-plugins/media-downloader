@@ -592,6 +592,17 @@ function mediadownloader_options() {
     }
 }
 
+// Add Settings link to plugins - code from GD Star Ratings
+// (as seen in http://www.whypad.com/posts/wordpress-add-settings-link-to-plugins-page/785/ )
+function mediadownloader_settings_link( $links, $file ) {
+    $this_plugin = plugin_basename(__FILE__);
+    if ( $file == $this_plugin ) {
+        $settings_link = '<a href="options-general.php?page=mediadownloader-options">' . _md( 'Settings' ) . '</a>';
+        array_unshift( $links, $settings_link );
+    }
+    return $links;
+}
+add_filter( 'plugin_action_links', 'mediadownloader_settings_link', 10, 2 );
 
 // Registering our settings...
 add_action( 'admin_init', 'mediadownloader_settings' );
