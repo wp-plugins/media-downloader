@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.97
+Version: 0.1.98
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -44,6 +44,12 @@ $mdmarkupsettings = array(
     'downloadtext' => null,
     'playtext' => null,
     'replaceheaders' => null,
+    'markuptemplate' => 'sanitizeMarkupTemplate',
+);
+// Possible markup templates
+$mdmarkuptemplates = array(
+    'definition-list' => '<strong>"DL" mode:</strong> One table cell containing a definition list (one definition term for each tag)',
+    'table-cells' => '<strong>"TR" mode:</strong> One table cell for each tag'
 );
 
 // Default player colors
@@ -163,6 +169,8 @@ function listMedia( $t ){
         $arrline = explode( ':', trim( $line ) );
         if ( count( $arrline ) >= 2 ) $replaceheaders[ trim( array_shift( $arrline ) ) ] = implode( ':', $arrline );
     }
+    $markuptemplate = get_option( 'markuptemplate' );
+    if ( !sanitizeMarkupTemplate( $markuptemplate ) ) $markuptemplate = array_shift( array_keys( $mdmarkuptemplates ) ); // Default: first option
 
     // Searching for our smarttags
     $t = preg_replace( '/<p>\[media:([^\]]*)\]<\/p>/i', '[media:$1]', $t );
@@ -237,6 +245,8 @@ function listMedia( $t ){
                 // If set, reversing array
                 if ( $mreverse ) $ifiles = array_reverse( $ifiles );
 
+                $tablecellsmode_header = '';
+                $tablecellsmode_firstfile = true;
                 // Building markup for each file...
                 foreach ( $ifiles as $ifile ) {
                     $ititle = '';
@@ -259,15 +269,32 @@ function listMedia( $t ){
                             // Item markup
                             $columnheader = ucwords( _md( $mshowtag ) );
                             if ( array_key_exists( $mshowtag, $replaceheaders ) ) $columnheader = $replaceheaders[$mshowtag];
-                            $ititle .= '<dt class="mdTag'.$mshowtag.'">'.$columnheader.':</dt>' ;
-                            $ititle .= '<dd class="mdTag'.$mshowtag.'">'.$tagvalue.'</dd>' ;
+                            if ( 'table-cells' == $markuptemplate ) {
+                                // For "table cells" markup template,
+                                // we store a "row with headers", so it
+                                // just needs to run once
+                                if ( $tablecellsmode_firstfile ) {
+                                    $tablecellsmode_header .= '<th class="mdTag'.$mshowtag.'">'.$columnheader.'</th>' ;
+                                }
+                                $ititle .= '<td class="mdTag'.$mshowtag.'">'.$tagvalue.'</td>' ;
+                            } elseif ( 'definition-list' == $markuptemplate )  {
+                                $ititle .= '<dt class="mdTag'.$mshowtag.'">'.$columnheader.':</dt>' ;
+                                $ititle .= '<dd class="mdTag'.$mshowtag.'">'.$tagvalue.'</dd>' ;
+                            }
                         }
                     }
                     // List markup (if any item)
-                    if ( '' != $ititle )
-                        $ititle = '<dl class="mdTags">' . $ititle . '</dl>' ;
+                    if ( '' != $ititle ) {
+                        if ( 'definition-list' == $markuptemplate ) {
+                            $ititle = '<dl class="mdTags">' . $ititle . '</dl>' ;
+                        }
+                    }
                     $ititles[$ifile] = $ititle ;
+                    // "Row with headers" is stored already,
+                    // so skip the task next iteration
+                    $tablecellsmode_firstfile = false;
                 }
+
 
 
                 /* -- CASE SPECIFIC: -- */
@@ -293,13 +320,18 @@ function listMedia( $t ){
                 if ( TRUE == get_option( 'embedplayer' ) ) $tableClass[] = 'embedPlayer';
                 $tableClass[] = 'embedpos' . $membedwhere ;
                 $ihtml .= '<table class="' . implode( ' ', $tableClass ) . '">' . "\n";
-                $ihtml .= '<thead>
-<tr>
-<th class="mediaTitle">&nbsp;</th>
-<th class="mediaDownload">'._md('Download').'</th>
+                $ihtml .= "<thead>\n<tr>\n";
+                if ( 'table-cells' == $markuptemplate ) {
+                    $ihtml .= $tablecellsmode_header;
+                } elseif ( 'definition-list' == $markuptemplate ) {
+                    $ihtml .= "\n" . '<th class="mediaTitle">&nbsp;</th>' . "\n";
+                }
+                $ihtml .= '<th class="mediaDownload">'._md('Download').'</th>
 </tr>
 </thead>
 <tbody>';
+
+
                 // Each file...
                 foreach ( $ifiles as $ifile ) {
                     // File name
@@ -332,7 +364,13 @@ function listMedia( $t ){
                     // Markup
                     // 20100107 - I took it away: strtoupper( $hlevel )
                     $ihtml .= '<tr>'."\n" ;
-                    $ihtml .= '<td class="mediaTitle">'.$ititle.'</td>'."\n" ;
+                    if ( 'table-cells' == $markuptemplate ) {
+                        // a group of "td's"
+                        $ihtml .= $ititle . "\n";
+                    } elseif ( 'definition-list' == $markuptemplate ) {
+                        // one "td" with a "dl" inside
+                        $ihtml .= '<td class="mediaTitle">'.$ititle.'</td>'."\n" ;
+                    }
                     $ihtml .= '<td class="mediaDownload"><a href="'.$mrelative.'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.mp3" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" rel="mediaDownloaderPlayText:' . urlencode( htmlentities( $iplaytext, ENT_COMPAT, 'UTF-8' ) ) . '">'.$idownloadtext.'</a></td>'."\n" ;
                     $ihtml .= '</tr>'."\n" ;
                 }
@@ -645,6 +683,10 @@ function sanitizeBoolean( $b ){
 }
 function sanitizeHEXColor( $c ){
     return preg_match( '/^\s*#?[0-9A-F]{3,6}\s*$/i', $c, $m ) ? trim( str_replace( '#', '', $c ) ) : '';
+}
+function sanitizeMarkupTemplate( $t ){
+    global $mdmarkuptemplates;
+    return sanitizeArray( $t, array_keys( $mdmarkuptemplates ) );
 }
 
 

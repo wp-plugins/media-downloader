@@ -1,6 +1,6 @@
 <?php
 
-global $mdmarkupsettings, $mdtags;
+global $mdmarkupsettings, $mdtags, $mdmarkuptemplates;
 $mdoptions = array();
 foreach( $mdmarkupsettings as $mdmarkupsetting => $mdsanitizefunction ) $mdoptions[$mdmarkupsetting] = get_option( $mdmarkupsetting );
 
@@ -15,6 +15,18 @@ foreach( $mdmarkupsettings as $mdmarkupsetting => $mdsanitizefunction ) $mdoptio
 <?php settings_fields( 'md_markup_options' ); ?>
 
 <fieldset id="mdf_replaceheaders">
+
+<h2><?php _mde('General tag info template'); ?></h2>
+
+<p>
+<?php
+$markuptemplate = $mdoptions['markuptemplate'];
+if ( !sanitizeMarkupTemplate( $markuptemplate ) ) $markuptemplate = array_shift( array_keys( $mdmarkuptemplates ) );
+?>
+<?php foreach ( $mdmarkuptemplates as $key => $value ) : ?>
+    <label for="md_markuptemplate_<?php echo $key; ?>"><input type="radio" name="markuptemplate" id="md_markuptemplate_<?php echo $key; ?>" value="<?php echo $key; ?>" <?php if ( $key == $markuptemplate ) : ?>checked="checked"<?php endif; ?> /> <?php _mde( $value ) ;?></label> <br />
+<?php endforeach; ?>
+</p>
 
 <h2><?php _mde('List options'); ?></h2>
 
