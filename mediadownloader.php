@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.98.2
+Version: 0.1.98.3
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -593,7 +593,7 @@ function mediaDownloaderEnqueueScripts() {
         wp_enqueue_style( 'mediadownloaderCss' );
     }
     // Enqueuing our javascript
-    wp_enqueue_script( 'mediadownloaderJs', WP_PLUGIN_URL . '/media-downloader/js/mediadownloader.js', 'jquery', date( 'YmdHis', filemtime( __DIR__ . '/js/mediadownloader.js' ) ), get_option( 'scriptinfooter' ) );
+    wp_enqueue_script( 'mediadownloaderJs', WP_PLUGIN_URL . '/media-downloader/js/mediadownloader.js', 'jquery', date( 'YmdHis', filemtime( dirname(__FILE__) . '/js/mediadownloader.js' ) ), get_option( 'scriptinfooter' ) );
     
     // Passing options to our javascript
     add_action( 'get_header', 'mediaDownloaderLocalizeScript' );
