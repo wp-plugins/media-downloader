@@ -257,7 +257,7 @@ function listMedia( $t ){
                             // Removing "prefix" of this tag
                             if ( '' != $tagprefixes[$mshowtag] )
                                 $tagvalue = str_replace( $tagprefixes[$mshowtag], '', $tagvalue ) ;
-                            $tagvalue = str_replace( $prefix, '', $tagvalue );
+                            // $tagvalue = str_replace( $prefix, '', $tagvalue ); // Causing weird behavior in some cases
                             // Cleaning...
                             $tagvalue = replaceUnderscores( $tagvalue ) ;
                             // Encoding...
@@ -359,7 +359,7 @@ function listMedia( $t ){
                     
                     // Getting stored markup
                     $ititle = $ititles[$ifile] ;
-                    $ititle = str_replace( $prefix, '', $ititle ) ;
+                    // $ititle = str_replace( $prefix, '', $ititle ) ; // Causing weird behavior in some cases
 
                     // Markup
                     // 20100107 - I took it away: strtoupper( $hlevel )
