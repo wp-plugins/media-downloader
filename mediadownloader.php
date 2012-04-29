@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.98.4
+Version: 0.1.98.5
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -135,7 +135,7 @@ function listMedia( $t ){
     // MP3 folder URL
     $murl = get_option( 'siteurl' ) . $mdir;
     // MP3 folder relative URL
-    $mrelative = str_replace('http://','',$murl); $mrelative = explode( '/', $mrelative ); array_shift($mrelative); $mrelative = '/'.implode('/', $mrelative);
+    $mrelative = str_replace('http'.(isset($_SERVER['HTTPS'])?'s':'').'://','',$murl); $mrelative = explode( '/', $mrelative ); array_shift($mrelative); $mrelative = '/'.implode('/', $mrelative);
     $mpath = ABSPATH . substr($mdir, 1);
     
     // Player position (before or after download link)
@@ -516,7 +516,7 @@ function mediadownloaderMP3Length( $f ) {
 
 // Get ID3 tags from file
 function mediadownloaderMP3Info( $f ) {
-    $relURL = str_replace( 'http://'.$_SERVER['SERVER_NAME'], '', get_option( 'siteurl' ) );
+    $relURL = str_replace( 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://'.$_SERVER['SERVER_NAME'], '', get_option( 'siteurl' ) );
     // File path
     $f = ABSPATH . str_replace( $relURL, '', $f ) . '.mp3';
 
@@ -543,6 +543,7 @@ function mediadownloaderMP3Info( $f ) {
 }
 // File size
 function mediadownloaderMP3Size( $f ){
+    if ( 0 === stripos( $f, get_option( 'siteurl' ) ) ) $f = str_replace( get_option( 'siteurl' ), '', $f );
     $f = ABSPATH . substr( $f, 1 ) . '.mp3';
     if ( !file_exists( $f ) ) $f = urldecode( $f );
     return filesize( $f );
@@ -555,6 +556,7 @@ function mediadownloaderEnclosures(){
     preg_match_all( '/href=[\\\'"](.*)\.mp3[\\\'"]/im', $cont, $matches );
     preg_match_all( '/href=[\\\'"].*getfile\.php\?\=(.*)[\\\'"]/im', $cont, $newmatches );
     if ( count( $matches ) && count( $matches[1] ) ) $ret = array_unique( array_merge( $matches[1], $newmatches[1] ) );
+    foreach ( $ret as &$r ) if ( '/' == substr( $r, 0, 1 ) ) $r = 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://' . $_SERVER['SERVER_NAME'] . $r;
     return $ret;
 } 
 // Generate ATOM tags
