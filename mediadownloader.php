@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.98.5
+Version: 0.1.98.6
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -104,7 +104,7 @@ if( !function_exists( 'byte_convert' ) ){
 // Scans an array of strings searching for a common prefix in all items
 function calculatePrefix($arr){
     $prefix = '';
-    if ( count( $arr ) ) {
+    if ( count( $arr ) > 1 ) {
         $prefix = strip_tags( array_pop( $arr ) );
         foreach ( $arr as $i ) {
             for ( $c=1; $c<strlen($i); $c++ ) {
