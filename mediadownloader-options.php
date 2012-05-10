@@ -64,7 +64,7 @@ foreach( $mdsettings as $mdsetting => $mdsanitizefunction ) $mdoptions[$mdsettin
 <label for="md_removeextension">
 <?php _mde( 'Remove ".mp3" from download URL' ) ;?>
 <br />
-<small><?php _mde( '(it may cause some server overloading)' ) ;?></small>
+<small><?php _mde( '(checking it may cause some server overloading)' ) ;?></small>
 </label>
 </p>
 

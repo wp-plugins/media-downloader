@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.98.7
+Version: 0.1.98.8
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -371,7 +371,7 @@ function listMedia( $t ){
                         // one "td" with a "dl" inside
                         $ihtml .= '<td class="mediaTitle">'.$ititle.'</td>'."\n" ;
                     }
-                    $ihtml .= '<td class="mediaDownload"><a href="'.$mrelative.'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.mp3" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" rel="mediaDownloaderPlayText:' . urlencode( htmlentities( $iplaytext, ENT_COMPAT, 'UTF-8' ) ) . '">'.$idownloadtext.'</a></td>'."\n" ;
+                    $ihtml .= '<td class="mediaDownload"><a href="'.home_url($mdir).'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.mp3" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" rel="mediaDownloaderPlayText:' . urlencode( htmlentities( $iplaytext, ENT_COMPAT, 'UTF-8' ) ) . '">'.$idownloadtext.'</a></td>'."\n" ;
                     $ihtml .= '</tr>'."\n" ;
                 }
                 $ihtml .= '</tbody></table>'."\n" ;

@@ -3,9 +3,10 @@
 require_once('../../../wp-load.php');
 
 // Calculate file path
-$file=urldecode($_GET['f']);
-$relURL=str_replace('http://'.$_SERVER['SERVER_NAME'], '', get_option( 'siteurl' ));
-$filepath = ABSPATH . str_replace($relURL, '', $file) . '.mp3';
+$file=urldecode( $_GET['f'] );
+$file = str_replace( get_option( 'siteurl' ), '', $file );
+$relURL=str_replace( 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://'.$_SERVER['SERVER_NAME'], '', get_option( 'siteurl' ) );
+$filepath = ABSPATH . str_replace( $relURL, '', $file ) . '.mp3';
 if(substr($file,0,1)=='/') $file=substr($file,1);
 // Serve file
 dl_file_resumable($filepath);
