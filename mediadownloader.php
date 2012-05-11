@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.98.8
+Version: 0.1.98.9
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -34,7 +34,8 @@ $mdsettings = array(
     'tagencoding' => 'sanitizeTagEncoding',
     'filenameencoding' => 'sanitizeTagEncoding',
     'cachedir' => 'sanitizeWDir',
-    'scriptinfooter' => 'sanitizeBoolean'
+    'scriptinfooter' => 'sanitizeBoolean',
+    'handlefeed' => 'sanitizeBoolean'
 );
 // Possible ID3 tags
 $mdtags = array( 'title', 'artist', 'album', 'year', 'genre', 'comments', 'track_number', 'bitrate', 'filesize', 'filedate', 'directory', 'file' );
@@ -371,7 +372,7 @@ function listMedia( $t ){
                         // one "td" with a "dl" inside
                         $ihtml .= '<td class="mediaTitle">'.$ititle.'</td>'."\n" ;
                     }
-                    $ihtml .= '<td class="mediaDownload"><a href="'.home_url($mdir).'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.mp3" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" rel="mediaDownloaderPlayText:' . urlencode( htmlentities( $iplaytext, ENT_COMPAT, 'UTF-8' ) ) . '">'.$idownloadtext.'</a></td>'."\n" ;
+                    $ihtml .= '<td class="mediaDownload"><a href="'.home_url($mdir).'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.mp3" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" rel="mediaDownloaderPlayText:' . urlencode( htmlentities( $iplaytext, ENT_COMPAT, 'UTF-8' ) ) . '" id="mdfile_' . sanitize_title( $ifile ) . '">'.$idownloadtext.'</a></td>'."\n" ;
                     $ihtml .= '</tr>'."\n" ;
                 }
                 $ihtml .= '</tbody></table>'."\n" ;
@@ -572,20 +573,32 @@ function mediadownloaderAtom(){
 }
 // Generate RSS tags
 function mediadownloaderRss(){
+    global $post;
     $t = '';
     $matches = mediadownloaderEnclosures();
     foreach ( $matches as $m ) {
         //$t.='<enclosure title="'.basename($m).'" url="'.WP_PLUGIN_URL.'/media-downloader/getfile.php?f='.urlencode($m).'" length="'.mediadownloaderMP3Size($m).'" type="audio/mpeg" />';
-        $t .= '<enclosure title="' . basename( $m ) . '" url="' . ( $m . '.mp3' ) . '" length="' . mediadownloaderMP3Size( $m ) . '" type="audio/mpeg" />';
+        //$t .= '<enclosure title="' . basename( $m ) . '" url="' . ( $m . '.mp3' ) . '" length="' . mediadownloaderMP3Size( $m ) . '" type="audio/mpeg" />';
+        $t .= '</item>';
+        $t .= '<item>';
+        $t .= '<title>' . __( 'Arquivo:', 'mediadownloader' ) . ' ' . urldecode( basename( $m ) ) . ' ' . __( '-', 'mediadownloader' ) . ' ' . get_the_title($post->ID) . '</title>';
+        $t .= '<link>' . get_permalink($post->ID) . '#mdfile_' . sanitize_title( basename( urldecode( $m ) ) ) . '</link>';
+        $t .= '<description>' . __( 'Arquivo:', 'mediadownloader' ) . ' ' . urldecode( basename( $m ) ) . ' ' . __( '-', 'mediadownloader' ) . ' ' . get_the_title($post->ID) . '</description>';
+        $t .= '<pubDate>' . date( DATE_RSS, strtotime( $post->post_date_gmt ) ) . '</pubDate>';
+        $t .= '<guid>' . get_permalink($post->ID) . '#mdfile_' . sanitize_title( basename( urldecode( $m ) ) ) . '</guid>';
+        $t .= '<enclosure url="' . ( $m . '.mp3' ) . '" length="' . mediadownloaderMP3Size( $m ) . '" type="audio/mpeg" />';
 	}
     echo $t;
     //return $t; 
 }
-
+  
 add_filter( 'the_content', 'mediadownloader' );
-add_action( 'atom_entry', 'mediadownloaderAtom' );
-//add_action( 'rss_item', 'mediadownloaderRss' );
-add_action( 'rss2_item', 'mediadownloaderRss' );
+
+if ( get_option( 'handlefeed' ) ) :
+    add_action( 'atom_entry', 'mediadownloaderAtom' );
+    //add_action( 'rss_item', 'mediadownloaderRss' );
+    add_action( 'rss2_item', 'mediadownloaderRss' );
+endif;
 
 function mediaDownloaderEnqueueScripts() {
     // If any custom css, we enqueue our php that throws this css

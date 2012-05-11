@@ -127,6 +127,13 @@ foreach( $mdsettings as $mdsetting => $mdsanitizefunction ) $mdoptions[$mdsettin
 
 </p>
 
+<p>
+<input type="checkbox" name="handlefeed" id="md_handlefeed" value="1" <?php if ( $mdoptions['handlefeed'] ) echo ' checked="checked" ' ;?> />
+<label for="md_handlefeed">
+<?php _mde( 'Include MP3 files in wordpress feeds' ) ;?>
+</label>
+</p>
+
 <p class="submit">
 <input type="submit" value="<?php _mde( 'Update Options' ) ;?>" />
 </p>
