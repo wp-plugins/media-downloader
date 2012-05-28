@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.98.9
+Version: 0.1.98.99
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -205,7 +205,7 @@ function listMedia( $t ){
                         if ( substr( $ifile, -5 ) == '.epub' ) $epub[] = $ifile;
                     }
                 } else {
-                    $errors[] = _md( 'Could not read: ' . $ipath );
+                    $errors[] = sprintf( _md( 'Could not read: %1$s' ), $ipath );
                 }
             }
             // Any MP3 file?
@@ -364,7 +364,7 @@ function listMedia( $t ){
 
                     // Markup
                     // 20100107 - I took it away: strtoupper( $hlevel )
-                    $ihtml .= '<tr>'."\n" ;
+                    $ihtml .= '<tr class="mdTags">'."\n" ;
                     if ( 'table-cells' == $markuptemplate ) {
                         // a group of "td's"
                         $ihtml .= $ititle . "\n";
@@ -486,15 +486,19 @@ function orderByFileSize( $a, $b ) {
 }
 
 function mediadownloader( $t ) {
-    $t = listMedia( $t );
-    if ( TRUE == get_option( 'removeextension' ) ) {
-        $t = preg_replace(
-            '/href\=[\\\'\"](.*)\.mp3[\\\'\"]/im',
-            "href=\"".WP_PLUGIN_URL."/media-downloader/getfile.php?f=$1\"",
-            $t
-        );
-    }
-    
+    if ( !is_feed() || !get_option( 'handlefeed' ) ) :
+        $t = listMedia( $t );
+        if ( TRUE == get_option( 'removeextension' ) ) {
+            $t = preg_replace(
+                '/href\=[\\\'\"](.*)\.mp3[\\\'\"]/im',
+                "href=\"".WP_PLUGIN_URL."/media-downloader/getfile.php?f=$1\"",
+                $t
+            );
+        };
+    elseif ( is_feed() ) :
+        $t = preg_replace( '/<p>\[media:([^\]]*)\]<\/p>/i', '<p><small>' . _md( '(Attached files: "$1")' ) . '</small></p>', $t );
+    endif;
+        
     /* -- CASE SPECIFIC: -- */
     $t = listarCategorias( $t );
     $t = listarCategoriasEx( $t );
@@ -525,7 +529,7 @@ function mediadownloaderMP3Info( $f ) {
     $hash = md5( $f );
     $cachedir = trim( get_option( 'cachedir' ) ) ;
     $cachefile = ABSPATH . '/' . $cachedir . '/md-' . $hash . '.cache' ;
-    if ( $cachedir && is_readable( $cachefile )  && ( filemtime( $cachefile ) >= filemtime( $f ) ) ) {
+    if ( $cachedir && is_readable( $cachefile )  && file_exists( $f ) && ( filemtime( $cachefile ) >= filemtime( $f ) ) ) {
 
         return unserialize( file_get_contents( $cachefile ) );
 
@@ -550,15 +554,57 @@ function mediadownloaderMP3Size( $f ){
     return filesize( $f );
 }
 // Extract MP3 links form post content
-function mediadownloaderEnclosures(){
+function mediadownloaderEnclosures( $adjacentmarkup = false ){
     $ret = array();
     global $post;
     $cont = listMedia( get_the_content( $post->ID ) );
     preg_match_all( '/href=[\\\'"](.*)\.mp3[\\\'"]/im', $cont, $matches );
     preg_match_all( '/href=[\\\'"].*getfile\.php\?\=(.*)[\\\'"]/im', $cont, $newmatches );
+
+    // It makes no sense, "there can be only one", but just in case...
     if ( count( $matches ) && count( $matches[1] ) ) $ret = array_unique( array_merge( $matches[1], $newmatches[1] ) );
-    foreach ( $ret as &$r ) if ( '/' == substr( $r, 0, 1 ) ) $r = 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://' . $_SERVER['SERVER_NAME'] . $r;
-    return $ret;
+    
+    // Should we get only the MP3 URL's?
+    if ( !$adjacentmarkup ) {
+        foreach ( $ret as &$r ) if ( '/' == substr( $r, 0, 1 ) ) $r = 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://' . $_SERVER['SERVER_NAME'] . $r;
+        return $ret;
+    
+    // Or get all the markup around them?
+    } else {
+        $markuptemplate = get_option( 'markuptemplate' );
+        $adj = array();
+        $tablehead = '';
+        // For each MP3 URL...
+        foreach ( $ret as $r ) {
+            $adj[$r] = $r;
+            // Dirty magic to get the markup around it...
+            $safe_r = str_replace(array('/', '.', ':', '%'), array('\\/', '\\.', '\\:', '\\%'), $r);
+            if ( 'definition-list' == $markuptemplate ) {
+                preg_match_all( '/\<dl class\=\"mdTags\"\>(.*?)'.$safe_r.'(.*?)\<\/dl\>/ims', $cont, $adjmatches );
+                if ( count( $adjmatches ) && count( $adjmatches[0] ) ) {
+                    $adj[$r] = $adjmatches[0][0];
+                }
+            } elseif ( 'table-cells' == $markuptemplate ) {
+
+                if ( '' == $tablehead ) {
+                    preg_match_all( '/\<table([^\>]*)\>(.*?)'.$safe_r.'(.*?)\<\/table\>/ims', $cont, $adjtable );
+                    if ( count( $adjtable ) && count( $adjtable[0] ) ) {
+                        $ftable = $adjtable[0][0];
+                        $ftable = substr( $ftable, strripos( $ftable, '<table' ) );
+                        $tablehead = substr( $ftable, 0, stripos( $ftable, '</thead>' ) );
+                    }
+                }
+                
+                preg_match_all( '/\<tr class\=\"mdTags\"\>(.*?)'.$safe_r.'(.*?)\<\/tr\>/ims', $cont, $adjmatches );
+                if ( count( $adjmatches ) && count( $adjmatches[0] ) ) {
+                    $line = $adjmatches[0][0];
+                    $line = substr( $line, strripos( $line, '<tr class="mdTags">' ) );
+                    $adj[$r] = ($tablehead?$tablehead:'<table>') . $line . '</table>';
+                }
+            }
+        }
+        return $adj;
+    }
 } 
 // Generate ATOM tags
 function mediadownloaderAtom(){
@@ -575,15 +621,15 @@ function mediadownloaderAtom(){
 function mediadownloaderRss(){
     global $post;
     $t = '';
-    $matches = mediadownloaderEnclosures();
-    foreach ( $matches as $m ) {
+    $matches = mediadownloaderEnclosures( true );
+    foreach ( $matches as $m => $adjacentmarkup ) {
         //$t.='<enclosure title="'.basename($m).'" url="'.WP_PLUGIN_URL.'/media-downloader/getfile.php?f='.urlencode($m).'" length="'.mediadownloaderMP3Size($m).'" type="audio/mpeg" />';
         //$t .= '<enclosure title="' . basename( $m ) . '" url="' . ( $m . '.mp3' ) . '" length="' . mediadownloaderMP3Size( $m ) . '" type="audio/mpeg" />';
         $t .= '</item>';
         $t .= '<item>';
-        $t .= '<title>' . __( 'Arquivo:', 'mediadownloader' ) . ' ' . urldecode( basename( $m ) ) . ' ' . __( '-', 'mediadownloader' ) . ' ' . get_the_title($post->ID) . '</title>';
+        $t .= '<title>' . sprintf( _md( 'Attached file: %1$s - %2$s' ), urldecode( basename( $m ) ), get_the_title($post->ID) ) . '</title>';
         $t .= '<link>' . get_permalink($post->ID) . '#mdfile_' . sanitize_title( basename( urldecode( $m ) ) ) . '</link>';
-        $t .= '<description>' . __( 'Arquivo:', 'mediadownloader' ) . ' ' . urldecode( basename( $m ) ) . ' ' . __( '-', 'mediadownloader' ) . ' ' . get_the_title($post->ID) . '</description>';
+        $t .= '<description><![CDATA[' . $adjacentmarkup . ']]></description>';
         $t .= '<pubDate>' . date( DATE_RSS, strtotime( $post->post_date_gmt ) ) . '</pubDate>';
         $t .= '<guid>' . get_permalink($post->ID) . '#mdfile_' . sanitize_title( basename( urldecode( $m ) ) ) . '</guid>';
         $t .= '<enclosure url="' . ( $m . '.mp3' ) . '" length="' . mediadownloaderMP3Size( $m ) . '" type="audio/mpeg" />';
@@ -598,6 +644,8 @@ if ( get_option( 'handlefeed' ) ) :
     add_action( 'atom_entry', 'mediadownloaderAtom' );
     //add_action( 'rss_item', 'mediadownloaderRss' );
     add_action( 'rss2_item', 'mediadownloaderRss' );
+    // Lowering cache lifetime to 4 hours
+    add_filter( 'wp_feed_cache_transient_lifetime', create_function('$a','$newvalue = 4*3600; if ( $a < $newvalue ) $a = $newvalue; return $a;') );
 endif;
 
 function mediaDownloaderEnqueueScripts() {
@@ -613,7 +661,6 @@ function mediaDownloaderEnqueueScripts() {
     // Passing options to our javascript
     add_action( 'get_header', 'mediaDownloaderLocalizeScript' );
 }
-add_action( 'init', 'mediaDownloaderEnqueueScripts' );
     
 // Passing options to our javascript
 function mediaDownloaderLocalizeScript() {
@@ -624,8 +671,19 @@ function mediaDownloaderLocalizeScript() {
         if ( !trim($mdembedcolors[$mdcolor]) ) $mdembedcolors[$mdcolor] = $mddefault;
     }
     wp_localize_script( 'mediadownloaderJs', 'mdEmbedColors', $mdembedcolors );
+    wp_localize_script( 'mediadownloaderJs', 'mdStringTable', array(
+        'pluginURL' => WP_PLUGIN_URL . '/media-downloader/',
+        'playColumnText' => _md( 'Play' ),
+        'downloadTitleText' => _md( 'Download:' ),
+        'playTitleText' => _md( 'Play:' ),
+    ) );
 }
 
+function mediaDownloaderInit() {
+    load_plugin_textdomain( 'mediadownloader', false, basename( dirname( __FILE__ ) ) . '/languages' );
+    mediaDownloaderEnqueueScripts();
+}
+add_action( 'init', 'mediaDownloaderInit' );
 
 // Our options screens...
 add_action( 'admin_menu', 'mediadownloader_menu' );
@@ -734,7 +792,7 @@ function _mdn( $ts, $tp, $n ) {
 //            return icl_t( 'Media Downloader', $ts, $ts );
 //        }
 //    } else {
-        return _n( $ts, $tp, $n ) ;
+        return _n( $ts, $tp, $n, 'mediadownloader' ) ;
 //    }
 }
 

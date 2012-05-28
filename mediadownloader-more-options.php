@@ -45,7 +45,7 @@ $colordescriptions = array(
 
 <?php foreach ( $mdembedplayerdefaultcolors as $mdcolor => $mddefault ) : ?>
 <p>
-<label for="md_<?php echo esc_attr( $mdcolor ); ?>"><?php echo $colordescriptions[$mdcolor]; ?> <?php _mde( 'color:' ) ;?> <!--<em>("<?php echo $mdcolor; ?>")</em>--> </label>
+<label for="md_<?php echo esc_attr( $mdcolor ); ?>"><?php echo sprintf( _md( '%1$s color:' ), $colordescriptions[$mdcolor] ) ;?> <!--<em>("<?php echo $mdcolor; ?>")</em>--> </label>
 <input type="text" name="<?php echo esc_attr( $mdcolor ); ?>_embed_color" id="md_<?php echo esc_attr( $mdcolor ); ?>" value="<?php echo $mdmoreoptions[$mdcolor]; ?>" size="7" maxlength="6" />
 <small><?php _mde( 'Default:' ) ;?> <code><?php echo $mddefault; ?></code></small>
 </p>

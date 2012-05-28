@@ -18,7 +18,7 @@ foreach( $mdsettings as $mdsetting => $mdsanitizefunction ) $mdoptions[$mdsettin
 <h3><label for="md_mp3folder"><?php _mde( 'MP3 Folder:' ) ;?></label></h3>
 <p>
 <label for="md_mp3folder"><code><?php echo ABSPATH ;?></code></label>
-<input type="text" name="mp3folder" id="md_mp3folder" value="<?php echo $mdoptions['mp3folder'] ;?>" size="20" /> <small><?php echo _md( sprintf('(must be <a href="%s">readable</a>)', 'http://codex.wordpress.org/Changing_File_Permissions') ) ;?></small>
+<input type="text" name="mp3folder" id="md_mp3folder" value="<?php echo $mdoptions['mp3folder'] ;?>" size="20" /> <small><?php echo sprintf( _md('(must be <a href="%s">readable</a>)'), 'http://codex.wordpress.org/Changing_File_Permissions' ) ;?></small>
 
 <?php if( '' != trim( $mdoptions['mp3folder'] ) ){
     $dirok = is_readable( ABSPATH . '/' . $mdoptions['mp3folder'] ) ;?>
@@ -117,8 +117,8 @@ foreach( $mdsettings as $mdsetting => $mdsanitizefunction ) $mdoptions[$mdsettin
 </p>
 
 <p>
-<label for="md_cachedir"><?php _mde( 'Cache dir: ' ) ;?> <code><?php echo ABSPATH ;?></code></label>
-<input type="text" name="cachedir" id="md_cachedir" value="<?php echo $mdoptions['cachedir'] ;?>" size="20" /> <small><?php echo _md( sprintf('(must be <a href="%s">writable</a>)', 'http://codex.wordpress.org/Changing_File_Permissions') ) ;?></small>
+<label for="md_cachedir"><?php _mde( 'Cache dir:' ) ;?> <code><?php echo ABSPATH ;?></code></label>
+<input type="text" name="cachedir" id="md_cachedir" value="<?php echo $mdoptions['cachedir'] ;?>" size="20" /> <small><?php echo sprintf( _md('(must be <a href="%s">writable</a>)'), 'http://codex.wordpress.org/Changing_File_Permissions' ) ;?></small>
 
 <?php if( '' != trim( $mdoptions['cachedir'] ) ){
     $dirok = is_writeable( ABSPATH . '/' . $mdoptions['cachedir'] ) ;?>

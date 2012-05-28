@@ -1,7 +1,20 @@
 var mediadownloaderPluginURL = '';
 function initMediaDownloader() {
+    var mediadownloaderPlayColumnText = 'Play';
+    var mediadownloaderDownloadTitleText = 'Download:';
+    var mediadownloaderPlayTitleText = 'Play:';
+    if ( typeof(mdStringTable) != 'undefined' ) {
+        mediadownloaderPluginURL = mdStringTable.pluginURL;
+        mediadownloaderPlayColumnText = mdStringTable.playColumnText;
+        mediadownloaderDownloadTitleText = mdStringTable.downloadTitleText;
+        mediadownloaderPlayTitleText = mdStringTable.playTitleText;
+    } else {
+        mediadownloaderPluginURL = '/wp-content/plugins/media-downloader/';
+        var scripts = jQuery('script[src*="js/mediadownloader.js"]');
+        if( scripts.length ) mediadownloaderPluginURL = scripts[0].src.split('js/mediadownloader.js')[0];
+    }
     jQuery("table.mediaTable.embedPlayer th.mediaDownload").each( function () {
-        var thcont='<th class="mediaPlay">Play</th>';
+        var thcont='<th class="mediaPlay">' + mediadownloaderPlayColumnText + '</th>';
         if ( jQuery(this).parents('table.mediaTable').hasClass('embedposafter') ) {
             jQuery(this).after(thcont);
         } else {
@@ -10,16 +23,12 @@ function initMediaDownloader() {
     } );
     jQuery('table.mediaTable.embedPlayer td.mediaDownload a').each( function () {
         if ( jQuery(this).attr('href').indexOf('getfile.php')>-1 ) {
-          mediadownloaderPluginURL = jQuery(this).attr('href').split('getfile.php?f=')[0];
           var link = jQuery(this).attr('href').split('getfile.php?f=')[1]+'.mp3';
         } else {
-          mediadownloaderPluginURL = '/wp-content/plugins/media-downloader/';
-          var scripts = jQuery('script[src*="js/mediadownloader.js"]');
-          if( scripts.length ) mediadownloaderPluginURL = scripts[0].src.split('js/mediadownloader.js')[0];
           var link = jQuery(this).attr('href');
         }
-        var title = jQuery(this).attr('title').replace('Download:','Play:');
-        var text = jQuery(this).html().replace('Download:','Play:');
+        var title = jQuery(this).attr('title').replace(mediadownloaderDownloadTitleText, mediadownloaderPlayTitleText);
+        var text = jQuery(this).html().replace(mediadownloaderDownloadTitleText, mediadownloaderPlayTitleText);
         var arrrel = (jQuery(this).attr('rel')+'').split(';');
         for ( var r=0; r<arrrel.length; r++ ) {
             var arrparm = arrrel[r].split(':');
@@ -40,7 +49,7 @@ function initMediaDownloader() {
     jQuery('table.mediaTable.embedPlayer td.mediaPlay a').click( function () {
         var link=jQuery(this).attr('href');
         if( link != mediaplayerPlayingURL ){
-            mediaplayerPlay( link, jQuery(this).html().replace('Play:','') );
+            mediaplayerPlay( link, jQuery(this).html().replace(mediadownloaderPlayTitleText, '') );
             jQuery('a.mediaStop').removeClass('mediaStop');
             jQuery('td.mediaPlaying').removeClass('mediaPlaying');
             jQuery(this).addClass('mediaStop').parents('td.mediaPlay').addClass('mediaPlaying');

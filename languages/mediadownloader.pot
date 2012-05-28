@@ -1,0 +1,266 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Media Downloader 0.1.98.99\n"
+"POT-Creation-Date: 2012-05-28 10:27:53+03:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Ederson Peka <ederson@gmail.com>\n"
+"Language-Team: Ederson Peka <ederson@gmail.com>\n"
+
+#: mediadownloader-markup-options.php:19
+msgid "General tag info template"
+msgstr ""
+
+#: mediadownloader-markup-options.php:27
+msgid "<strong>\"DL\" mode:</strong> One table cell containing a definition list (one definition term for each tag)"
+msgstr ""
+
+msgid "<strong>\"TR\" mode:</strong> One table cell for each tag"
+msgstr ""
+
+#: mediadownloader-markup-options.php:31
+msgid "List options"
+msgstr ""
+
+#: mediadownloader-markup-options.php:33
+msgid "Replace ID3 tags column headers"
+msgstr ""
+
+#: mediadownloader-markup-options.php:36
+msgid "Replaces default columns headers (ie: \"title\", \"comments\") with custom values:"
+msgstr ""
+
+#: mediadownloader-markup-options.php:38
+msgid "Syntax example: <br /><code>comments:Description</code><br /><code>title:Episode</code>"
+msgstr ""
+
+#: mediadownloader-markup-options.php:42
+#: mediadownloader-markup-options.php:67
+#: mediadownloader-more-options.php:55
+#: mediadownloader-options.php:31
+#: mediadownloader-options.php:54
+#: mediadownloader-options.php:138
+msgid "Update Options"
+msgstr ""
+
+#: mediadownloader-markup-options.php:50
+msgid "Each item options"
+msgstr ""
+
+#: mediadownloader-markup-options.php:52
+msgid "Wildcards:"
+msgstr ""
+
+#: mediadownloader-markup-options.php:55
+msgid "Download Text:"
+msgstr ""
+
+#: mediadownloader-markup-options.php:61
+msgid "Play Text:"
+msgstr ""
+
+#: mediadownloader-more-options.php:44
+msgid "Embed Player Colors:"
+msgstr ""
+
+#: mediadownloader-more-options.php:48
+msgid "%1$s color:"
+msgstr ""
+
+#: mediadownloader-markup-options.php:57
+#: mediadownloader-markup-options.php:63
+#: mediadownloader-more-options.php:50
+#: mediadownloader-options.php:45
+msgid "Default:"
+msgstr ""
+
+#: mediadownloader-options-header.php:5
+msgid "Media Downloader:"
+msgstr ""
+
+#: mediadownloader-options-header.php:22
+msgid "General Options"
+msgstr ""
+
+msgid "Markup Options"
+msgstr ""
+
+msgid "More Options"
+msgstr ""
+
+#: mediadownloader-options.php:18
+msgid "MP3 Folder:"
+msgstr ""
+
+#: mediadownloader-options.php:21
+msgid "(must be <a href=\"%s\">readable</a>)"
+msgstr ""
+
+#: mediadownloader-options.php:25
+msgid "Folder successfully read."
+msgstr ""
+
+msgid "Could not read folder."
+msgstr ""
+
+#: mediadownloader-options.php:38
+msgid "Show MP3 Info:"
+msgstr ""
+
+#: mediadownloader-options.php:40
+msgid "Comma-separated MP3 info to show for each file on the list."
+msgstr ""
+
+#: mediadownloader-options.php:43
+msgid "Possible values:"
+msgstr ""
+
+#: mediadownloader-options.php:48
+msgid "Custom CSS:"
+msgstr ""
+
+#: mediadownloader-options.php:61
+msgid "Advanced:"
+msgstr ""
+
+#: mediadownloader-options.php:65
+msgid "Remove \".mp3\" from download URL"
+msgstr ""
+
+#: mediadownloader-options.php:67
+msgid "(checking it may cause some server overloading)"
+msgstr ""
+
+#: mediadownloader-options.php:73
+msgid "Embed player"
+msgstr ""
+
+#: mediadownloader-options.php:78
+msgid "Place embed player's javascript at the bottom of the <code>&lt;body&gt;</code> in <abbr title=\"HyperText Markup Language\">HTML</abbr> code"
+msgstr ""
+
+#: mediadownloader-options.php:82
+msgid "Embed player's button position:"
+msgstr ""
+
+#: mediadownloader-options.php:84
+msgid "Before download link"
+msgstr ""
+
+#: mediadownloader-options.php:85
+msgid "After download link"
+msgstr ""
+
+#: mediadownloader-options.php:90
+msgid "Sort by:"
+msgstr ""
+
+#: mediadownloader-options.php:98
+msgid "Reverse order"
+msgstr ""
+
+#: mediadownloader-options.php:102
+msgid "MP3 tag encoding:"
+msgstr ""
+
+#: mediadownloader-options.php:111
+msgid "File name encoding:"
+msgstr ""
+
+#: mediadownloader-options.php:120
+msgid "Cache dir:"
+msgstr ""
+
+#: mediadownloader-options.php:121
+msgid "(must be <a href=\"%s\">writable</a>)"
+msgstr ""
+
+#: mediadownloader-options.php:125
+msgid "Folder successfully written on."
+msgstr ""
+
+msgid "Could not write on folder."
+msgstr ""
+
+#: mediadownloader-options.php:133
+msgid "Include MP3 files in wordpress feeds"
+msgstr ""
+
+#: mediadownloader-options.php:146
+msgid "Sample Usage"
+msgstr ""
+
+#: mediadownloader-options.php:147
+msgid "Media Downloader plugin lists MP3 files from a folder by replacing the <code>[media]</code> smart tag."
+msgstr ""
+
+#: mediadownloader-options.php:149
+msgid "An example may help... Say you have a folder called <em>\"music\"</em> under your root folder, and it has some subfolders, as: <em>\"Beethoven\",</em> <em>\"Mozart\",</em> <em>\"Bach\"</em> and <em>\"Haendel\".</em>"
+msgstr ""
+
+#: mediadownloader-options.php:151
+msgid "First of all, you should configure Media Downloader by typing <em>\"music\"</em> in the <label for=\"md_mp3folder\"><em>\"MP3 Folder\"</em> field.</label> That done, you can edit a post talking about Johann Sebastian Bach and insert anywhere on it the smart tag <code>[media:Bach]</code>, then Media Downloader will create a list of all files under the <em>\"music/Bach\"</em> directory."
+msgstr ""
+
+#: mediadownloader.php:208
+msgid "Could not read: %1$s"
+msgstr ""
+
+#: mediadownloader.php:271
+# 'title', 'artist', 'album', 'year', 'genre', 'comments', 'track_number', 'bitrate', 'filesize', 'filedate', 'directory', 'file'
+
+#: mediadownloader.php:308
+msgid "By Chapter"
+msgstr ""
+
+#: mediadownloader.php:309
+msgid "Whole Book"
+msgstr ""
+
+#: mediadownloader.php:330
+#: mediadownloader.php:424
+msgid "Download"
+msgstr ""
+
+#: mediadownloader.php:395
+msgid "Download ZIP"
+msgstr ""
+
+msgid "(Audio chapters)"
+msgstr ""
+
+#: mediadownloader.php:399
+msgid "Download PDF"
+msgstr ""
+
+#: mediadownloader.php:399
+#: mediadownloader.php:403
+msgid "(Text file)"
+msgstr ""
+
+#: mediadownloader.php:403
+msgid "Download EPUB"
+msgstr ""
+
+#: mediadownloader.php:447
+msgid "Error:"
+msgstr ""
+
+#: mediadownloader.php:499
+msgid "(Attached files: \"$1\")"
+msgstr ""
+
+#: mediadownloader.php:588
+#: mediadownloader.php:590
+msgid "Attached file: %1$s - %2$s"
+msgstr ""
+
+#: mediadownloader.php:634
+msgid "Play"
+msgstr ""
+
+#: mediadownloader.php:669
+msgid "Settings"
+msgstr ""
+
