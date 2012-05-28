@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.98.99
+Version: 0.1.99
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -581,10 +581,10 @@ function mediadownloaderEnclosures( $adjacentmarkup = false ){
             $rarr = explode( $r, $cont );
             if ( count( $rarr ) > 1 ) {
                 $line = substr( $rarr[0], strripos( $rarr[0], '<tr class="mdTags">' ) );
-                $line .= substr( $rarr[1], 0, stripos( $rarr[1], '</tr>' ) );
+                $line .= substr( $rarr[1], 0, stripos( $rarr[1], '</tr>' ) ) .'</tr>';
                 if ( 'definition-list' == $markuptemplate ) {
                     $line = substr( $line, strripos( $line, '<dl class="mdTags">' ) );
-                    $line = substr( $line, 0, stripos( $line, '</dl>' ) );
+                    $line = substr( $line, 0, stripos( $line, '</dl>' ) ) . '</dl>';
                     $adj[$r] = $line;
                 } elseif ( 'table-cells' == $markuptemplate ) {
 
@@ -594,11 +594,11 @@ function mediadownloaderEnclosures( $adjacentmarkup = false ){
                         if ( count( $adjtable ) && count( $adjtable[0] ) ) {
                             $ftable = $adjtable[0][0];
                             $ftable = substr( $ftable, strripos( $ftable, '<table' ) );
-                            $tablehead = substr( $ftable, 0, stripos( $ftable, '</thead>' ) );
+                            $tablehead = substr( $ftable, 0, stripos( $ftable, '</thead>' ) ) . '</thead>';
                         }
                     }
 
-                    $adj[$r] = ($tablehead?$tablehead:'<table>') . $line . '</table>';
+                    $adj[$r] = ($tablehead?$tablehead:'<table>') . '<tbody>' . $line . '</tbody></table>';
                 }
             }
         }
