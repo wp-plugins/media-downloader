@@ -582,7 +582,9 @@ function mediadownloaderEnclosures( $adjacentmarkup = false ){
             if ( 'definition-list' == $markuptemplate ) {
                 preg_match_all( '/\<dl class\=\"mdTags\"\>(.*?)'.$safe_r.'(.*?)\<\/dl\>/ims', $cont, $adjmatches );
                 if ( count( $adjmatches ) && count( $adjmatches[0] ) ) {
-                    $adj[$r] = $adjmatches[0][0];
+                    $line = $adjmatches[0][0];
+                    $line = substr( $line, strripos( $line, '<dl class="mdTags">' ) );
+                    $adj[$r] = $line;
                 }
             } elseif ( 'table-cells' == $markuptemplate ) {
 
