@@ -578,7 +578,7 @@ function mediadownloaderEnclosures( $adjacentmarkup = false ){
         foreach ( $ret as $r ) {
             $adj[$r] = $r;
             // Dirty magic to get the markup around it...
-            $safe_r = str_replace(array('/', '.', ':', '%'), array('\\/', '\\.', '\\:', '\\%'), $r);
+            $safe_r = str_replace(array('/', '.', ':', '%', '-'), array('\\/', '\\.', '\\:', '\\%', '\\-'), $r);
             if ( 'definition-list' == $markuptemplate ) {
                 preg_match_all( '/\<dl class\=\"mdTags\"\>(.*?)'.$safe_r.'(.*?)\<\/dl\>/ims', $cont, $adjmatches );
                 if ( count( $adjmatches ) && count( $adjmatches[0] ) ) {
