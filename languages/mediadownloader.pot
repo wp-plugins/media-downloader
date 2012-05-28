@@ -248,7 +248,7 @@ msgid "Error:"
 msgstr ""
 
 #: mediadownloader.php:499
-msgid "(Attached files: \"$1\")"
+msgid "(See attached files...)"
 msgstr ""
 
 #: mediadownloader.php:588

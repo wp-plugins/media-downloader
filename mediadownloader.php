@@ -496,7 +496,7 @@ function mediadownloader( $t ) {
             );
         };
     elseif ( is_feed() ) :
-        $t = preg_replace( '/<p>\[media:([^\]]*)\]<\/p>/i', '<p><small>' . _md( '(Attached files: "$1")' ) . '</small></p>', $t );
+        $t = preg_replace( '/<p>\[media:([^\]]*)\]<\/p>/i', '<p><small>' . _md( '(See attached files...)' ) . '</small></p>', $t );
     endif;
         
     /* -- CASE SPECIFIC: -- */
