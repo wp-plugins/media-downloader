@@ -578,29 +578,26 @@ function mediadownloaderEnclosures( $adjacentmarkup = false ){
         foreach ( $ret as $r ) {
             $adj[$r] = $r;
             // Dirty magic to get the markup around it...
-            $safe_r = str_replace(array('/', '.', ':', '%', '-'), array('\\/', '\\.', '\\:', '\\%', '\\-'), $r);
-            if ( 'definition-list' == $markuptemplate ) {
-                preg_match_all( '/\<dl class\=\"mdTags\"\>(.*?)'.$safe_r.'(.*?)\<\/dl\>/ims', $cont, $adjmatches );
-                if ( count( $adjmatches ) && count( $adjmatches[0] ) ) {
-                    $line = $adjmatches[0][0];
+            $rarr = explode( $r, $cont );
+            if ( count( $rarr ) > 1 ) {
+                $line = substr( $rarr[0], strripos( $rarr[0], '<tr class="mdTags">' ) );
+                $line .= substr( $rarr[1], 0, stripos( $rarr[1], '</tr>' ) );
+                if ( 'definition-list' == $markuptemplate ) {
                     $line = substr( $line, strripos( $line, '<dl class="mdTags">' ) );
+                    $line = substr( $line, 0, stripos( $line, '</dl>' ) );
                     $adj[$r] = $line;
-                }
-            } elseif ( 'table-cells' == $markuptemplate ) {
+                } elseif ( 'table-cells' == $markuptemplate ) {
 
-                if ( '' == $tablehead ) {
-                    preg_match_all( '/\<table([^\>]*)\>(.*?)'.$safe_r.'(.*?)\<\/table\>/ims', $cont, $adjtable );
-                    if ( count( $adjtable ) && count( $adjtable[0] ) ) {
-                        $ftable = $adjtable[0][0];
-                        $ftable = substr( $ftable, strripos( $ftable, '<table' ) );
-                        $tablehead = substr( $ftable, 0, stripos( $ftable, '</thead>' ) );
+                    if ( '' == $tablehead ) {
+                        $safe_r = str_replace( array('/', '.', ':', '%', '-'), array('\\/', '\\.', '\\:', '\\%', '\\-'), $r );
+                        preg_match_all( '/\<table([^\>]*)\>(.*?)'.$safe_r.'(.*?)\<\/table\>/ims', $cont, $adjtable );
+                        if ( count( $adjtable ) && count( $adjtable[0] ) ) {
+                            $ftable = $adjtable[0][0];
+                            $ftable = substr( $ftable, strripos( $ftable, '<table' ) );
+                            $tablehead = substr( $ftable, 0, stripos( $ftable, '</thead>' ) );
+                        }
                     }
-                }
-                
-                preg_match_all( '/\<tr class\=\"mdTags\"\>(.*?)'.$safe_r.'(.*?)\<\/tr\>/ims', $cont, $adjmatches );
-                if ( count( $adjmatches ) && count( $adjmatches[0] ) ) {
-                    $line = $adjmatches[0][0];
-                    $line = substr( $line, strripos( $line, '<tr class="mdTags">' ) );
+
                     $adj[$r] = ($tablehead?$tablehead:'<table>') . $line . '</table>';
                 }
             }
