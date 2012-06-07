@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99
+Version: 0.1.99.2
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -360,6 +360,7 @@ function listMedia( $t ){
                     
                     // Getting stored markup
                     $ititle = $ititles[$ifile] ;
+
                     // $ititle = str_replace( $prefix, '', $ititle ) ; // Causing weird behavior in some cases
 
                     // Markup
@@ -619,9 +620,11 @@ function mediadownloaderAtom(){
 // Generate RSS tags
 function mediadownloaderRss(){
     global $post;
+    $postdate = strtotime( $post->post_date_gmt );
     $t = '';
     $matches = mediadownloaderEnclosures( true );
     foreach ( $matches as $m => $adjacentmarkup ) {
+        $postdate -= 2;
         //$t.='<enclosure title="'.basename($m).'" url="'.WP_PLUGIN_URL.'/media-downloader/getfile.php?f='.urlencode($m).'" length="'.mediadownloaderMP3Size($m).'" type="audio/mpeg" />';
         //$t .= '<enclosure title="' . basename( $m ) . '" url="' . ( $m . '.mp3' ) . '" length="' . mediadownloaderMP3Size( $m ) . '" type="audio/mpeg" />';
         $t .= '</item>';
@@ -629,7 +632,7 @@ function mediadownloaderRss(){
         $t .= '<title>' . sprintf( _md( 'Attached file: %1$s - %2$s' ), urldecode( basename( $m ) ), get_the_title($post->ID) ) . '</title>';
         $t .= '<link>' . get_permalink($post->ID) . '#mdfile_' . sanitize_title( basename( urldecode( $m ) ) ) . '</link>';
         $t .= '<description><![CDATA[' . $adjacentmarkup . ']]></description>';
-        $t .= '<pubDate>' . date( DATE_RSS, strtotime( $post->post_date_gmt ) ) . '</pubDate>';
+        $t .= '<pubDate>' . date( DATE_RSS, $postdate ) . '</pubDate>';
         $t .= '<guid>' . get_permalink($post->ID) . '#mdfile_' . sanitize_title( basename( urldecode( $m ) ) ) . '</guid>';
         $t .= '<enclosure url="' . ( $m . '.mp3' ) . '" length="' . mediadownloaderMP3Size( $m ) . '" type="audio/mpeg" />';
 	}
