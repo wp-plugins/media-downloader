@@ -3,7 +3,7 @@
 require_once('../../../wp-load.php');
 
 // Calculate file path
-$file=urldecode( $_GET['f'] );
+$file = urldecode( $_GET['f'] );
 $file = str_replace( get_option( 'siteurl' ), '', $file );
 $relURL=str_replace( 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://'.$_SERVER['SERVER_NAME'], '', get_option( 'siteurl' ) );
 $filepath = ABSPATH . str_replace( $relURL, '', $file ) . '.mp3';
@@ -15,7 +15,7 @@ dl_file_resumable($filepath);
 function dl_file_resumable($file, $is_resume=TRUE)
 {
     //First, see if the file exists
-    if (!is_file($file))
+    if ( !is_file($file) && ( $file = stripslashes( $file ) ) && !is_file($file) )
     {
         die("<b>404 File not found! <!-- $file --></b>");
     }

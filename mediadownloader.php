@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99.2
+Version: 0.1.99.3
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -180,10 +180,6 @@ function listMedia( $t ){
     if ( count( $matches ) ) {
         // Each...
         foreach ( $matches[1] as $folder ) {
-            // Encoding folder name
-            $pfolder = array_filter( explode( '/', $folder ) );
-            foreach( $pfolder as &$p ) $p = rawurlencode( $p );
-            $ufolder = implode( '/', $pfolder );
             // Removing paragraph
             $t = str_replace('<p>[media:'.$folder.']</p>', '[media:'.$folder.']', $t);
             // Initializing variables
@@ -196,6 +192,7 @@ function listMedia( $t ){
             $ipath = $mpath . '/' . $folder;
             // Populating arrays with respective files
             if ( is_dir( $ipath ) ) {
+                $folderalone = $folder;
                 if ( is_readable( $ipath ) ) {
                     $idir = dir( $ipath );
                     while (false !== ($ifile = $idir->read())) {
@@ -207,7 +204,20 @@ function listMedia( $t ){
                 } else {
                     $errors[] = sprintf( _md( 'Could not read: %1$s' ), $ipath );
                 }
+            } elseif ( file_exists( $ipath ) && is_readable( $ipath ) ) {
+                $folderalone = implode( '/', array_slice( explode( '/', $folder ), 0, -1 ) );
+                $apath = explode( '/', $ipath );
+                $ifile = array_pop( $apath );
+                if ( substr( $ifile, -4 ) == '.mp3' ) $ifiles[] = substr( $ifile, 0, -4 );
+                if ( substr( $ifile, -4 ) == '.zip' ) $zip[] = $ifile;
+                if ( substr( $ifile, -4 ) == '.pdf' ) $pdf[] = $ifile;
+                if ( substr( $ifile, -5 ) == '.epub' ) $epub[] = $ifile;
+                $ipath = implode( '/', $apath );
             }
+            // Encoding folder name
+            $pfolder = array_filter( explode( '/', $folderalone ) );
+            foreach( $pfolder as &$p ) $p = rawurlencode( $p );
+            $ufolder = implode( '/', $pfolder );
             // Any MP3 file?
             if ( count( $ifiles ) ) {
                 // Calculating file "prefixes"
@@ -220,7 +230,7 @@ function listMedia( $t ){
                 $alltags = array();
                 foreach ( $ifiles as $ifile ) {
                     // Getting ID3 info
-                    $finfo = mediadownloaderMP3Info( $mrelative.'/'.$folder.'/'.$ifile ) ;
+                    $finfo = mediadownloaderMP3Info( $mrelative.'/'.$folderalone.'/'.$ifile ) ;
                     // Loading all possible tags
                     $ftags = $finfo['tags']['id3v2'] ;
                     $ftags['bitrate'] = array( floatval( $finfo['audio']['bitrate'] ) / 1000 . 'kbps' ) ;
@@ -384,7 +394,7 @@ function listMedia( $t ){
                 // If any "extra" files, inserting extra elements
                 // (this was very case specific and remained here)
                 if ( count( $zip ) + count( $pdf ) + count( $epub ) ) {
-                    $afolder = explode( '/', $folder ) ;
+                    $afolder = explode( '/', $folderalone ) ;
                     for ( $a=0; $a<count($afolder); $a++ ) $afolder[$a] = rawurlencode( $afolder[$a] ) ;
                     $cfolder = implode( '/', $afolder ) ;
                     $ihtml .= '</td>
@@ -414,7 +424,7 @@ function listMedia( $t ){
             // If any "extra" files, inserting extra elements
             // (this was very case specific and remained here)
             } elseif ( count( $zip ) + count( $pdf ) + count( $epub ) ){
-                $afolder = explode( '/', $folder ) ;
+                $afolder = explode( '/', $folderalone ) ;
                 for ( $a=0; $a<count($afolder); $a++ ) $afolder[$a] = rawurlencode( $afolder[$a] ) ;
                 $cfolder = implode( '/', $afolder ) ;
                 $allf = array_merge( $zip, $pdf, $epub );
