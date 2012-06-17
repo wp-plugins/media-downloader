@@ -20,6 +20,7 @@ $mdsortingfields = array(
     'album' => 'orderByAlbum',
     'artist' => 'orderByArtist',
     'file size' => 'orderByFileSize',
+    'sample rate' => 'orderBySampleRate',
 );
 // Settings and respective sanitize functions
 $mdsettings = array(
@@ -38,7 +39,7 @@ $mdsettings = array(
     'handlefeed' => 'sanitizeBoolean'
 );
 // Possible ID3 tags
-$mdtags = array( 'title', 'artist', 'album', 'year', 'genre', 'comments', 'track_number', 'bitrate', 'filesize', 'filedate', 'directory', 'file' );
+$mdtags = array( 'title', 'artist', 'album', 'year', 'genre', 'comments', 'track_number', 'bitrate', 'filesize', 'filedate', 'directory', 'file', 'sample_rate' );
 
 // Markup settings and respective sanitize functions
 $mdmarkupsettings = array(
@@ -87,8 +88,8 @@ if( !function_exists( 'Markdown' ) ) include_once( "markdown/markdown.php" );
 
 // Friendly file size
 if( !function_exists( 'byte_convert' ) ){
-    function byte_convert($bytes){
-        $symbol = array('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
+    function byte_convert( $bytes ){
+        $symbol = array( 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' );
 
         $exp = 0;
         $converted_value = 0;
@@ -96,6 +97,22 @@ if( !function_exists( 'byte_convert' ) ){
         {
           $exp = floor( log($bytes)/log(1024) );
           $converted_value = ( $bytes/pow(1024,floor($exp)) );
+        }
+
+        return sprintf( '%.2f '.$symbol[$exp], $converted_value );
+    }
+}
+
+// Friendly file size
+if( !function_exists( 'hertz_convert' ) ){
+    function hertz_convert( $hertz ){
+        $symbol = array( 'Hz', 'kHz', 'MHz', 'GHz', 'THz', 'PHz', 'EHz', 'ZHz', 'YHz' );
+
+        $exp = 0;
+        $converted_value = 0;
+        if( $hertz > 0 ) {
+          $exp = floor( log( $hertz, 10 ) / 3 );
+          $converted_value = ( $hertz / pow( 1000 , floor( $exp ) ) );
         }
 
         return sprintf( '%.2f '.$symbol[$exp], $converted_value );
@@ -238,6 +255,7 @@ function listMedia( $t ){
                     $ftags['filedate'] = array( date_i18n( get_option('date_format'), filemtime( $finfo['filepath'] . '/' . $finfo['filename'] ) ) ) ;
                     $ftags['directory'] = array( $hlevel ) ;
                     $ftags['file'] = array( $ifile ) ;
+                    $ftags['sample_rate'] = array( hertz_convert( intval( '0' . $finfo['audio']['sample_rate'] ) ) );
                     $alltags[$ifile] = $ftags;
                     // Populating array of tag values with all tags
                     foreach ( $mdtags as $mshowtag )
@@ -494,6 +512,9 @@ function orderByArtist( $a, $b ) {
 }
 function orderByFileSize( $a, $b ) {
     return orderByTag( $a, $b, 'filesize' );
+}
+function orderBySampleRate( $a, $b ) {
+    return orderByTag( $a, $b, 'sample_rate' );
 }
 
 function mediadownloader( $t ) {
