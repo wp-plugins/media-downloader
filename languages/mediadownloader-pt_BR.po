@@ -264,3 +264,10 @@ msgstr "Play"
 msgid "Settings"
 msgstr "Configurações"
 
+#: mediadownloader-options.php:73
+msgid "Try to guess and remove a common \"prefix\" to all the files of the same folder"
+msgstr "Tentar calcular e remover um \"prefixo\" comum a todos os arquivos de um mesmo diretório"
+
+#: mediadownloader-options.php:76
+msgid "(though a very helpful \"magic\" sometimes, this feature behaves in a unpredictably wild way)"
+msgstr "(embora seja uma \"mágica\" muito útil às vezes, esta funcionalidade se comporta de maneira imprevisivelmente selvagem)"

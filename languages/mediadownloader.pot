@@ -264,3 +264,11 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
+#: mediadownloader-options.php:73
+msgid "Try to guess and remove a common \"prefix\" to all the files of the same folder"
+msgstr ""
+
+#: mediadownloader-options.php:76
+msgid "(though a very helpful \"magic\" sometimes, this feature behaves in a unpredictably wild way)"
+msgstr ""
+

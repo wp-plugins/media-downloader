@@ -69,6 +69,15 @@ foreach( $mdsettings as $mdsetting => $mdsanitizefunction ) $mdoptions[$mdsettin
 </p>
 
 <p>
+<input type="checkbox" name="calculateprefix" id="md_calculateprefix" value="1" <?php if ( $mdoptions['calculateprefix'] ) echo ' checked="checked" ' ;?> />
+<label for="md_calculateprefix">
+<?php _mde( 'Try to guess and remove a common "prefix" to all the files of the same folder' ) ;?>
+<br />
+<small><?php _mde( '(though a very helpful "magic" sometimes, this feature behaves in a unpredictably wild way)' ) ;?></small>
+</label>
+</p>
+
+<p>
 <input type="checkbox" name="embedplayer" id="md_embedplayer" value="1" <?php if ( $mdoptions['embedplayer'] ) echo ' checked="checked" ' ;?> />
 <label for="md_embedplayer"><?php _mde( 'Embed player' ) ;?></label>
 </p>
