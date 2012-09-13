@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99.5
+Version: 0.1.99.6
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -737,7 +737,13 @@ function mediaDownloaderLocalizeScript() {
 }
 
 function mediaDownloaderInit() {
-    load_plugin_textdomain( 'mediadownloader', false, basename( dirname( __FILE__ ) ) . '/languages' );
+    load_plugin_textdomain( 'media-downloader', false, basename( dirname( __FILE__ ) ) . '/languages' );
+    /*
+    // I'm testing the lines below to avoid problems with symlinks,
+    // but it's not over yet...
+    $pdir = array_key_exists( 'SCRIPT_FILENAME', $_SERVER ) ? array_shift( explode( '/wp-', $_SERVER["SCRIPT_FILENAME"] ) ) . '/wp-content/plugins/media-downloader' : dirname( plugin_basename( __FILE__ ) );
+    load_plugin_textdomain( 'media-downloader', false, $pdir . '/languages/' );
+    */
     mediaDownloaderEnqueueScripts();
 }
 add_action( 'init', 'mediaDownloaderInit' );
@@ -828,7 +834,7 @@ function _md( $t ) {
 //        icl_register_string( 'Media Downloader', $t, $t );
 //        return icl_t( 'Media Downloader', $t, $t );
 //    } else {
-        return __( $t, 'mediadownloader' ) ;
+        return __( $t, 'media-downloader' ) ;
 //    }
 }
 function _mde( $t ) {
@@ -836,7 +842,7 @@ function _mde( $t ) {
 //        icl_register_string( 'Media Downloader', $t, $t );
 //        echo icl_t( 'Media Downloader', $t, $t );
 //    } else {
-        return _e( $t, 'mediadownloader' ) ;
+        return _e( $t, 'media-downloader' ) ;
 //    }
 }
 function _mdn( $ts, $tp, $n ) {
@@ -849,7 +855,7 @@ function _mdn( $ts, $tp, $n ) {
 //            return icl_t( 'Media Downloader', $ts, $ts );
 //        }
 //    } else {
-        return _n( $ts, $tp, $n, 'mediadownloader' ) ;
+        return _n( $ts, $tp, $n, 'media-downloader' ) ;
 //    }
 }
 
