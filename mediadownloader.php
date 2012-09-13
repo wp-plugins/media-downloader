@@ -16,6 +16,7 @@ $mdsortingfields = array(
     'none' => null,
     'title' => 'orderByTitle',
     'file date' => 'orderByFileDate',
+    'year' => 'orderByYear',
     'track number' => 'orderByTrackNumber',
     'album' => 'orderByAlbum',
     'artist' => 'orderByArtist',
@@ -46,6 +47,7 @@ $mdtags = array( 'title', 'artist', 'album', 'year', 'genre', 'comments', 'track
 $mdmarkupsettings = array(
     'downloadtext' => null,
     'playtext' => null,
+    'stoptext' => null,
     'replaceheaders' => null,
     'markuptemplate' => 'sanitizeMarkupTemplate',
 );
@@ -144,6 +146,16 @@ function replaceUnderscores( $t ) {
     return $t ;
 }
 
+function get_replaceheaders() {
+    $replaceheaders = array();
+    $arrreplaceheaders = explode( "\n", trim( get_option( 'replaceheaders' ) ) );
+    foreach ( $arrreplaceheaders as $line ) {
+        $arrline = explode( ':', trim( $line ) );
+        if ( count( $arrline ) >= 2 ) $replaceheaders[ strtolower( trim( array_shift( $arrline ) ) ) ] = implode( ':', $arrline );
+    }
+    return $replaceheaders;
+}
+
 // Searches post content for our smarttag and do all the magic
 function listMedia( $t ){
     global $mdtags, $tagvalues, $mdsortingfields, $mdmarkuptemplates;
@@ -182,12 +194,8 @@ function listMedia( $t ){
     // Markup options
     $downloadtext = get_option( 'downloadtext' );
     $playtext = get_option( 'playtext' );
-    $replaceheaders = array();
-    $arrreplaceheaders = explode( "\n", trim( get_option( 'replaceheaders' ) ) );
-    foreach ( $arrreplaceheaders as $line ) {
-        $arrline = explode( ':', trim( $line ) );
-        if ( count( $arrline ) >= 2 ) $replaceheaders[ trim( array_shift( $arrline ) ) ] = implode( ':', $arrline );
-    }
+    $stoptext = get_option( 'stoptext' );
+    $replaceheaders = get_replaceheaders();
     $markuptemplate = get_option( 'markuptemplate' );
     if ( !sanitizeMarkupTemplate( $markuptemplate ) ) $markuptemplate = array_shift( array_keys( $mdmarkuptemplates ) ); // Default: first option
 
@@ -356,7 +364,9 @@ function listMedia( $t ){
                 } elseif ( 'definition-list' == $markuptemplate ) {
                     $ihtml .= "\n" . '<th class="mediaTitle">&nbsp;</th>' . "\n";
                 }
-                $ihtml .= '<th class="mediaDownload">'._md('Download').'</th>
+                $donwloadheader = _md('Download');
+                if ( array_key_exists( 'download', $replaceheaders ) ) $downloadheader = $replaceheaders['download'];
+                $ihtml .= '<th class="mediaDownload">'.$downloadheader.'</th>
 </tr>
 </thead>
 <tbody>';
@@ -375,6 +385,7 @@ function listMedia( $t ){
                     // Download text
                     $idownloadtext = $downloadtext ? $downloadtext : 'Download: [file]';
                     $iplaytext = $playtext ? $playtext : 'Play: [file]';
+                    $istoptext = $stoptext ? $stoptext : 'Stop: [file]';
                     foreach ( $mdtags as $mdtag ) {
                         if ( !array_key_exists( $mdtag, $alltags[$ifile] ) ) $alltags[$ifile][$mdtag] = array( '' );
                         $tagvalue = $alltags[$ifile][$mdtag][0];
@@ -385,6 +396,7 @@ function listMedia( $t ){
                         }
                         $idownloadtext = str_replace( '[' . $mdtag . ']', $tagvalue, $idownloadtext );
                         $iplaytext = str_replace( '[' . $mdtag . ']', $tagvalue, $iplaytext );
+                        $istoptext = str_replace( '[' . $mdtag . ']', $tagvalue, $istoptext );
                     }
                     
                     // Getting stored markup
@@ -402,7 +414,7 @@ function listMedia( $t ){
                         // one "td" with a "dl" inside
                         $ihtml .= '<td class="mediaTitle">'.$ititle.'</td>'."\n" ;
                     }
-                    $ihtml .= '<td class="mediaDownload"><a href="'.home_url($mdir).'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.mp3" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" rel="mediaDownloaderPlayText:' . urlencode( htmlentities( $iplaytext, ENT_COMPAT, 'UTF-8' ) ) . '" id="mdfile_' . sanitize_title( $ifile ) . '">'.$idownloadtext.'</a></td>'."\n" ;
+                    $ihtml .= '<td class="mediaDownload"><a href="'.home_url($mdir).'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.mp3" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" rel="mediaDownloaderPlayText:' . urlencode( htmlentities( $iplaytext, ENT_COMPAT, 'UTF-8' ) ) . ';mediaDownloaderStopText:' . urlencode( htmlentities( $istoptext, ENT_COMPAT, 'UTF-8' ) ) . '" id="mdfile_' . sanitize_title( $ifile ) . '">'.$idownloadtext.'</a></td>'."\n" ;
                     $ihtml .= '</tr>'."\n" ;
                 }
                 $ihtml .= '</tbody></table>'."\n" ;
@@ -501,6 +513,9 @@ function orderByTitle( $a, $b ) {
 }
 function orderByFileDate( $a, $b ) {
     return orderByTag( $a, $b, 'filedate' );
+}
+function orderByYear( $a, $b ) {
+    return orderByTag( $a, $b, array( 'year', 'track_number', 'filedate' ) );
 }
 function orderByTrackNumber( $a, $b ) {
     return orderByTag( $a, $b, 'track_number' );
@@ -704,12 +719,16 @@ function mediaDownloaderLocalizeScript() {
         $mdembedcolors[$mdcolor] = get_option( $mdcolor . '_embed_color' );
         if ( !trim($mdembedcolors[$mdcolor]) ) $mdembedcolors[$mdcolor] = $mddefault;
     }
+    $replaceheaders = get_replaceheaders();
+    $playheader = _md( 'Play' );
+    if ( array_key_exists( 'play', $replaceheaders ) ) $playheader = $replaceheaders['play'];
     wp_localize_script( 'mediadownloaderJs', 'mdEmbedColors', $mdembedcolors );
     wp_localize_script( 'mediadownloaderJs', 'mdStringTable', array(
         'pluginURL' => WP_PLUGIN_URL . '/media-downloader/',
-        'playColumnText' => _md( 'Play' ),
+        'playColumnText' => $playheader,
         'downloadTitleText' => _md( 'Download:' ),
         'playTitleText' => _md( 'Play:' ),
+        'stopTitleText' => _md( 'Stop:' ),
     ) );
 }
 

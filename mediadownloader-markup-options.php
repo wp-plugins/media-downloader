@@ -63,6 +63,12 @@ if ( !sanitizeMarkupTemplate( $markuptemplate ) ) $markuptemplate = array_shift(
 <small><?php _mde( 'Default:' ); ?> <i><code>Play: [title]</code></i></small>
 </p>
 
+<p>
+<label for="md_stoptext"><?php _mde( 'Stop Text:' ) ;?></label> <br />
+<input type="text" name="stoptext" id="md_stoptext" value="<?php echo $mdoptions['stoptext'] ;?>" size="75" />
+<small><?php _mde( 'Default:' ); ?> <i><code>Stop: [title]</code></i></small>
+</p>
+
 <p class="submit">
 <input type="submit" value="<?php _mde( 'Update Options' ) ;?>" />
 </p>
