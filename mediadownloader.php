@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99.6
+Version: 0.1.99.7
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -368,7 +368,7 @@ function listMedia( $t ){
                 } elseif ( 'definition-list' == $markuptemplate ) {
                     $ihtml .= "\n" . '<th class="mediaTitle">&nbsp;</th>' . "\n";
                 }
-                $donwloadheader = _md('Download');
+                $downloadheader = _md( 'Download' );
                 if ( array_key_exists( 'download', $replaceheaders ) ) $downloadheader = $replaceheaders['download'];
                 $ihtml .= '<th class="mediaDownload">'.$downloadheader.'</th>
 </tr>
@@ -418,7 +418,7 @@ function listMedia( $t ){
                         // one "td" with a "dl" inside
                         $ihtml .= '<td class="mediaTitle">'.$ititle.'</td>'."\n" ;
                     }
-                    $ihtml .= '<td class="mediaDownload"><a href="'.home_url($mdir).'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.mp3" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" rel="mediaDownloaderPlayText:' . urlencode( htmlentities( $iplaytext, ENT_COMPAT, 'UTF-8' ) ) . ';mediaDownloaderStopText:' . urlencode( htmlentities( $istoptext, ENT_COMPAT, 'UTF-8' ) ) . '" id="mdfile_' . sanitize_title( $ifile ) . '">'.$idownloadtext.'</a></td>'."\n" ;
+                    $ihtml .= '<td class="mediaDownload"><a href="'.home_url($mdir).'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.mp3" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" rel="mediaDownloaderPlayText:' . htmlentities( $iplaytext, ENT_COMPAT, 'UTF-8' ) . ';mediaDownloaderStopText:' . htmlentities( $istoptext, ENT_COMPAT, 'UTF-8' ) . '" id="mdfile_' . sanitize_title( $ifile ) . '">'.$idownloadtext.'</a></td>'."\n" ;
                     $ihtml .= '</tr>'."\n" ;
                 }
                 $ihtml .= '</tbody></table>'."\n" ;
