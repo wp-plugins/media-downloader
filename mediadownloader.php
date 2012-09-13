@@ -8,8 +8,8 @@ Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
 
-// Possible encodings (dealing with only two so far)
-$mdencodings = array( 'UTF-8', 'ISO-8859-1' );
+// Possible encodings
+$mdencodings = array( 'UTF-8', 'ISO-8859-1', 'ISO-8859-15', 'cp866', 'cp1251', 'cp1252', 'KOI8-R', 'BIG5', 'GB2312', 'BIG5-HKSCS', 'Shift_JIS', 'EUC-JP' );
 // Possible fields by which file list should be sorted,
 // and respective sorting functions
 $mdsortingfields = array(
@@ -173,10 +173,12 @@ function listMedia( $t ){
     $membedwhere = get_option( 'embedwhere' ) ;
 
     // Should we re-encode the tags?
-    $mdoencode = ( get_option( 'tagencoding' ) != 'UTF-8' ) ;
+    $mdoencode = get_option( 'tagencoding' );
+    if ( !$mdoencode ) $mdoencode = 'UTF-8';
 
     // Should we re-encode the file names?
-    $mdofnencode = ( get_option( 'filenameencoding' ) != 'UTF-8' ) ;
+    $mdofnencode = get_option( 'filenameencoding' );
+    if ( !$mdofnencode ) $mdofnencode = 'UTF-8';
     
     // How should we sort the files?
     $msort = get_option( 'sortfiles' );
@@ -291,7 +293,9 @@ function listMedia( $t ){
                     // Each tag list item
                     foreach ( $mshowtags as $mshowtag ) {
                         $tagvalue = $tagvalues[$mshowtag][$ifile] ;
-                        if ( '' != $tagvalue ) {
+                        if ( '' == $tagvalue ) {
+                            $tagvalue = '&nbsp;';
+                        } else {
                             // Removing "prefix" of this tag
                             if ( '' != $tagprefixes[$mshowtag] )
                                 $tagvalue = str_replace( $tagprefixes[$mshowtag], '', $tagvalue ) ;
@@ -300,25 +304,25 @@ function listMedia( $t ){
                             $tagvalue = replaceUnderscores( $tagvalue ) ;
                             // Encoding...
                             if ( 'file' == $mshowtag || 'directory' == $mshowtag ) {
-                                if ( $mdofnencode ) $tagvalue = utf8_encode( $tagvalue ) ;
-                            } elseif ( $mdoencode ) {
-                                $tagvalue = utf8_encode( $tagvalue ) ;
+                                if ( $mdofnencode != 'UTF-8' ) $tagvalue = iconv( $mdofnencode, 'UTF-8', $tagvalue );
+                            } elseif ( $mdoencode != 'UTF-8' ) {
+                                $tagvalue = iconv( $mdoencode, 'UTF-8', $tagvalue );
                             }
-                            // Item markup
-                            $columnheader = ucwords( _md( $mshowtag ) );
-                            if ( array_key_exists( $mshowtag, $replaceheaders ) ) $columnheader = $replaceheaders[$mshowtag];
-                            if ( 'table-cells' == $markuptemplate ) {
-                                // For "table cells" markup template,
-                                // we store a "row with headers", so it
-                                // just needs to run once
-                                if ( $tablecellsmode_firstfile ) {
-                                    $tablecellsmode_header .= '<th class="mdTag'.$mshowtag.'">'.$columnheader.'</th>' ;
-                                }
-                                $ititle .= '<td class="mdTag'.$mshowtag.'">'.$tagvalue.'</td>' ;
-                            } elseif ( 'definition-list' == $markuptemplate )  {
-                                $ititle .= '<dt class="mdTag'.$mshowtag.'">'.$columnheader.':</dt>' ;
-                                $ititle .= '<dd class="mdTag'.$mshowtag.'">'.$tagvalue.'</dd>' ;
+                        }
+                        // Item markup
+                        $columnheader = ucwords( _md( $mshowtag ) );
+                        if ( array_key_exists( $mshowtag, $replaceheaders ) ) $columnheader = $replaceheaders[$mshowtag];
+                        if ( 'table-cells' == $markuptemplate ) {
+                            // For "table cells" markup template,
+                            // we store a "row with headers", so it
+                            // just needs to run once
+                            if ( $tablecellsmode_firstfile ) {
+                                $tablecellsmode_header .= '<th class="mdTag'.$mshowtag.'">'.$columnheader.'</th>' ;
                             }
+                            $ititle .= '<td class="mdTag'.$mshowtag.'">'.$tagvalue.'</td>' ;
+                        } elseif ( 'definition-list' == $markuptemplate )  {
+                            $ititle .= '<dt class="mdTag'.$mshowtag.'">'.$columnheader.':</dt>' ;
+                            $ititle .= '<dd class="mdTag'.$mshowtag.'">'.$tagvalue.'</dd>' ;
                         }
                     }
                     // List markup (if any item)
@@ -390,9 +394,9 @@ function listMedia( $t ){
                         if ( !array_key_exists( $mdtag, $alltags[$ifile] ) ) $alltags[$ifile][$mdtag] = array( '' );
                         $tagvalue = $alltags[$ifile][$mdtag][0];
                         if ( 'file' == $mdtag || 'directory' == $mdtag ) {
-                            if ( $mdofnencode ) $tagvalue = utf8_encode( $tagvalue ) ;
-                        } elseif ( $mdoencode ) {
-                            $tagvalue = utf8_encode( $tagvalue ) ;
+                            if ( $mdofnencode != 'UTF-8' ) $tagvalue = iconv( $mdofnencode, 'UTF-8', $tagvalue );
+                        } elseif ( $mdoencode != 'UTF-8' ) {
+                            $tagvalue = iconv( $mdoencode, 'UTF-8', $tagvalue );
                         }
                         $idownloadtext = str_replace( '[' . $mdtag . ']', $tagvalue, $idownloadtext );
                         $iplaytext = str_replace( '[' . $mdtag . ']', $tagvalue, $iplaytext );
