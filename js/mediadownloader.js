@@ -35,12 +35,16 @@ function initMediaDownloader() {
         var arrrel = (jQuery(this).attr('rel')+'').split(';');
         for ( var r=0; r<arrrel.length; r++ ) {
             var arrparm = arrrel[r].split(':');
-            if ( arrparm.length == 2 ) {
+            if ( arrparm.length >= 2 ) {
+                var arr_resto = unescape( arrparm.slice(1,arrparm.length).join(':').replace( /\+/g, ' ' ) );
                 if ( arrparm[0] == 'mediaDownloaderPlayText' ) {
-                    text = unescape( arrparm[1].replace( /\+/g, ' ' ) );
+                    text = arr_resto;
                 }
                 if ( arrparm[0] == 'mediaDownloaderStopText' ) {
-                    relattr = unescape( arrparm[1].replace( /\+/g, ' ' ) );
+                    relattr = arr_resto;
+                }
+                if ( arrparm[0] == 'mediaDownloaderTitleText' ) {
+                    title = arr_resto;
                 }
             }
         }
@@ -56,7 +60,7 @@ function initMediaDownloader() {
         var linkText = jQuery(this).html();
         var linkRel = jQuery(this).attr('rel');
         if( link != mediaplayerPlayingURL ){
-            mediaplayerPlay( link, jQuery(this).html().replace(mediadownloaderPlayTitleText, '') );
+            mediaplayerPlay( link, jQuery(this).attr('title').replace(mediadownloaderPlayTitleText, '') );
             jQuery('a.mediaStop').removeClass('mediaStop');
             jQuery('td.mediaPlaying').removeClass('mediaPlaying');
             jQuery(this).addClass('mediaStop').parents('td.mediaPlay').addClass('mediaPlaying');
@@ -75,6 +79,12 @@ jQuery(document).ready(function($) {
 });
 
 function mediaplayerStr( url, title, tdcolspan ) {
+    var artist = '';
+    if ( title.indexOf( '-' ) > -1 ) {
+        var stitle = title.split( '-' );
+        artist = stitle[0].replace( '[_]', '-' );
+        title = stitle.slice(1,stitle.length).join('-');
+    }
     var strColors = '';
     var mdBgColor = 'FFF';
     if ( typeof(mdEmbedColors) != 'undefined' ) {
@@ -82,7 +92,7 @@ function mediaplayerStr( url, title, tdcolspan ) {
         mdBgColor = mdEmbedColors.bg;
     }
     if ( typeof(tdcolspan) == 'undefined' ) tdcolspan = 3;
-    return '<tr class="mediaPlayer"><td colspan="'+tdcolspan+'" align="center">' + '<object type="application/x-shockwave-flash" name="audioplayer_1" style="outline: none" data="'+mediadownloaderPluginURL+'js/audio-player.swf?ver=2.0.4.1" width="100%" height="25" id="audioplayer_1">' + '<param name="bgcolor" value="#' + mdBgColor + '">' + '<param name="movie" value="'+mediadownloaderPluginURL+'js/audio-player.swf?ver=2.0.4.1">' + '<param name="menu" value="false">' + '<param name="flashvars" value="animation=yes&amp;encode=no&amp;initialvolume=80&amp;remaining=no&amp;noinfo=no&amp;buffer=5&amp;' + 'checkpolicy=no&amp;rtl=no&amp;' + strColors + 'autostart=yes&amp;soundFile=' + escape(url) + '&amp;playerID=audioplayer_1"></object></td></tr>';
+    return '<tr class="mediaPlayer"><td colspan="'+tdcolspan+'" align="center">' + '<object type="application/x-shockwave-flash" name="audioplayer_1" style="outline: none" data="'+mediadownloaderPluginURL+'js/audio-player.swf?ver=2.0.4.1" width="100%" height="25" id="audioplayer_1">' + '<param name="bgcolor" value="#' + mdBgColor + '">' + '<param name="movie" value="'+mediadownloaderPluginURL+'js/audio-player.swf?ver=2.0.4.1">' + '<param name="menu" value="false">' + '<param name="flashvars" value="animation=yes&amp;encode=no&amp;initialvolume=80&amp;remaining=no&amp;noinfo=no&amp;buffer=5&amp;' + 'checkpolicy=no&amp;rtl=no&amp;' + strColors + 'autostart=yes&amp;soundFile=' + escape(url) + '&amp;titles=' + title + '&amp;artists=' + artist + '&amp;playerID=audioplayer_1"></object></td></tr>';
 }
     
 var mediaplayerPlayingURL = '';

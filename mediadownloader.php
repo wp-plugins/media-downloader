@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99.7
+Version: 0.1.99.75
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -388,8 +388,11 @@ function listMedia( $t ){
                     $alltags[$ifile]['file'][0] = $showifile;
                     // Download text
                     $idownloadtext = $downloadtext ? $downloadtext : 'Download: [file]';
+                    // Play, Stop, Title and Artist texts (for embed player)
                     $iplaytext = $playtext ? $playtext : 'Play: [file]';
                     $istoptext = $stoptext ? $stoptext : 'Stop: [file]';
+                    $ititletext = $showifile;
+                    $iartisttext = '';
                     foreach ( $mdtags as $mdtag ) {
                         if ( !array_key_exists( $mdtag, $alltags[$ifile] ) ) $alltags[$ifile][$mdtag] = array( '' );
                         $tagvalue = $alltags[$ifile][$mdtag][0];
@@ -398,9 +401,14 @@ function listMedia( $t ){
                         } elseif ( $mdoencode != 'UTF-8' ) {
                             $tagvalue = iconv( $mdoencode, 'UTF-8', $tagvalue );
                         }
+                        // Replacing wildcards
                         $idownloadtext = str_replace( '[' . $mdtag . ']', $tagvalue, $idownloadtext );
                         $iplaytext = str_replace( '[' . $mdtag . ']', $tagvalue, $iplaytext );
                         $istoptext = str_replace( '[' . $mdtag . ']', $tagvalue, $istoptext );
+                        // If "title", populate "Title text"
+                        if ( 'title' == $mdtag ) $ititletext = $tagvalue;
+                        // If "artist", populate "Artist text"
+                        if ( 'artist' == $mdtag && $tagvalue ) $iartisttext = str_replace( '-', '[_]', $tagvalue ) . ' - ';
                     }
                     
                     // Getting stored markup
@@ -418,7 +426,16 @@ function listMedia( $t ){
                         // one "td" with a "dl" inside
                         $ihtml .= '<td class="mediaTitle">'.$ititle.'</td>'."\n" ;
                     }
-                    $ihtml .= '<td class="mediaDownload"><a href="'.home_url($mdir).'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.mp3" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" rel="mediaDownloaderPlayText:' . htmlentities( $iplaytext, ENT_COMPAT, 'UTF-8' ) . ';mediaDownloaderStopText:' . htmlentities( $istoptext, ENT_COMPAT, 'UTF-8' ) . '" id="mdfile_' . sanitize_title( $ifile ) . '">'.$idownloadtext.'</a></td>'."\n" ;
+                    // Play, Stop and Title (concatenated with Artist) texts
+                    // all packed in rel attribute, for embed player to read
+                    // and do its black magic
+                    $irel = array();
+                    if ( $iplaytext ) $irel[] = 'mediaDownloaderPlayText:' . htmlentities( $iplaytext, ENT_COMPAT, 'UTF-8' );
+                    if ( $istoptext ) $irel[] = 'mediaDownloaderStopText:' . htmlentities( $istoptext, ENT_COMPAT, 'UTF-8' );
+                    $ititletext = $iartisttext . $ititletext;
+                    if ( $ititletext ) $irel[] = 'mediaDownloaderTitleText:' . htmlentities( $ititletext, ENT_COMPAT, 'UTF-8' );
+                    $irel = implode( ';', $irel );
+                    $ihtml .= '<td class="mediaDownload"><a href="'.home_url($mdir).'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.mp3" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" ' . ( $irel ? 'rel="' . $irel . '"' : '' ) . ' id="mdfile_' . sanitize_title( $ifile ) . '">'.$idownloadtext.'</a></td>'."\n" ;
                     $ihtml .= '</tr>'."\n" ;
                 }
                 $ihtml .= '</tbody></table>'."\n" ;
@@ -536,6 +553,7 @@ function orderByFileSize( $a, $b ) {
 function orderBySampleRate( $a, $b ) {
     return orderByTag( $a, $b, 'sample_rate' );
 }
+
 
 function mediadownloader( $t ) {
     if ( !is_feed() || !get_option( 'handlefeed' ) ) :
