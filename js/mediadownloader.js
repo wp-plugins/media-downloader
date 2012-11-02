@@ -99,7 +99,7 @@ var mediaplayerPlayingURL = '';
 function mediaplayerPlay( url, title ) {
     if( url != mediaplayerPlayingURL ) {
         mediaplayerStop();
-        var linktr = jQuery('a[href="'+url+'"]').first().parents('tr');
+        var linktr = jQuery('a[href="'+url+'"]').first().parents('tr').first();
         var tdcolspan = 0;
         linktr.children('td').each( function () {
             var currentcolspan = parseInt( '0' + jQuery(this).attr('colspan'), 10 );
