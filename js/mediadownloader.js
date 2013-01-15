@@ -48,7 +48,7 @@ function initMediaDownloader() {
                 }
             }
         }
-        var tdcont = '<td class="mediaPlay"><a href="'+link+'" title="'+title+'" rel="' + relattr + '">'+text+'</a></td>';
+        var tdcont = '<td class="mediaPlay"><a href="'+link+'" title="'+title+'" rel="' + escape(relattr) + '">'+text+'</a></td>';
         if ( jQuery(this).parents('table.mediaTable').hasClass('embedposafter') ) {
             jQuery(this).parent().after(tdcont);
         } else {
@@ -58,7 +58,7 @@ function initMediaDownloader() {
     jQuery('table.mediaTable.embedPlayer td.mediaPlay a').click( function () {
         var link=jQuery(this).attr('href');
         var linkText = jQuery(this).html();
-        var linkRel = jQuery(this).attr('rel');
+        var linkRel = unescape(jQuery(this).attr('rel'));
         if( link != mediaplayerPlayingURL ){
             mediaplayerPlay( link, jQuery(this).attr('title').replace(mediadownloaderPlayTitleText, '') );
             jQuery('a.mediaStop').removeClass('mediaStop');
