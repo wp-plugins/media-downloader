@@ -53,19 +53,19 @@ if ( !sanitizeMarkupTemplate( $markuptemplate ) ) $markuptemplate = array_shift(
 
 <p>
 <label for="md_downloadtext"><?php _mde( 'Download Text:' ) ;?></label> <br />
-<input type="text" name="downloadtext" id="md_downloadtext" value="<?php echo $mdoptions['downloadtext'] ;?>" size="75" />
+<input type="text" name="downloadtext" id="md_downloadtext" value="<?php echo esc_attr( $mdoptions['downloadtext'] ) ;?>" size="75" />
 <small><?php _mde( 'Default:' ); ?> <i><code>Download: [title]</code></i></small>
 </p>
 
 <p>
 <label for="md_playtext"><?php _mde( 'Play Text:' ) ;?></label> <br />
-<input type="text" name="playtext" id="md_playtext" value="<?php echo $mdoptions['playtext'] ;?>" size="75" />
+<input type="text" name="playtext" id="md_playtext" value="<?php echo esc_attr( $mdoptions['playtext'] ) ;?>" size="75" />
 <small><?php _mde( 'Default:' ); ?> <i><code>Play: [title]</code></i></small>
 </p>
 
 <p>
 <label for="md_stoptext"><?php _mde( 'Stop Text:' ) ;?></label> <br />
-<input type="text" name="stoptext" id="md_stoptext" value="<?php echo $mdoptions['stoptext'] ;?>" size="75" />
+<input type="text" name="stoptext" id="md_stoptext" value="<?php echo esc_attr( $mdoptions['stoptext'] ) ;?>" size="75" />
 <small><?php _mde( 'Default:' ); ?> <i><code>Stop: [title]</code></i></small>
 </p>
 
