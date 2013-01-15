@@ -139,7 +139,7 @@ function calculatePrefix($arr){
 
 function replaceUnderscores( $t ) {
     if ( $t && false === strpos(' ', $t) ) {
-        if ( false === strpos('_', $t) ) $t = str_replace( '-', '_', $t ) ;
+        //if ( false === strpos('_', $t) ) $t = str_replace( '-', '_', $t ) ;
         $t = preg_replace( '/_(_+)/i', ' - ', $t );
         $t = str_replace( '_', ' ', $t ) ;
     }
