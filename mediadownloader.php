@@ -183,7 +183,7 @@ function listMedia( $t ){
     // How should we sort the files?
     $msort = get_option( 'sortfiles' );
     // "Backward compatibilaziness": it used to be a boolean value
-    if ( isset( $msort ) && !array_key_exists( $msort, $mdsortingfields ) ) $msort = 'title';
+    if ( isset( $msort ) && !array_key_exists( $msort . '', $mdsortingfields ) ) $msort = 'title';
 
     // Should the sorting be reversed?
     $mreverse = ( get_option( 'reversefiles' ) == true ) ;
