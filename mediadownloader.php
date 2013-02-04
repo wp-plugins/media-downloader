@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99.76
+Version: 0.1.99.77
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -244,7 +244,7 @@ function listMedia( $t ){
             }
             // Encoding folder name
             $pfolder = array_filter( explode( '/', $folderalone ) );
-            foreach( $pfolder as &$p ) $p = rawurlencode( $p );
+            foreach( $pfolder as $p ) $p = rawurlencode( $p );
             $ufolder = implode( '/', $pfolder );
             // Any MP3 file?
             if ( count( $ifiles ) ) {
@@ -279,8 +279,8 @@ function listMedia( $t ){
                         $tagprefixes[$mshowtag] = calculatePrefix( $tagvalues[$mshowtag] );
                 // If set, sorting array
                 if ( $msort != 'none' ) {
-                    sort( &$ifiles );
-                    uasort( &$ifiles, $mdsortingfields[$msort] );
+                    sort( $ifiles );
+                    uasort( $ifiles, $mdsortingfields[$msort] );
                 }
                 // If set, reversing array
                 if ( $mreverse ) $ifiles = array_reverse( $ifiles );
@@ -480,7 +480,7 @@ function listMedia( $t ){
                 for ( $a=0; $a<count($afolder); $a++ ) $afolder[$a] = rawurlencode( $afolder[$a] ) ;
                 $cfolder = implode( '/', $afolder ) ;
                 $allf = array_merge( $zip, $pdf, $epub );
-                asort(&$allf);
+                asort($allf);
                 $ihtml .= '<table class="mediaTable bookInfo">' . "\n";
                 $ihtml .= '<thead>
 <tr>
@@ -493,7 +493,7 @@ function listMedia( $t ){
 <ul>';
                 foreach($allf as $thisf){
                     $arrf = explode('.', $thisf);
-                    $fext = array_pop(&$arrf);
+                    $fext = array_pop($arrf);
                     $fname = implode('.', $arrf);
                     $ihtml .= '<li class="d' . strtoupper(substr($fext,0,1)) . substr($fext,1) . '"><a href="'.$mrelative.'/'.($cfolder).'/'.rawurlencode( $thisf ).'">'.$fname.'</a></li>' ;
                 }
@@ -554,6 +554,9 @@ function orderBySampleRate( $a, $b ) {
     return orderByTag( $a, $b, 'sample_rate' );
 }
 
+function md_plugin_dir() {
+    return array_shift( explode( DIRECTORY_SEPARATOR, plugin_basename(__FILE__) ) );
+}
 
 function mediadownloader( $t ) {
     if ( !is_feed() || !get_option( 'handlefeed' ) ) :
@@ -561,7 +564,7 @@ function mediadownloader( $t ) {
         if ( TRUE == get_option( 'removeextension' ) ) {
             $t = preg_replace(
                 '/href\=[\\\'\"](.*)\.mp3[\\\'\"]/im',
-                "href=\"".WP_PLUGIN_URL."/media-downloader/getfile.php?f=$1\"",
+                "href=\"".WP_PLUGIN_URL."/".md_plugin_dir()."/getfile.php?f=$1\"",
                 $t
             );
         };
@@ -636,7 +639,7 @@ function mediadownloaderEnclosures( $adjacentmarkup = false ){
     
     // Should we get only the MP3 URL's?
     if ( !$adjacentmarkup ) {
-        foreach ( $ret as &$r ) if ( '/' == substr( $r, 0, 1 ) ) $r = 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://' . $_SERVER['SERVER_NAME'] . $r;
+        foreach ( $ret as $r ) if ( '/' == substr( $r, 0, 1 ) ) $r = 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://' . $_SERVER['SERVER_NAME'] . $r;
         return $ret;
     
     // Or get all the markup around them?
@@ -723,11 +726,11 @@ function mediaDownloaderEnqueueScripts() {
     // If any custom css, we enqueue our php that throws this css
     $customcss = trim( get_option( 'customcss' ) );
     if ( '' != $customcss ) {
-        wp_register_style( 'mediadownloaderCss', WP_PLUGIN_URL . '/media-downloader/css/mediadownloader-css.php' );
+        wp_register_style( 'mediadownloaderCss', WP_PLUGIN_URL . '/' . md_plugin_dir() . '/css/mediadownloader-css.php' );
         wp_enqueue_style( 'mediadownloaderCss' );
     }
     // Enqueuing our javascript
-    wp_enqueue_script( 'mediadownloaderJs', WP_PLUGIN_URL . '/media-downloader/js/mediadownloader.js', array('jquery'), date( 'YmdHis', filemtime( dirname(__FILE__) . '/js/mediadownloader.js' ) ), get_option( 'scriptinfooter' ) );
+    wp_enqueue_script( 'mediadownloaderJs', WP_PLUGIN_URL . '/' . md_plugin_dir() . '/js/mediadownloader.js', array('jquery'), date( 'YmdHis', filemtime( dirname(__FILE__) . '/js/mediadownloader.js' ) ), get_option( 'scriptinfooter' ) );
     
     // Passing options to our javascript
     add_action( 'get_header', 'mediaDownloaderLocalizeScript' );
@@ -738,7 +741,7 @@ function mediaDownloaderLocalizeScript() {
     global $mdembedplayerdefaultcolors;
     $mdembedcolors = array();
     foreach( $mdembedplayerdefaultcolors as $mdcolor => $mddefault ) {
-        $mdembedcolors[$mdcolor] = get_option( $mdcolor . '_embed_color' );
+        $mdembedcolors[$mdcolor] = str_replace( '#', '', get_option( $mdcolor . '_embed_color' ) );
         if ( !trim($mdembedcolors[$mdcolor]) ) $mdembedcolors[$mdcolor] = $mddefault;
     }
     $replaceheaders = get_replaceheaders();
@@ -746,7 +749,7 @@ function mediaDownloaderLocalizeScript() {
     if ( array_key_exists( 'play', $replaceheaders ) ) $playheader = $replaceheaders['play'];
     wp_localize_script( 'mediadownloaderJs', 'mdEmbedColors', $mdembedcolors );
     wp_localize_script( 'mediadownloaderJs', 'mdStringTable', array(
-        'pluginURL' => WP_PLUGIN_URL . '/media-downloader/',
+        'pluginURL' => WP_PLUGIN_URL . '/' . md_plugin_dir() . '/',
         'playColumnText' => $playheader,
         'downloadTitleText' => _md( 'Download:' ),
         'playTitleText' => _md( 'Play:' ),

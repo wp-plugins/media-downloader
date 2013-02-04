@@ -92,7 +92,7 @@ function mediaplayerStr( url, title, tdcolspan ) {
         mdBgColor = mdEmbedColors.bg;
     }
     if ( typeof(tdcolspan) == 'undefined' ) tdcolspan = 3;
-    return '<tr class="mediaPlayer"><td colspan="'+tdcolspan+'" align="center">' + '<object type="application/x-shockwave-flash" name="audioplayer_1" style="outline: none" data="'+mediadownloaderPluginURL+'js/audio-player.swf?ver=2.0.4.1" width="100%" height="25" id="audioplayer_1">' + '<param name="bgcolor" value="#' + mdBgColor + '">' + '<param name="movie" value="'+mediadownloaderPluginURL+'js/audio-player.swf?ver=2.0.4.1">' + '<param name="menu" value="false">' + '<param name="flashvars" value="animation=yes&amp;encode=no&amp;initialvolume=80&amp;remaining=no&amp;noinfo=no&amp;buffer=5&amp;' + 'checkpolicy=no&amp;rtl=no&amp;' + strColors + 'autostart=yes&amp;soundFile=' + escape(url) + '&amp;titles=' + title + '&amp;artists=' + artist + '&amp;playerID=audioplayer_1"></object></td></tr>';
+    return '<tr class="mediaPlayer"><td colspan="'+tdcolspan+'" align="center">' + '<object type="application/x-shockwave-flash" name="audioplayer_1" style="outline: none" data="'+mediadownloaderPluginURL+'js/audio-player.swf?ver=2.0.4.1" width="100%" height="25" id="audioplayer_1">' + '<param name="bgcolor" value="#' + mdBgColor + '">' + '<param name="movie" value="'+mediadownloaderPluginURL+'js/audio-player.swf?ver=2.0.4.1">' + '<param name="menu" value="false">' + '<param name="flashvars" value="animation=yes&amp;encode=no&amp;initialvolume=80&amp;remaining=no&amp;noinfo=no&amp;buffer=5&amp;' + 'checkpolicy=no&amp;rtl=no&amp;' + strColors + 'autostart=yes&amp;soundFile=' + escape(url) + '&amp;titles=' + title + '&amp;artists=' + artist + '&amp;playerID=audioplayer_1"><audio controls="controls" style="width:100%; background-color: #' + mdBgColor + ';"><source src="' + url + '" type="audio/mpeg" /><a href="' + url + '">' + title + '</a></audio></object></td></tr>';
 }
     
 var mediaplayerPlayingURL = '';
@@ -112,6 +112,6 @@ function mediaplayerPlay( url, title ) {
 }
 
 function mediaplayerStop() {
-    jQuery('tr.mediaPlayer').find('object').remove().end().remove();
+    jQuery('tr.mediaPlayer').find('object').find('audio').remove().end().remove().end().remove();
     mediaplayerPlayingURL = '';
 }

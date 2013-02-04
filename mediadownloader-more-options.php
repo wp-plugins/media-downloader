@@ -43,13 +43,30 @@ $colordescriptions = array(
 <fieldset id="mdf_embedcolors">
 <h3><?php _mde( 'Embed Player Colors:' ) ;?></h3>
 
+<table cellpadding="3">
+<thead>
+<tr>
+<th><?php _mde( 'Property' ); ?></th>
+<th><?php _mde( 'Value' ); ?></th>
+<th><?php _mde( 'Default' ); ?></th>
+</tr>
+</thead>
+<tbody>
 <?php foreach ( $mdembedplayerdefaultcolors as $mdcolor => $mddefault ) : ?>
-<p>
-<label for="md_<?php echo esc_attr( $mdcolor ); ?>"><?php echo sprintf( _md( '%1$s color:' ), $colordescriptions[$mdcolor] ) ;?> <!--<em>("<?php echo $mdcolor; ?>")</em>--> </label>
-<input type="text" name="<?php echo esc_attr( $mdcolor ); ?>_embed_color" id="md_<?php echo esc_attr( $mdcolor ); ?>" value="<?php echo $mdmoreoptions[$mdcolor]; ?>" size="7" maxlength="6" />
-<small><?php _mde( 'Default:' ) ;?> <code><?php echo $mddefault; ?></code></small>
-</p>
+  <tr>
+  <td>
+    <label for="md_<?php echo esc_attr( $mdcolor ); ?>"><?php echo $colordescriptions[$mdcolor]; ?> <!--<em>("<?php echo $mdcolor; ?>")</em>--> </label>
+  </td>
+  <td>
+    <input type="color" name="<?php echo esc_attr( $mdcolor ); ?>_embed_color" id="md_<?php echo esc_attr( $mdcolor ); ?>" value="<?php echo '#' . ( $mdmoreoptions[$mdcolor] ? $mdmoreoptions[$mdcolor] : $mddefault ); ?>" size="7" maxlength="7" />
+  </td>
+  <td>
+    <code style="border: 2px solid #<?php echo $mddefault; ?>;"><?php echo $mddefault; ?></code>
+  </td>
+  </tr>
 <?php endforeach; ?>
+</tbody>
+</table>
 
 <p class="submit">
 <input type="submit" value="<?php _mde( 'Update Options' ) ;?>" />
