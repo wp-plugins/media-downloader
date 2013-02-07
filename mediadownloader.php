@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99.78
+Version: 0.1.99.79
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -246,6 +246,12 @@ function listMedia( $t ){
             $pfolder = array_filter( explode( '/', $folderalone ) );
             foreach( $pfolder as $p ) $p = rawurlencode( $p );
             $ufolder = implode( '/', $pfolder );
+            if ( $ufolder ) {
+                $afolder = explode( '/', $ufolder );
+                foreach ( $afolder as &$alevel ) $alevel = rawurlencode( $alevel );
+                unset( $alevel );
+                $ufolder = implode( '/', $afolder );
+            }
             // Any MP3 file?
             if ( count( $ifiles ) ) {
                 // Calculating file "prefixes"
@@ -435,11 +441,6 @@ function listMedia( $t ){
                     $ititletext = $iartisttext . $ititletext;
                     if ( $ititletext ) $irel[] = 'mediaDownloaderTitleText:' . htmlentities( $ititletext, ENT_COMPAT, 'UTF-8' );
                     $irel = implode( ';', $irel );
-                    if ( $ufolder ) {
-                        $afolder = explode( '/', $ufolder );
-                        foreach ( $afolder as &$alevel ) $alevel = rawurlencode( $alevel );
-                        $ufolder = implode( '/', $afolder );
-                    }
                     $ihtml .= '<td class="mediaDownload"><a href="'.home_url($mdir).'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.mp3" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" ' . ( $irel ? 'rel="' . $irel . '"' : '' ) . ' id="mdfile_' . sanitize_title( $ifile ) . '">'.$idownloadtext.'</a></td>'."\n" ;
                     $ihtml .= '</tr>'."\n" ;
                 }
