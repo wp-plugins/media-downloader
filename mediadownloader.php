@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99.81
+Version: 0.1.99.82
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -600,28 +600,34 @@ function mediadownloaderMP3Length( $f ) {
 
 // Get ID3 tags from file
 function mediadownloaderMP3Info( $f ) {
-    $relURL = str_replace( 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://'.$_SERVER['SERVER_NAME'], '', get_option( 'siteurl' ) );
     // File path
-    $f = ABSPATH . str_replace( $relURL, '', $f ) . '.mp3';
+    $relURL = str_replace( 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://'.$_SERVER['SERVER_NAME'], '', get_option( 'siteurl' ) );
+    if ( stripos( $f, $relURL ) === 0 ) $f = substr( $f, strlen( $relURL ) );
+    $f = ABSPATH . $f . '.mp3';
+    $f = preg_replace( '|/+|ims', '/', $f );
 
     // Checking cache
+    $return = false;
     $hash = md5( $f );
     $cachedir = trim( get_option( 'cachedir' ) ) ;
     $cachefile = ABSPATH . '/' . $cachedir . '/md-' . $hash . '.cache' ;
     if ( $cachedir && is_readable( $cachefile )  && file_exists( $f ) && ( filemtime( $cachefile ) >= filemtime( $f ) ) ) {
 
-        return unserialize( file_get_contents( $cachefile ) );
+        $return = unserialize( file_get_contents( $cachefile ) );
+        if ( $return ) return $return;
 
-    } else {
+    }
+    if ( !$return ) {
 
         // include getID3() library (can be in a different directory if full path is specified)
         require_once('getid3/getid3.php');
         // Initialize getID3 engine
         $getID3 = new getID3;
         // Analyze file and store returned data in $ThisFileInfo
-        $ThisFileInfo = $getID3->analyze( $f );
-        // Saving cache
-        if ( $cachedir && is_writeable( ABSPATH . '/' . $cachedir ) ) file_put_contents( $cachefile, serialize( $ThisFileInfo ) );
+        if ( $ThisFileInfo = $getID3->analyze( $f ) ) {
+            // Saving cache
+            if ( $cachedir && is_writeable( ABSPATH . '/' . $cachedir ) ) file_put_contents( $cachefile, serialize( $ThisFileInfo ) );
+        }
         return $ThisFileInfo;
     }
 }
