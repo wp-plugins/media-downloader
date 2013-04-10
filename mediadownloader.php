@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99.82
+Version: 0.1.99.83
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -41,7 +41,7 @@ $mdsettings = array(
     'calculateprefix' => 'sanitizeBoolean',
 );
 // Possible ID3 tags
-$mdtags = array( 'title', 'artist', 'album', 'year', 'genre', 'comments', 'track_number', 'bitrate', 'filesize', 'filedate', 'directory', 'file', 'sample_rate' );
+$mdtags = array( 'title', 'artist', 'album', 'year', 'genre', 'comment', 'track_number', 'bitrate', 'filesize', 'filedate', 'directory', 'file', 'sample_rate' );
 
 // Markup settings and respective sanitize functions
 $mdmarkupsettings = array(
@@ -189,7 +189,8 @@ function listMedia( $t ){
     $mreverse = ( get_option( 'reversefiles' ) == true ) ;
 
     // Which tags to show?
-    $mshowtags = array_intersect( explode( ',', get_option( 'showtags' ) ), $mdtags ) ;
+    $option_showtags = str_replace( 'comments', 'comment', get_option( 'showtags' ) );
+    $mshowtags = array_intersect( explode( ',', $option_showtags ), $mdtags ) ;
     // If none, shows the first tag (title)
     if ( !count($mshowtags) ) $mshowtags = array( $mdtags[0] ) ;
     
@@ -276,7 +277,7 @@ function listMedia( $t ){
                     $alltags[$ifile] = $ftags;
                     // Populating array of tag values with all tags
                     foreach ( $mdtags as $mshowtag )
-                        $tagvalues[$mshowtag][$ifile] = ( 'comments' == $mshowtag ) ? Markdown( $ftags[$mshowtag][0] ) : $ftags[$mshowtag][0] ;
+                        $tagvalues[$mshowtag][$ifile] = ( 'comment' == $mshowtag ) ? Markdown( $ftags[$mshowtag][0] ) : $ftags[$mshowtag][0] ;
                 }
                 // Calculating tag "prefixes"
                 $tagprefixes = array() ;
@@ -592,7 +593,7 @@ function mediadownloaderMP3Length( $f ) {
     $getID3 = new getID3;
     // Analyze file and store returned data in $ThisFileInfo
     $ThisFileInfo = $getID3->analyze( $filename );
-    // Optional: copies data from all subarrays of [tags] into [comments] so
+    // Optional: copies data from all subarrays of [tags] into [comment] so
     // metadata is all available in one location for all tag formats
     // metainformation is always available under [tags] even if this is not called
     getid3_lib::CopyTagsToComments( $ThisFileInfo );
