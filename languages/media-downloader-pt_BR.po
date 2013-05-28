@@ -35,6 +35,12 @@ msgstr "Substitui o cabeçalho padrão das colunas (ie: \"title\", \"comments\")
 msgid "Syntax example: <br /><code>comments:Description</code><br /><code>title:Episode</code>"
 msgstr "Exemplo de sintaxe: <br /><code>comments:Descrição</code><br /><code>title:Episódio</code>"
 
+msgid "Cover image markup"
+msgstr "<em>Markup</em> da imagem de capa"
+
+msgid "Album Cover"
+msgstr "Capa do Álbum"
+
 #: mediadownloader-markup-options.php:42
 #: mediadownloader-markup-options.php:67
 #: mediadownloader-more-options.php:55
@@ -131,6 +137,9 @@ msgstr "Esconder a extensão \".mp3\" na URL de download"
 #: mediadownloader-options.php:67
 msgid "(checking it may cause some server overloading)"
 msgstr "(marcar esta opção pode sobrecarregar o servidor)"
+
+msgid "Show cover (if a <code>folder.jpg</code> file is found)"
+msgstr "Mostrar \"capa\" (se houver um arquivo <code>folder.jpg</code>)"
 
 #: mediadownloader-options.php:73
 msgid "Embed player"

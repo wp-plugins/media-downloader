@@ -38,6 +38,14 @@ if ( !sanitizeMarkupTemplate( $markuptemplate ) ) $markuptemplate = array_shift(
 <small><?php _mde( 'Syntax example: <br /><code>comments:Description</code><br /><code>title:Episode</code>' ); ?></small>
 </p>
 
+<h2><?php _mde( 'Cover image markup' ); ?></h2>
+
+<h4><label for="md_covermarkup"><?php _mde( 'Wildcards:' ) ;?> <code>[coverimage]</code></label></h4>
+<p>
+<input type="text" name="covermarkup" id="md_covermarkup" value="<?php echo esc_attr( $mdoptions['covermarkup'] ) ;?>" size="75" />
+<small><?php _mde( 'Default:' ); ?> <i><code>&lt;img class="md_coverImage" src="[coverimage]" alt="<?php _mde( 'Album Cover' ); ?>" /&gt;</code></i></small>
+</p>
+
 <p class="submit">
 <input type="submit" value="<?php _mde( 'Update Options' ) ;?>" />
 </p>

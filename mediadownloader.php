@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99.83
+Version: 0.1.99.84
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -31,6 +31,7 @@ $mdsettings = array(
     'showtags' => null,
     'customcss' => null,
     'removeextension' => 'sanitizeBoolean',
+    'showcover' => 'sanitizeBoolean',
     'embedplayer' => 'sanitizeBoolean',
     'embedwhere' => 'sanitizeBeforeAfter',
     'tagencoding' => 'sanitizeTagEncoding',
@@ -45,6 +46,7 @@ $mdtags = array( 'title', 'artist', 'album', 'year', 'genre', 'comment', 'track_
 
 // Markup settings and respective sanitize functions
 $mdmarkupsettings = array(
+    'covermarkup' => null,
     'downloadtext' => null,
     'playtext' => null,
     'stoptext' => null,
@@ -156,6 +158,10 @@ function get_replaceheaders() {
     return $replaceheaders;
 }
 
+function md_mediaExtension() {
+    return '.mp3';
+}
+
 // Searches post content for our smarttag and do all the magic
 function listMedia( $t ){
     global $mdtags, $tagvalues, $mdsortingfields, $mdmarkuptemplates;
@@ -169,6 +175,9 @@ function listMedia( $t ){
     $mrelative = str_replace('http'.(isset($_SERVER['HTTPS'])?'s':'').'://','',$murl); $mrelative = explode( '/', $mrelative ); array_shift($mrelative); $mrelative = '/'.implode('/', $mrelative);
     $mpath = ABSPATH . substr($mdir, 1);
     
+    // Should we show the 'cover' file ('folder.jpg')?
+    $mshowcover = get_option( 'showcover' ) ;
+
     // Player position (before or after download link)
     $membedwhere = get_option( 'embedwhere' ) ;
 
@@ -195,6 +204,7 @@ function listMedia( $t ){
     if ( !count($mshowtags) ) $mshowtags = array( $mdtags[0] ) ;
     
     // Markup options
+    $covermarkup = get_option( 'covermarkup' );
     $downloadtext = get_option( 'downloadtext' );
     $playtext = get_option( 'playtext' );
     $stoptext = get_option( 'stoptext' );
@@ -207,6 +217,7 @@ function listMedia( $t ){
     preg_match_all( '/\[media:([^\]]*)\]/i', $t, $matches );
     // Any?
     if ( count( $matches ) ) {
+        $cover = '';
         // Each...
         foreach ( $matches[1] as $folder ) {
             // Removing paragraph
@@ -225,10 +236,11 @@ function listMedia( $t ){
                 if ( is_readable( $ipath ) ) {
                     $idir = dir( $ipath );
                     while (false !== ($ifile = $idir->read())) {
-                        if ( substr( $ifile, -4 ) == '.mp3' ) $ifiles[] = substr( $ifile, 0, -4 );
+                        if ( substr( $ifile, 0 - strlen( md_mediaExtension() ) ) == md_mediaExtension() ) $ifiles[] = substr( $ifile, 0, 0 - strlen( md_mediaExtension() ) );
                         if ( substr( $ifile, -4 ) == '.zip' ) $zip[] = $ifile;
                         if ( substr( $ifile, -4 ) == '.pdf' ) $pdf[] = $ifile;
                         if ( substr( $ifile, -5 ) == '.epub' ) $epub[] = $ifile;
+                        if ( strtolower( str_ireplace( '.jpeg', '.jpg', $ifile ) ) == 'folder.jpg' ) $cover = $ifile;
                     }
                 } else {
                     $errors[] = sprintf( _md( 'Could not read: %1$s' ), $ipath );
@@ -237,7 +249,7 @@ function listMedia( $t ){
                 $folderalone = implode( '/', array_slice( explode( '/', $folder ), 0, -1 ) );
                 $apath = explode( '/', $ipath );
                 $ifile = array_pop( $apath );
-                if ( substr( $ifile, -4 ) == '.mp3' ) $ifiles[] = substr( $ifile, 0, -4 );
+                if ( substr( $ifile, 0 - strlen( md_mediaExtension() ) ) == md_mediaExtension() ) $ifiles[] = substr( $ifile, 0, 0 - strlen( md_mediaExtension() ) );
                 if ( substr( $ifile, -4 ) == '.zip' ) $zip[] = $ifile;
                 if ( substr( $ifile, -4 ) == '.pdf' ) $pdf[] = $ifile;
                 if ( substr( $ifile, -5 ) == '.epub' ) $epub[] = $ifile;
@@ -363,6 +375,11 @@ function listMedia( $t ){
 
                 /* -- END CASE SPECIFIC; -- */
 
+                if ( $mshowcover && $cover ) {
+                    $coversrc = home_url($mdir) . '/' . ( $ufolder ? $ufolder . '/' : '' ) . $cover;
+                    $icovermarkup = $covermarkup ? $covermarkup : '<img class="md_coverImage" src="[coverimage]" alt="' . _md( 'Album Cover' ) . '" />';
+                    $ihtml .= str_replace( '[coverimage]', $coversrc, $icovermarkup );
+                }
 
                 // Building general markup
                 $tableClass = array( 'mediaTable' );
@@ -442,7 +459,7 @@ function listMedia( $t ){
                     $ititletext = $iartisttext . $ititletext;
                     if ( $ititletext ) $irel[] = 'mediaDownloaderTitleText:' . htmlentities( $ititletext, ENT_COMPAT, 'UTF-8' );
                     $irel = implode( ';', $irel );
-                    $ihtml .= '<td class="mediaDownload"><a href="'.home_url($mdir).'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.mp3" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" ' . ( $irel ? 'rel="' . $irel . '"' : '' ) . ' id="mdfile_' . sanitize_title( $ifile ) . '">'.$idownloadtext.'</a></td>'."\n" ;
+                    $ihtml .= '<td class="mediaDownload"><a href="'.home_url($mdir).'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).md_mediaExtension().'" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" ' . ( $irel ? 'rel="' . $irel . '"' : '' ) . ' id="mdfile_' . sanitize_title( $ifile ) . '">'.$idownloadtext.'</a></td>'."\n" ;
                     $ihtml .= '</tr>'."\n" ;
                 }
                 $ihtml .= '</tbody></table>'."\n" ;
@@ -570,7 +587,7 @@ function mediadownloader( $t ) {
         $t = listMedia( $t );
         if ( TRUE == get_option( 'removeextension' ) ) {
             $t = preg_replace(
-                '/href\=[\\\'\"](.*)\.mp3[\\\'\"]/im',
+                '/href\=[\\\'\"](.*)'.preg_quote(md_mediaExtension()).'[\\\'\"]/im',
                 "href=\"".WP_PLUGIN_URL."/".md_plugin_dir()."/getfile.php?f=$1\"",
                 $t
             );
@@ -604,7 +621,7 @@ function mediadownloaderMP3Info( $f ) {
     // File path
     $relURL = str_replace( 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://'.$_SERVER['SERVER_NAME'], '', get_option( 'siteurl' ) );
     if ( stripos( $f, $relURL ) === 0 ) $f = substr( $f, strlen( $relURL ) );
-    $f = ABSPATH . $f . '.mp3';
+    $f = ABSPATH . $f . md_mediaExtension();
     $f = preg_replace( '|/+|ims', '/', $f );
 
     // Checking cache
@@ -635,7 +652,7 @@ function mediadownloaderMP3Info( $f ) {
 // File size
 function mediadownloaderMP3Size( $f ){
     if ( 0 === stripos( $f, get_option( 'siteurl' ) ) ) $f = str_replace( get_option( 'siteurl' ), '', $f );
-    $f = ABSPATH . substr( $f, 1 ) . '.mp3';
+    $f = ABSPATH . substr( $f, 1 ) . md_mediaExtension();
     if ( !file_exists( $f ) ) $f = urldecode( $f );
     return filesize( $f );
 }
@@ -644,7 +661,7 @@ function mediadownloaderEnclosures( $adjacentmarkup = false ){
     $ret = array();
     global $post;
     $cont = listMedia( get_the_content( $post->ID ) );
-    preg_match_all( '/href=[\\\'"](.*)\.mp3[\\\'"]/im', $cont, $matches );
+    preg_match_all( '/href=[\\\'"](.*)'.preg_quote(md_mediaExtension()).'[\\\'"]/im', $cont, $matches );
     preg_match_all( '/href=[\\\'"].*getfile\.php\?\=(.*)[\\\'"]/im', $cont, $newmatches );
 
     // It makes no sense, "there can be only one", but just in case...
@@ -664,7 +681,7 @@ function mediadownloaderEnclosures( $adjacentmarkup = false ){
         foreach ( $ret as $r ) {
             $adj[$r] = $r;
             // Dirty magic to get the markup around it...
-            $rarr = explode( $r . '.mp3', $cont );
+            $rarr = explode( $r . md_mediaExtension(), $cont );
             if ( count( $rarr ) > 1 ) {
                 $line = substr( $rarr[0], strripos( $rarr[0], '<tr class="mdTags">' ) );
                 $line .= substr( $rarr[1], 0, stripos( $rarr[1], '</tr>' ) ) .'</tr>';
@@ -697,7 +714,7 @@ function mediadownloaderAtom(){
     $matches = mediadownloaderEnclosures();
     foreach ( $matches as $m ) {
         //$t.='<link rel="enclosure" title="'.basename($m).'" length="'.mediadownloaderMP3Size($m).'" href="'.WP_PLUGIN_URL.'/media-downloader/getfile.php?f='.urlencode($m).'" type="audio/mpeg" />';
-        $t .= '<link rel="enclosure" title="' . basename( $m ) . '" length="' . mediadownloaderMP3Size( $m ) . '" href="' . ( $m . '.mp3' ) . '" type="audio/mpeg" />';
+        $t .= '<link rel="enclosure" title="' . basename( $m ) . '" length="' . mediadownloaderMP3Size( $m ) . '" href="' . ( $m . md_mediaExtension() ) . '" type="audio/mpeg" />';
 	}
     echo $t;
     //return $t;
@@ -711,7 +728,7 @@ function mediadownloaderRss(){
     foreach ( $matches as $m => $adjacentmarkup ) {
         $postdate -= 2;
         //$t.='<enclosure title="'.basename($m).'" url="'.WP_PLUGIN_URL.'/media-downloader/getfile.php?f='.urlencode($m).'" length="'.mediadownloaderMP3Size($m).'" type="audio/mpeg" />';
-        //$t .= '<enclosure title="' . basename( $m ) . '" url="' . ( $m . '.mp3' ) . '" length="' . mediadownloaderMP3Size( $m ) . '" type="audio/mpeg" />';
+        //$t .= '<enclosure title="' . basename( $m ) . '" url="' . ( $m . md_mediaExtension() ) . '" length="' . mediadownloaderMP3Size( $m ) . '" type="audio/mpeg" />';
         $t .= '</item>';
         $t .= '<item>';
         $t .= '<title>' . sprintf( _md( 'Attached file: %1$s - %2$s' ), urldecode( basename( $m ) ), get_the_title($post->ID) ) . '</title>';
@@ -719,7 +736,7 @@ function mediadownloaderRss(){
         $t .= '<description><![CDATA[' . $adjacentmarkup . ']]></description>';
         $t .= '<pubDate>' . date( DATE_RSS, $postdate ) . '</pubDate>';
         $t .= '<guid>' . get_permalink($post->ID) . '#mdfile_' . sanitize_title( basename( urldecode( $m ) ) ) . '</guid>';
-        $t .= '<enclosure url="' . ( $m . '.mp3' ) . '" length="' . mediadownloaderMP3Size( $m ) . '" type="audio/mpeg" />';
+        $t .= '<enclosure url="' . ( $m . md_mediaExtension() ) . '" length="' . mediadownloaderMP3Size( $m ) . '" type="audio/mpeg" />';
 	}
     echo $t;
     //return $t; 

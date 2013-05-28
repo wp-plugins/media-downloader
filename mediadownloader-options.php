@@ -78,6 +78,11 @@ foreach( $mdsettings as $mdsetting => $mdsanitizefunction ) $mdoptions[$mdsettin
 </p>
 
 <p>
+<input type="checkbox" name="showcover" id="md_showcover" value="1" <?php if ( $mdoptions['showcover'] ) echo ' checked="checked" ' ;?> />
+<label for="md_showcover"><?php _mde( 'Show cover (if a <code>folder.jpg</code> file is found)' ) ;?></label>
+</p>
+
+<p>
 <input type="checkbox" name="embedplayer" id="md_embedplayer" value="1" <?php if ( $mdoptions['embedplayer'] ) echo ' checked="checked" ' ;?> />
 <label for="md_embedplayer"><?php _mde( 'Embed player' ) ;?></label>
 </p>

@@ -35,6 +35,12 @@ msgstr ""
 msgid "Syntax example: <br /><code>comments:Description</code><br /><code>title:Episode</code>"
 msgstr ""
 
+msgid "Cover image markup"
+msgstr ""
+
+msgid "Album Cover"
+msgstr ""
+
 #: mediadownloader-markup-options.php:42
 #: mediadownloader-markup-options.php:67
 #: mediadownloader-more-options.php:55
@@ -130,6 +136,9 @@ msgstr ""
 
 #: mediadownloader-options.php:67
 msgid "(checking it may cause some server overloading)"
+msgstr ""
+
+msgid "Show cover (if a <code>folder.jpg</code> file is found)"
 msgstr ""
 
 #: mediadownloader-options.php:73
