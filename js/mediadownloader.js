@@ -48,7 +48,11 @@ function initMediaDownloader() {
                 }
             }
         }
-        var tdcont = '<td class="mediaPlay"><a href="'+link+'" title="'+title+'" rel="' + escape(relattr) + '">'+text+'</a></td>';
+        if ( link.substr(-4) == '.mp3' ) {
+            var tdcont = '<td class="mediaPlay"><a href="'+link+'" title="'+title+'" rel="' + escape(relattr) + '">'+text+'</a></td>';
+        } else {
+            var tdcont = '<td class="mediaPlay">&nbsp;</td>';
+        }
         if ( jQuery(this).parents('table.mediaTable').hasClass('embedposafter') ) {
             jQuery(this).parent().after(tdcont);
         } else {

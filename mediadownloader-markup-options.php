@@ -38,6 +38,15 @@ if ( !sanitizeMarkupTemplate( $markuptemplate ) ) $markuptemplate = array_shift(
 <small><?php _mde( 'Syntax example: <br /><code>comments:Description</code><br /><code>title:Episode</code>' ); ?></small>
 </p>
 
+<p class="submit">
+<input type="submit" value="<?php _mde( 'Update Options' ) ;?>" />
+</p>
+</fieldset>
+
+<hr />
+
+<fieldset>
+
 <h2><?php _mde( 'Cover image markup' ); ?></h2>
 
 <h4><label for="md_covermarkup"><?php _mde( 'Wildcards:' ) ;?> <code>[coverimage]</code></label></h4>

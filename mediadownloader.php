@@ -108,7 +108,7 @@ if( !function_exists( 'byte_convert' ) ){
     }
 }
 
-// Friendly file size
+// Friendly frequency size
 if( !function_exists( 'hertz_convert' ) ){
     function hertz_convert( $hertz ){
         $symbol = array( 'Hz', 'kHz', 'MHz', 'GHz', 'THz', 'PHz', 'EHz', 'ZHz', 'YHz' );
@@ -141,9 +141,9 @@ function calculatePrefix($arr){
 
 function replaceUnderscores( $t ) {
     if ( $t && false === strpos(' ', $t) ) {
-        //if ( false === strpos('_', $t) ) $t = str_replace( '-', '_', $t ) ;
+        //if ( false === strpos('_', $t) ) $t = str_replace( '-', '_', $t );
         $t = preg_replace( '/_(_+)/i', ' - ', $t );
-        $t = str_replace( '_', ' ', $t ) ;
+        $t = str_replace( '_', ' ', $t );
     }
     return $t ;
 }
@@ -158,8 +158,12 @@ function get_replaceheaders() {
     return $replaceheaders;
 }
 
-function md_mediaExtension() {
-    return '.mp3';
+function md_mediaExtensions() {
+    return array( 'mp3', 'mp2', 'mp1', 'ogg', 'wma', 'm4a', 'aac', 'ac3', 'flac', 'ra', 'rm', 'wav', 'aiff', 'cda', 'mid', 'avi', 'webm', 'asf', 'wmv', 'mpg', 'avi', 'qt', 'mov', 'ogv', 'mp4', '3gp' );
+}
+
+function md_packageExtensions() {
+    return array( 'zip', 'pdf', 'epub' );
 }
 
 // Searches post content for our smarttag and do all the magic
@@ -176,10 +180,10 @@ function listMedia( $t ){
     $mpath = ABSPATH . substr($mdir, 1);
     
     // Should we show the 'cover' file ('folder.jpg')?
-    $mshowcover = get_option( 'showcover' ) ;
+    $mshowcover = get_option( 'showcover' );
 
     // Player position (before or after download link)
-    $membedwhere = get_option( 'embedwhere' ) ;
+    $membedwhere = get_option( 'embedwhere' );
 
     // Should we re-encode the tags?
     $mdoencode = get_option( 'tagencoding' );
@@ -195,13 +199,13 @@ function listMedia( $t ){
     if ( isset( $msort ) && !array_key_exists( $msort . '', $mdsortingfields ) ) $msort = 'title';
 
     // Should the sorting be reversed?
-    $mreverse = ( get_option( 'reversefiles' ) == true ) ;
+    $mreverse = ( get_option( 'reversefiles' ) == true );
 
     // Which tags to show?
     $option_showtags = str_replace( 'comments', 'comment', get_option( 'showtags' ) );
-    $mshowtags = array_intersect( explode( ',', $option_showtags ), $mdtags ) ;
+    $mshowtags = array_intersect( explode( ',', $option_showtags ), $mdtags );
     // If none, shows the first tag (title)
-    if ( !count($mshowtags) ) $mshowtags = array( $mdtags[0] ) ;
+    if ( !count($mshowtags) ) $mshowtags = array( $mdtags[0] );
     
     // Markup options
     $covermarkup = get_option( 'covermarkup' );
@@ -224,6 +228,7 @@ function listMedia( $t ){
             $t = str_replace('<p>[media:'.$folder.']</p>', '[media:'.$folder.']', $t);
             // Initializing variables
             $ihtml = '';
+            $iall = array();
             $ifiles = array();
             $ititles = array();
             $zip = array();
@@ -235,11 +240,16 @@ function listMedia( $t ){
                 $folderalone = $folder;
                 if ( is_readable( $ipath ) ) {
                     $idir = dir( $ipath );
-                    while (false !== ($ifile = $idir->read())) {
-                        if ( substr( $ifile, 0 - strlen( md_mediaExtension() ) ) == md_mediaExtension() ) $ifiles[] = substr( $ifile, 0, 0 - strlen( md_mediaExtension() ) );
-                        if ( substr( $ifile, -4 ) == '.zip' ) $zip[] = $ifile;
-                        if ( substr( $ifile, -4 ) == '.pdf' ) $pdf[] = $ifile;
-                        if ( substr( $ifile, -5 ) == '.epub' ) $epub[] = $ifile;
+                    while ( false !== ( $ifile = $idir->read() ) ) if ( !is_dir( $ifile ) ) {
+                        $arrfile = explode( '.', $ifile );
+                        if ( count( $arrfile ) > 1 ) {
+                            $fext = array_pop( $arrfile );
+                        } else {
+                            $fext = '.none';
+                        }
+                        if ( !array_key_exists( $fext, $iall ) ) $iall[$fext] = array();
+                        $iall[$fext][] = $ifile;
+                        if ( in_array( $fext, md_mediaExtensions() ) ) $ifiles[] = $ifile;
                         if ( strtolower( str_ireplace( '.jpeg', '.jpg', $ifile ) ) == 'folder.jpg' ) $cover = $ifile;
                     }
                 } else {
@@ -249,10 +259,15 @@ function listMedia( $t ){
                 $folderalone = implode( '/', array_slice( explode( '/', $folder ), 0, -1 ) );
                 $apath = explode( '/', $ipath );
                 $ifile = array_pop( $apath );
-                if ( substr( $ifile, 0 - strlen( md_mediaExtension() ) ) == md_mediaExtension() ) $ifiles[] = substr( $ifile, 0, 0 - strlen( md_mediaExtension() ) );
-                if ( substr( $ifile, -4 ) == '.zip' ) $zip[] = $ifile;
-                if ( substr( $ifile, -4 ) == '.pdf' ) $pdf[] = $ifile;
-                if ( substr( $ifile, -5 ) == '.epub' ) $epub[] = $ifile;
+                $arrfile = explode( '.', $ifile );
+                if ( count( $arrfile ) > 1 ) {
+                    $fext = array_pop( $arrfile );
+                } else {
+                    $fext = '.none';
+                }
+                if ( !array_key_exists( $fext, $iall ) ) $iall[$fext] = array();
+                $iall[$fext][] = $ifile;
+                if ( in_array( $fext, md_mediaExtensions() ) ) $ifiles[] = $ifile;
                 $ipath = implode( '/', $apath );
             }
             // Encoding folder name
@@ -265,34 +280,75 @@ function listMedia( $t ){
                 unset( $alevel );
                 $ufolder = implode( '/', $afolder );
             }
+            
+            if ( $mshowcover && $cover ) {
+                $coversrc = home_url($mdir) . '/' . ( $ufolder ? $ufolder . '/' : '' ) . $cover;
+                $icovermarkup = $covermarkup ? $covermarkup : '<img class="md_coverImage" src="[coverimage]" alt="' . _md( 'Album Cover' ) . '" />';
+                $ihtml .= str_replace( '[coverimage]', $coversrc, $icovermarkup );
+            }
+
+            // If any "extra" files, inserting an extra table
+            // (this was very case specific and remained here)
+            $countextra = 0;
+            foreach ( md_packageExtensions() as $pext ) $countextra += count( $iall[$pext] );
+            if ( $countextra ) {
+                $ihtml .= '<div class="md_wholebook">';
+                $ihtml .= '<h3 class="md_wholebook_title">' . _md( 'Compacted Files' ) . '</h3>';
+                $afolder = explode( '/', $folderalone );
+                for ( $a=0; $a<count($afolder); $a++ ) $afolder[$a] = rawurlencode( $afolder[$a] );
+                $cfolder = implode( '/', $afolder );
+                $ihtml .= '<ul class="md_wholebook_list">';
+                foreach ( md_packageExtensions() as $pext ) {
+                    $cpf = 0; if ( count( $iall[$pext] ) ) foreach( $iall[$pext] as $pf ) {
+                        $cpf++;
+                        $ihtml .= '<li class="d' . strtoupper(substr($pext,0,1)) . substr($pext,1) . '"><a href="'.$mrelative.'/'.($cfolder).'/'.rawurlencode( $pf ).'" title="' . esc_attr( $pf ) . '">'._md( 'Download ' . strtoupper( $pext ) ).(count($iall[$pext])>1?' ('.$cpf.')':'').'</a></li>' ;
+                    }
+                }
+                $ihtml .= '</ul>';
+                $ihtml .= '</div>';
+            }
+
             // Any MP3 file?
-            if ( count( $ifiles ) ) {
+            $countmedia = 0;
+            foreach ( md_mediaExtensions() as $mext ) $countmedia += count( $iall[$mext] );
+            if ( $countmedia ) {
                 // Calculating file "prefixes"
-                $prefix = calculatePrefix( $ifiles ) ;
-                $hlevel = explode( '/', $folder ) ; $hlevel = array_pop( $hlevel ) ;
+                $prefix = calculatePrefix( $ifiles );
+                $hlevel = explode( '/', $folder ); $hlevel = array_pop( $hlevel );
 
                 // Initializing array of tag values
-                $tagvalues = array() ;
-                foreach ( $mshowtags as $mshowtag ) $tagvalues[$mshowtag] = array() ;
+                $tagvalues = array();
+                foreach ( $mshowtags as $mshowtag ) $tagvalues[$mshowtag] = array();
                 $alltags = array();
                 foreach ( $ifiles as $ifile ) {
+                    $ifile = explode( '.', $ifile );
+                    $iext = array_pop( $ifile );
+                    $ifile = implode( '.', $ifile );
                     // Getting ID3 info
-                    $finfo = mediadownloaderMP3Info( $mrelative.'/'.$folderalone.'/'.$ifile ) ;
+                    $finfo = mediadownloaderFileInfo( $mrelative.'/'.$folderalone.'/'.$ifile, $iext );
                     // Loading all possible tags
-                    $ftags = $finfo['tags']['id3v2'] ;
-                    $ftags['bitrate'] = array( floatval( $finfo['audio']['bitrate'] ) / 1000 . 'kbps' ) ;
-                    $ftags['filesize'] = array( byte_convert( $finfo['filesize'] ) ) ;
-                    $ftags['filedate'] = array( date_i18n( get_option('date_format'), filemtime( $finfo['filepath'] . '/' . $finfo['filename'] ) ) ) ;
-                    $ftags['directory'] = array( $hlevel ) ;
-                    $ftags['file'] = array( $ifile ) ;
+                    $ftags = $finfo;
+                    foreach ( array( 'id3v2', 'quicktime', 'ogg', 'asf', 'flac', 'real', 'riff', 'ape', 'id3v1', 'comments' ) as $poss ) {
+                        if ( array_key_exists( $poss, $finfo['tags'] ) ) {
+                            $ftags = array_merge( $finfo['tags'][$poss], $ftags );
+                            if ( array_key_exists( 'comments', $finfo['tags'][$poss] ) ) {
+                                $ftags = array_merge( $finfo['tags'][$poss]['comments'], $ftags );
+                            }
+                        }
+                    }
+                    $ftags['bitrate'] = array( floatval( $finfo['audio']['bitrate'] ) / 1000 . 'kbps' );
+                    $ftags['filesize'] = array( byte_convert( $finfo['filesize'] ) );
+                    $ftags['filedate'] = array( date_i18n( get_option('date_format'), filemtime( $finfo['filepath'] . '/' . $finfo['filename'] ) ) );
+                    $ftags['directory'] = array( $hlevel );
+                    $ftags['file'] = array( $ifile );
                     $ftags['sample_rate'] = array( hertz_convert( intval( '0' . $finfo['audio']['sample_rate'] ) ) );
                     $alltags[$ifile] = $ftags;
                     // Populating array of tag values with all tags
                     foreach ( $mdtags as $mshowtag )
-                        $tagvalues[$mshowtag][$ifile] = ( 'comment' == $mshowtag ) ? Markdown( $ftags[$mshowtag][0] ) : $ftags[$mshowtag][0] ;
+                        $tagvalues[$mshowtag][$ifile] = ( 'comment' == $mshowtag ) ? Markdown( $ftags[$mshowtag][0] ) : $ftags[$mshowtag][0];
                 }
                 // Calculating tag "prefixes"
-                $tagprefixes = array() ;
+                $tagprefixes = array();
                 foreach ( $mshowtags as $mshowtag )
                     if ( 'file' == $mshowtag || 'title' == $mshowtag )
                         $tagprefixes[$mshowtag] = calculatePrefix( $tagvalues[$mshowtag] );
@@ -308,19 +364,22 @@ function listMedia( $t ){
                 $tablecellsmode_firstfile = true;
                 // Building markup for each file...
                 foreach ( $ifiles as $ifile ) {
+                    $ifile = explode( '.', $ifile );
+                    $iext = array_pop( $ifile );
+                    $ifile = implode( '.', $ifile );
                     $ititle = '';
                     // Each tag list item
                     foreach ( $mshowtags as $mshowtag ) {
-                        $tagvalue = $tagvalues[$mshowtag][$ifile] ;
+                        $tagvalue = $tagvalues[$mshowtag][$ifile];
                         if ( '' == $tagvalue ) {
                             $tagvalue = '&nbsp;';
                         } else {
                             // Removing "prefix" of this tag
                             if ( '' != $tagprefixes[$mshowtag] )
-                                $tagvalue = str_replace( $tagprefixes[$mshowtag], '', $tagvalue ) ;
+                                $tagvalue = str_replace( $tagprefixes[$mshowtag], '', $tagvalue );
                             // $tagvalue = str_replace( $prefix, '', $tagvalue ); // Causing weird behavior in some cases
                             // Cleaning...
-                            $tagvalue = replaceUnderscores( $tagvalue ) ;
+                            $tagvalue = replaceUnderscores( $tagvalue );
                             // Encoding...
                             if ( 'file' == $mshowtag || 'directory' == $mshowtag ) {
                                 if ( $mdofnencode != 'UTF-8' ) $tagvalue = iconv( $mdofnencode, 'UTF-8', $tagvalue );
@@ -356,31 +415,6 @@ function listMedia( $t ){
                     $tablecellsmode_firstfile = false;
                 }
 
-
-
-                /* -- CASE SPECIFIC: -- */
-                
-                // If any "extra" files, inserting an extra table
-                // (this was very case specific and remained here)
-                if ( count( $zip ) + count( $pdf ) + count( $epub ) ) $ihtml .= '<table class="bookInfo">
-<thead>
-<tr>
-<th class="chapterCol">' . _md( 'By Chapter' ) . '</th>
-<th class="wholeBookCol">' . _md( 'Whole Book' ) . '</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="chapterCol">';
-
-                /* -- END CASE SPECIFIC; -- */
-
-                if ( $mshowcover && $cover ) {
-                    $coversrc = home_url($mdir) . '/' . ( $ufolder ? $ufolder . '/' : '' ) . $cover;
-                    $icovermarkup = $covermarkup ? $covermarkup : '<img class="md_coverImage" src="[coverimage]" alt="' . _md( 'Album Cover' ) . '" />';
-                    $ihtml .= str_replace( '[coverimage]', $coversrc, $icovermarkup );
-                }
-
                 // Building general markup
                 $tableClass = array( 'mediaTable' );
                 if ( TRUE == get_option( 'embedplayer' ) ) $tableClass[] = 'embedPlayer';
@@ -402,11 +436,14 @@ function listMedia( $t ){
 
                 // Each file...
                 foreach ( $ifiles as $ifile ) {
+                    $ifile = explode( '.', $ifile );
+                    $iext = array_pop( $ifile );
+                    $ifile = implode( '.', $ifile );
                     // File name
                     $showifile = $ifile ;
                     // Removing prefix
                     if ( array_key_exists( 'file', $tagprefixes ) )
-                        $showifile = str_replace( $tagprefixes['file'], '', $showifile ) ;
+                        $showifile = str_replace( $tagprefixes['file'], '', $showifile );
                     // Cleaning
                     $showifile = replaceUnderscores( $showifile );
                     $alltags[$ifile]['file'][0] = $showifile;
@@ -436,9 +473,9 @@ function listMedia( $t ){
                     }
                     
                     // Getting stored markup
-                    $ititle = $ititles[$ifile] ;
+                    $ititle = $ititles[$ifile];
 
-                    // $ititle = str_replace( $prefix, '', $ititle ) ; // Causing weird behavior in some cases
+                    // $ititle = str_replace( $prefix, '', $ititle ); // Causing weird behavior in some cases
 
                     // Markup
                     // 20100107 - I took it away: strtoupper( $hlevel )
@@ -459,75 +496,12 @@ function listMedia( $t ){
                     $ititletext = $iartisttext . $ititletext;
                     if ( $ititletext ) $irel[] = 'mediaDownloaderTitleText:' . htmlentities( $ititletext, ENT_COMPAT, 'UTF-8' );
                     $irel = implode( ';', $irel );
-                    $ihtml .= '<td class="mediaDownload"><a href="'.home_url($mdir).'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).md_mediaExtension().'" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" ' . ( $irel ? 'rel="' . $irel . '"' : '' ) . ' id="mdfile_' . sanitize_title( $ifile ) . '">'.$idownloadtext.'</a></td>'."\n" ;
+                    $ihtml .= '<td class="mediaDownload"><a href="'.home_url($mdir).'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.'.$iext.'" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" ' . ( $irel ? 'rel="' . $irel . '"' : '' ) . ' id="mdfile_' . sanitize_title( $ifile ) . '">'.$idownloadtext.'</a></td>'."\n" ;
                     $ihtml .= '</tr>'."\n" ;
                 }
                 $ihtml .= '</tbody></table>'."\n" ;
 
-
-                /* -- CASE SPECIFIC: -- */
-                
-                // If any "extra" files, inserting extra elements
-                // (this was very case specific and remained here)
-                if ( count( $zip ) + count( $pdf ) + count( $epub ) ) {
-                    $afolder = explode( '/', $folderalone ) ;
-                    for ( $a=0; $a<count($afolder); $a++ ) $afolder[$a] = rawurlencode( $afolder[$a] ) ;
-                    $cfolder = implode( '/', $afolder ) ;
-                    $ihtml .= '</td>
-<td class="wholeBookCol">
-
-<ul>' ;
-                    $czf = 0; if ( count($zip) ) foreach($zip as $zipf){
-                        $czf++;
-                        $ihtml .= '<li class="dZip"><a href="'.$mrelative.'/'.($cfolder).'/'.rawurlencode( $zipf ).'">'._md( 'Download ZIP' ).(count($zip)>1?' '.$czf:'').' <small>'._md( '(Audio chapters)' ).'</small></a></li>' ;
-                    }
-                    $cpf=0; if ( count($pdf) ) foreach($pdf as $pdff){
-                        $cpf++;
-                        $ihtml.='<li class="dPdf"><a href="'.$mrelative.'/'.($cfolder).'/'.rawurlencode( $pdff ).'">'._md( 'Download PDF' ).(count($pdf)>1?' '.$cpf:'').' <small>'._md( '(Text file)' ).'</small></a></li>' ;
-                    }
-                    $cef=0; if ( count($epub) ) foreach($epub as $epubf){
-                        $cef++;
-                        $ihtml.='<li class="dEpub"><a href="'.$mrelative.'/'.($cfolder).'/'.rawurlencode( $epubf ).'">'._md( 'Download EPUB' ).(count($epub)>1?' '.$cef:'').' <small>'._md( '(Text file)' ).'</small></a></li>' ;
-                    }
-                    $ihtml.='</ul>
-
-</td>
-</tr>
-</tbody>
-</table>' ;
-                }
-
-            // If any "extra" files, inserting extra elements
-            // (this was very case specific and remained here)
-            } elseif ( count( $zip ) + count( $pdf ) + count( $epub ) ){
-                $afolder = explode( '/', $folderalone ) ;
-                for ( $a=0; $a<count($afolder); $a++ ) $afolder[$a] = rawurlencode( $afolder[$a] ) ;
-                $cfolder = implode( '/', $afolder ) ;
-                $allf = array_merge( $zip, $pdf, $epub );
-                asort($allf);
-                $ihtml .= '<table class="mediaTable bookInfo">' . "\n";
-                $ihtml .= '<thead>
-<tr>
-<th>'._md('Download').'</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="wholeBookCol">
-<ul>';
-                foreach($allf as $thisf){
-                    $arrf = explode('.', $thisf);
-                    $fext = array_pop($arrf);
-                    $fname = implode('.', $arrf);
-                    $ihtml .= '<li class="d' . strtoupper(substr($fext,0,1)) . substr($fext,1) . '"><a href="'.$mrelative.'/'.($cfolder).'/'.rawurlencode( $thisf ).'">'.$fname.'</a></li>' ;
-                }
-                $ihtml.='</ul>
-</td>
-</tr>
-</tbody>
-</table>' ;
             }
-            /* -- END CASE SPECIFIC; -- */
             
             if ( count( $errors ) ) {
                 $errorHtml = '<div class="mediaDownloaderErrors">';
@@ -536,7 +510,7 @@ function listMedia( $t ){
                 $ihtml .= $errorHtml;
             }
             // Finally, replacing our smart tag
-            $t = str_replace( '[media:'.$folder.']', $ihtml, $t ) ;
+            $t = str_replace( '[media:'.$folder.']', $ihtml, $t );
         }
     }
     return $t ;
@@ -587,7 +561,7 @@ function mediadownloader( $t ) {
         $t = listMedia( $t );
         if ( TRUE == get_option( 'removeextension' ) ) {
             $t = preg_replace(
-                '/href\=[\\\'\"](.*)'.preg_quote(md_mediaExtension()).'[\\\'\"]/im',
+                '/href\=[\\\'\"](.*)'.preg_quote('.mp3').'[\\\'\"]/im',
                 "href=\"".WP_PLUGIN_URL."/".md_plugin_dir()."/getfile.php?f=$1\"",
                 $t
             );
@@ -605,7 +579,7 @@ function mediadownloader( $t ) {
 }
 
 
-function mediadownloaderMP3Length( $f ) {
+function mediadownloaderFileLength( $filename ) {
     // Initialize getID3 engine
     $getID3 = new getID3;
     // Analyze file and store returned data in $ThisFileInfo
@@ -617,17 +591,17 @@ function mediadownloaderMP3Length( $f ) {
 }
 
 // Get ID3 tags from file
-function mediadownloaderMP3Info( $f ) {
+function mediadownloaderFileInfo( $f, $ext ) {
     // File path
     $relURL = str_replace( 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://'.$_SERVER['SERVER_NAME'], '', get_option( 'siteurl' ) );
     if ( stripos( $f, $relURL ) === 0 ) $f = substr( $f, strlen( $relURL ) );
-    $f = ABSPATH . $f . md_mediaExtension();
+    $f = ABSPATH . $f . '.' . $ext;
     $f = preg_replace( '|/+|ims', '/', $f );
 
     // Checking cache
     $return = false;
     $hash = md5( $f );
-    $cachedir = trim( get_option( 'cachedir' ) ) ;
+    $cachedir = trim( get_option( 'cachedir' ) );
     $cachefile = ABSPATH . '/' . $cachedir . '/md-' . $hash . '.cache' ;
     if ( $cachedir && is_readable( $cachefile )  && file_exists( $f ) && ( filemtime( $cachefile ) >= filemtime( $f ) ) ) {
 
@@ -650,71 +624,76 @@ function mediadownloaderMP3Info( $f ) {
     }
 }
 // File size
-function mediadownloaderMP3Size( $f ){
+function mediadownloaderFileSize( $f, $ext ){
     if ( 0 === stripos( $f, get_option( 'siteurl' ) ) ) $f = str_replace( get_option( 'siteurl' ), '', $f );
-    $f = ABSPATH . substr( $f, 1 ) . md_mediaExtension();
+    $f = ABSPATH . substr( $f, 1 ) . '.' . $ext;
     if ( !file_exists( $f ) ) $f = urldecode( $f );
     return filesize( $f );
 }
 // Extract MP3 links form post content
 function mediadownloaderEnclosures( $adjacentmarkup = false ){
-    $ret = array();
+    $allmatches = array();
     global $post;
     $cont = listMedia( get_the_content( $post->ID ) );
-    preg_match_all( '/href=[\\\'"](.*)'.preg_quote(md_mediaExtension()).'[\\\'"]/im', $cont, $matches );
-    preg_match_all( '/href=[\\\'"].*getfile\.php\?\=(.*)[\\\'"]/im', $cont, $newmatches );
-
-    // It makes no sense, "there can be only one", but just in case...
-    if ( count( $matches ) && count( $matches[1] ) ) $ret = array_unique( array_merge( $matches[1], $newmatches[1] ) );
+    foreach ( md_mediaExtensions() as $mext ) {
+        $ret = array();
+        preg_match_all( '/href=[\\\'"](.*)'.preg_quote($mext).'[\\\'"]/im', $cont, $matches );
+        preg_match_all( '/href=[\\\'"].*getfile\.php\?\=(.*)[\\\'"]/im', $cont, $newmatches );
+        // It makes no sense, "there can be only one", but just in case...
+        if ( count( $matches ) && count( $matches[1] ) ) $ret = array_unique( array_merge( $matches[1], $newmatches[1] ) );
     
-    // Should we get only the MP3 URL's?
-    if ( !$adjacentmarkup ) {
-        foreach ( $ret as $r ) if ( '/' == substr( $r, 0, 1 ) ) $r = 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://' . $_SERVER['SERVER_NAME'] . $r;
-        return $ret;
-    
-    // Or get all the markup around them?
-    } else {
-        $markuptemplate = get_option( 'markuptemplate' );
-        $adj = array();
-        $tablehead = '';
-        // For each MP3 URL...
-        foreach ( $ret as $r ) {
-            $adj[$r] = $r;
-            // Dirty magic to get the markup around it...
-            $rarr = explode( $r . md_mediaExtension(), $cont );
-            if ( count( $rarr ) > 1 ) {
-                $line = substr( $rarr[0], strripos( $rarr[0], '<tr class="mdTags">' ) );
-                $line .= substr( $rarr[1], 0, stripos( $rarr[1], '</tr>' ) ) .'</tr>';
-                if ( 'definition-list' == $markuptemplate ) {
-                    $line = substr( $line, strripos( $line, '<dl class="mdTags">' ) );
-                    $line = substr( $line, 0, stripos( $line, '</dl>' ) ) . '</dl>';
-                    $adj[$r] = $line;
-                } elseif ( 'table-cells' == $markuptemplate ) {
+        // Should we get only the MP3 URL's?
+        if ( !$adjacentmarkup ) {
+            foreach ( $ret as $r ) if ( '/' == substr( $r, 0, 1 ) ) $r = 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://' . $_SERVER['SERVER_NAME'] . $r;
+            $allmatches[$mext] = $ret;
+        
+        // Or get all the markup around them?
+        } else {
+            $markuptemplate = get_option( 'markuptemplate' );
+            $adj = array();
+            $tablehead = '';
+            // For each MP3 URL...
+            foreach ( $ret as $r ) {
+                $adj[$r] = $r;
+                // Dirty magic to get the markup around it...
+                $rarr = explode( $r . '.' . $mext, $cont );
+                if ( count( $rarr ) > 1 ) {
+                    $line = substr( $rarr[0], strripos( $rarr[0], '<tr class="mdTags">' ) );
+                    $line .= substr( $rarr[1], 0, stripos( $rarr[1], '</tr>' ) ) .'</tr>';
+                    if ( 'definition-list' == $markuptemplate ) {
+                        $line = substr( $line, strripos( $line, '<dl class="mdTags">' ) );
+                        $line = substr( $line, 0, stripos( $line, '</dl>' ) ) . '</dl>';
+                        $adj[$r] = $line;
+                    } elseif ( 'table-cells' == $markuptemplate ) {
 
-                    if ( '' == $tablehead ) {
-                        $safe_r = str_replace( array('/', '.', ':', '%', '-'), array('\\/', '\\.', '\\:', '\\%', '\\-'), $r );
-                        preg_match_all( '/\<table([^\>]*)\>(.*?)'.$safe_r.'(.*?)\<\/table\>/ims', $cont, $adjtable );
-                        if ( count( $adjtable ) && count( $adjtable[0] ) ) {
-                            $ftable = $adjtable[0][0];
-                            $ftable = substr( $ftable, strripos( $ftable, '<table' ) );
-                            $tablehead = substr( $ftable, 0, stripos( $ftable, '</thead>' ) ) . '</thead>';
+                        if ( '' == $tablehead ) {
+                            $safe_r = str_replace( array('/', '.', ':', '%', '-'), array('\\/', '\\.', '\\:', '\\%', '\\-'), $r );
+                            preg_match_all( '/\<table([^\>]*)\>(.*?)'.$safe_r.'(.*?)\<\/table\>/ims', $cont, $adjtable );
+                            if ( count( $adjtable ) && count( $adjtable[0] ) ) {
+                                $ftable = $adjtable[0][0];
+                                $ftable = substr( $ftable, strripos( $ftable, '<table' ) );
+                                $tablehead = substr( $ftable, 0, stripos( $ftable, '</thead>' ) ) . '</thead>';
+                            }
                         }
-                    }
 
-                    $adj[$r] = ($tablehead?$tablehead:'<table>') . '<tbody>' . $line . '</tbody></table>';
+                        $adj[$r] = ($tablehead?$tablehead:'<table>') . '<tbody>' . $line . '</tbody></table>';
+                    }
                 }
             }
+            $allmatches[$mext] = $adj;
         }
-        return $adj;
     }
+    return $allmatches;
 } 
 // Generate ATOM tags
 function mediadownloaderAtom(){
     $t = '';
-    $matches = mediadownloaderEnclosures();
-    foreach ( $matches as $m ) {
-        //$t.='<link rel="enclosure" title="'.basename($m).'" length="'.mediadownloaderMP3Size($m).'" href="'.WP_PLUGIN_URL.'/media-downloader/getfile.php?f='.urlencode($m).'" type="audio/mpeg" />';
-        $t .= '<link rel="enclosure" title="' . basename( $m ) . '" length="' . mediadownloaderMP3Size( $m ) . '" href="' . ( $m . md_mediaExtension() ) . '" type="audio/mpeg" />';
+    $allmatches = mediadownloaderEnclosures();
+    foreach ( $allmatches as $mext => $matches ) {
+        foreach ( $matches as $m ) {
+            //$t.='<link rel="enclosure" title="'.basename($m).'" length="'.mediadownloaderFileSize($m, $mext).'" href="'.WP_PLUGIN_URL.'/media-downloader/getfile.php?f='.urlencode($m).'" type="audio/mpeg" />';
+            $t .= '<link rel="enclosure" title="' . basename( $m ) . '" length="' . mediadownloaderFileSize( $m, $mext ) . '" href="' . ( $m . '.' . $mext ) . '" type="audio/mpeg" />';
+	    }
 	}
     echo $t;
     //return $t;
@@ -724,19 +703,21 @@ function mediadownloaderRss(){
     global $post;
     $postdate = strtotime( $post->post_date_gmt );
     $t = '';
-    $matches = mediadownloaderEnclosures( true );
-    foreach ( $matches as $m => $adjacentmarkup ) {
-        $postdate -= 2;
-        //$t.='<enclosure title="'.basename($m).'" url="'.WP_PLUGIN_URL.'/media-downloader/getfile.php?f='.urlencode($m).'" length="'.mediadownloaderMP3Size($m).'" type="audio/mpeg" />';
-        //$t .= '<enclosure title="' . basename( $m ) . '" url="' . ( $m . md_mediaExtension() ) . '" length="' . mediadownloaderMP3Size( $m ) . '" type="audio/mpeg" />';
-        $t .= '</item>';
-        $t .= '<item>';
-        $t .= '<title>' . sprintf( _md( 'Attached file: %1$s - %2$s' ), urldecode( basename( $m ) ), get_the_title($post->ID) ) . '</title>';
-        $t .= '<link>' . get_permalink($post->ID) . '#mdfile_' . sanitize_title( basename( urldecode( $m ) ) ) . '</link>';
-        $t .= '<description><![CDATA[' . $adjacentmarkup . ']]></description>';
-        $t .= '<pubDate>' . date( DATE_RSS, $postdate ) . '</pubDate>';
-        $t .= '<guid>' . get_permalink($post->ID) . '#mdfile_' . sanitize_title( basename( urldecode( $m ) ) ) . '</guid>';
-        $t .= '<enclosure url="' . ( $m . md_mediaExtension() ) . '" length="' . mediadownloaderMP3Size( $m ) . '" type="audio/mpeg" />';
+    $allmatches = mediadownloaderEnclosures( true );
+    foreach ( $allmatches as $mext => $matches ) {
+        foreach ( $matches as $m => $adjacentmarkup ) {
+            $postdate -= 2;
+            //$t.='<enclosure title="'.basename($m).'" url="'.WP_PLUGIN_URL.'/media-downloader/getfile.php?f='.urlencode($m).'" length="'.mediadownloaderFileSize($m, $mext).'" type="audio/mpeg" />';
+            //$t .= '<enclosure title="' . basename( $m ) . '" url="' . ( $m . '.' . $mext ) . '" length="' . mediadownloaderFileSize( $m, $mext ) . '" type="audio/mpeg" />';
+            $t .= '</item>';
+            $t .= '<item>';
+            $t .= '<title>' . sprintf( _md( 'Attached file: %1$s - %2$s' ), urldecode( basename( $m ) ), get_the_title($post->ID) ) . '</title>';
+            $t .= '<link>' . get_permalink($post->ID) . '#mdfile_' . sanitize_title( basename( urldecode( $m ) ) ) . '</link>';
+            $t .= '<description><![CDATA[' . $adjacentmarkup . ']]></description>';
+            $t .= '<pubDate>' . date( DATE_RSS, $postdate ) . '</pubDate>';
+            $t .= '<guid>' . get_permalink($post->ID) . '#mdfile_' . sanitize_title( basename( urldecode( $m ) ) ) . '</guid>';
+            $t .= '<enclosure url="' . ( $m . '.' . $mext ) . '" length="' . mediadownloaderFileSize( $m, $mext ) . '" type="audio/mpeg" />';
+	    }
 	}
     echo $t;
     //return $t; 
@@ -888,7 +869,7 @@ function _md( $t ) {
 //        icl_register_string( 'Media Downloader', $t, $t );
 //        return icl_t( 'Media Downloader', $t, $t );
 //    } else {
-        return __( $t, 'media-downloader' ) ;
+        return __( $t, 'media-downloader' );
 //    }
 }
 function _mde( $t ) {
@@ -896,7 +877,7 @@ function _mde( $t ) {
 //        icl_register_string( 'Media Downloader', $t, $t );
 //        echo icl_t( 'Media Downloader', $t, $t );
 //    } else {
-        return _e( $t, 'media-downloader' ) ;
+        return _e( $t, 'media-downloader' );
 //    }
 }
 function _mdn( $ts, $tp, $n ) {
@@ -909,7 +890,7 @@ function _mdn( $ts, $tp, $n ) {
 //            return icl_t( 'Media Downloader', $ts, $ts );
 //        }
 //    } else {
-        return _n( $ts, $tp, $n, 'media-downloader' ) ;
+        return _n( $ts, $tp, $n, 'media-downloader' );
 //    }
 }
 

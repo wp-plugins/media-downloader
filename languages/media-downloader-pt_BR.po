@@ -224,8 +224,8 @@ msgid "By Chapter"
 msgstr "Por Capítulos"
 
 #: mediadownloader.php:309
-msgid "Whole Book"
-msgstr "Livro Completo"
+msgid "Compacted Files"
+msgstr "Arquivos Compactados"
 
 #: mediadownloader.php:330
 #: mediadownloader.php:424
