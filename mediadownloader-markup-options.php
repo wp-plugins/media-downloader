@@ -62,6 +62,36 @@ if ( !sanitizeMarkupTemplate( $markuptemplate ) ) $markuptemplate = array_shift(
 
 <hr />
 
+<?php
+$pexts = md_packageExtensions();
+if ( count( $pexts ) ) :
+    ?>
+    <fieldset>
+    <h2><?php _mde( 'Links for compacted files' ); ?></h2>
+    
+    <h3><label for="md_packagetitle"><?php _mde( 'File list title:' ); ?></label></h3>
+    <p>
+    <input type="text" name="packagetitle" id="md_packagetitle" value="<?php echo esc_attr( $mdoptions['packagetitle'] ) ;?>" size="75" /><br />
+    <small><?php _mde( 'Example:' ); ?> <i><code><?php _mde( 'Compacted Files' ); ?></code></i></small>
+    </p>
+    
+    <h3><?php _mde( 'Links texts:' ); ?></h3>
+    <?php foreach ( $pexts as $pext ) : ?>
+        <p>
+        <label for="md_packagetext_<?php echo $pext; ?>"><?php printf( _md( '<code>%s</code> file link text:' ), $pext ) ;?></label> <br />
+        <input type="text" name="packagetexts[<?php echo $pext; ?>]" id="md_packagetext_<?php echo $pext; ?>" value="<?php echo esc_attr( $mdoptions['packagetexts'][$pext] ) ;?>" size="75" /> <small><?php _mde( 'Default:' ); ?> <i><code><?php _mde( 'Download ' . strtoupper( $pext ) ); ?></code></i></small>
+        </p>
+    <?php endforeach; ?>
+    <h4><?php _mde( 'Wildcards:' ) ;?> <code>[filename]</code></h4>
+    
+    <p class="submit">
+    <input type="submit" value="<?php _mde( 'Update Options' ) ;?>" />
+    </p>
+    </fieldset>
+
+    <hr />
+<?php endif; ?>
+
 <fieldset id="mdf_downloadtext">
 
 <h2><?php _mde( 'Each item options' ); ?></h2>

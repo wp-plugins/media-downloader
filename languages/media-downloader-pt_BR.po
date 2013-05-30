@@ -41,6 +41,18 @@ msgstr "<em>Markup</em> da imagem de capa"
 msgid "Album Cover"
 msgstr "Capa do Álbum"
 
+msgid "Links for compacted files"
+msgstr "Links para arquivos compactados"
+
+msgid "File list title:"
+msgstr "Título da lista de arquivos:"
+
+msgid "Links texts:"
+msgstr "Textos dos links:"
+
+msgid "<code>%s</code> file link text:"
+msgstr "Texto do link de arquivos <code>%s</code>:"
+
 #: mediadownloader-markup-options.php:42
 #: mediadownloader-markup-options.php:67
 #: mediadownloader-more-options.php:55
@@ -110,13 +122,16 @@ msgstr "Foi possível ler o diretório com sucesso."
 msgid "Could not read folder."
 msgstr "Não foi possível ler o diretório."
 
+msgid "Media files:"
+msgstr "Arquivos de mídia:"
+
 #: mediadownloader-options.php:38
 msgid "Show MP3 Info:"
 msgstr "Mostrar Informações do MP3:"
 
 #: mediadownloader-options.php:40
-msgid "Comma-separated MP3 info to show for each file on the list."
-msgstr "Campos a serem exibidos para cada arquivo MP3 da lista, separados por vírgula."
+msgid "Comma-separated MP3 info to show for each file on the list:"
+msgstr "Campos a serem exibidos para cada arquivo MP3 da lista, separados por vírgula:"
 
 #: mediadownloader-options.php:43
 msgid "Possible values:"
@@ -140,6 +155,12 @@ msgstr "(marcar esta opção pode sobrecarregar o servidor)"
 
 msgid "Show cover (if a <code>folder.jpg</code> file is found)"
 msgstr "Mostrar \"capa\" (se houver um arquivo <code>folder.jpg</code>)"
+
+msgid "Comma-separated extensions for compacted files:"
+msgstr "Extensões de arquivos compactados, separados por vírgulas:"
+
+msgid "Example:"
+msgstr "Exemplo:"
 
 #: mediadownloader-options.php:73
 msgid "Embed player"
@@ -250,7 +271,7 @@ msgstr "(Arquivo de texto)"
 
 #: mediadownloader.php:403
 msgid "Download EPUB"
-msgstr "Baixar EPUB"
+msgstr "Baixar arquivo EPUB"
 
 #: mediadownloader.php:447
 msgid "Error:"

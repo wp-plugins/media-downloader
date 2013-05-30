@@ -27,6 +27,16 @@ foreach( $mdsettings as $mdsetting => $mdsanitizefunction ) $mdoptions[$mdsettin
 
 </p>
 
+
+<p>
+<h4><?php _mde( 'Media files:' ) ;?></h4>
+<?php foreach ( md_mediaAllExtensions() as $mext ) :
+    $checked = in_array( $mext, md_mediaExtensions() ) ? ' checked="checked"' : '';
+    ?>
+    <label for="md_mediaextension_<?php echo $mext; ?>" style="min-width:82px;display:inline-block;"><input type="checkbox" id="md_mediaextension_<?php echo $mext; ?>" name="mediaextensions[]" value="<?php echo $mext; ?>"<?php echo $checked; ?> /> <?php echo '.' . $mext; ?></label>
+<?php endforeach; ?>
+</p>
+
 <p class="submit">
 <input type="submit" value="<?php _mde( 'Update Options' ) ;?>" />
 </p>
@@ -37,7 +47,7 @@ foreach( $mdsettings as $mdsetting => $mdsanitizefunction ) $mdoptions[$mdsettin
 <fieldset id="mdf_customcss">
 <h3><label for="md_showtags"><?php _mde( 'Show MP3 Info:' ) ;?></label></h3>
 <p>
-<?php _mde( 'Comma-separated MP3 info to show for each file on the list.' ) ;?><br />
+<label for="md_showtags"><?php _mde( 'Comma-separated MP3 info to show for each file on the list:' ) ;?></label><br />
 <input type="text" id="md_showtags" name="showtags" size="75" value="<?php echo $mdoptions['showtags'] ;?>" />
 <br />
 <small><?php _mde( 'Possible values:' ) ;?> <code><?php echo implode( '</code>, <code>', $mdtags ) ;?></code>.</small>
@@ -80,6 +90,12 @@ foreach( $mdsettings as $mdsetting => $mdsanitizefunction ) $mdoptions[$mdsettin
 <p>
 <input type="checkbox" name="showcover" id="md_showcover" value="1" <?php if ( $mdoptions['showcover'] ) echo ' checked="checked" ' ;?> />
 <label for="md_showcover"><?php _mde( 'Show cover (if a <code>folder.jpg</code> file is found)' ) ;?></label>
+</p>
+
+<p>
+<label for="md_packageextensions"><?php _mde( 'Comma-separated extensions for compacted files:' ) ;?></label><br />
+<input type="text" id="md_packageextensions" name="packageextensions" size="75" value="<?php echo $mdoptions['packageextensions'] ;?>" /><br />
+<small><?php _mde( 'Example:' ); ?> <code>zip</code>, <code>rar</code>, <code>tgz</code></small>
 </p>
 
 <p>

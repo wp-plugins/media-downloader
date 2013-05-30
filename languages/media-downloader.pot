@@ -41,6 +41,18 @@ msgstr ""
 msgid "Album Cover"
 msgstr ""
 
+msgid "Links for compacted files"
+msgstr ""
+
+msgid "File list title:"
+msgstr ""
+
+msgid "Links texts:"
+msgstr ""
+
+msgid "<code>%s</code> file link text:"
+msgstr ""
+
 #: mediadownloader-markup-options.php:42
 #: mediadownloader-markup-options.php:67
 #: mediadownloader-more-options.php:55
@@ -110,12 +122,15 @@ msgstr ""
 msgid "Could not read folder."
 msgstr ""
 
+msgid "Media files:"
+msgstr ""
+
 #: mediadownloader-options.php:38
 msgid "Show MP3 Info:"
 msgstr ""
 
 #: mediadownloader-options.php:40
-msgid "Comma-separated MP3 info to show for each file on the list."
+msgid "Comma-separated MP3 info to show for each file on the list:"
 msgstr ""
 
 #: mediadownloader-options.php:43
@@ -139,6 +154,12 @@ msgid "(checking it may cause some server overloading)"
 msgstr ""
 
 msgid "Show cover (if a <code>folder.jpg</code> file is found)"
+msgstr ""
+
+msgid "Comma-separated extensions for compacted files:"
+msgstr ""
+
+msgid "Example:"
 msgstr ""
 
 #: mediadownloader-options.php:73

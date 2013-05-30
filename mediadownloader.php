@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99.84
+Version: 0.1.99.85
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -26,12 +26,14 @@ $mdsortingfields = array(
 // Settings and respective sanitize functions
 $mdsettings = array(
     'mp3folder' => 'sanitizeRDir',
+    'mediaextensions' => 'sanitizeMediaExtensions',
     'sortfiles' => 'sanitizeSortingField',
     'reversefiles' => 'sanitizeBoolean',
     'showtags' => null,
     'customcss' => null,
     'removeextension' => 'sanitizeBoolean',
     'showcover' => 'sanitizeBoolean',
+    'packageextensions' => null,
     'embedplayer' => 'sanitizeBoolean',
     'embedwhere' => 'sanitizeBeforeAfter',
     'tagencoding' => 'sanitizeTagEncoding',
@@ -47,6 +49,8 @@ $mdtags = array( 'title', 'artist', 'album', 'year', 'genre', 'comment', 'track_
 // Markup settings and respective sanitize functions
 $mdmarkupsettings = array(
     'covermarkup' => null,
+    'packagetitle' => null,
+    'packagetexts' => null,
     'downloadtext' => null,
     'playtext' => null,
     'stoptext' => null,
@@ -158,12 +162,19 @@ function get_replaceheaders() {
     return $replaceheaders;
 }
 
-function md_mediaExtensions() {
+function md_mediaAllExtensions() {
     return array( 'mp3', 'mp2', 'mp1', 'ogg', 'wma', 'm4a', 'aac', 'ac3', 'flac', 'ra', 'rm', 'wav', 'aiff', 'cda', 'mid', 'avi', 'webm', 'asf', 'wmv', 'mpg', 'avi', 'qt', 'mov', 'ogv', 'mp4', '3gp' );
+}
+function md_mediaExtensions() {
+    $ret = get_option( 'mediaextensions' );
+    if ( ! ( is_array( $ret ) && count( $ret ) ) ) $ret = array( 'mp3' );
+    return $ret;
 }
 
 function md_packageExtensions() {
-    return array( 'zip', 'pdf', 'epub' );
+    $ret = explode( ',', get_option( 'packageextensions' ) );
+    foreach ( $ret as &$r ) $r = str_replace( '.', '', $r );
+    return $ret;
 }
 
 // Searches post content for our smarttag and do all the magic
@@ -247,9 +258,12 @@ function listMedia( $t ){
                         } else {
                             $fext = '.none';
                         }
-                        if ( !array_key_exists( $fext, $iall ) ) $iall[$fext] = array();
-                        $iall[$fext][] = $ifile;
-                        if ( in_array( $fext, md_mediaExtensions() ) ) $ifiles[] = $ifile;
+                        if ( in_array( $fext, md_mediaExtensions() ) ) {
+                            $ifiles[] = $ifile;
+                        } else {
+                            if ( !array_key_exists( $fext, $iall ) ) $iall[$fext] = array();
+                            $iall[$fext][] = $ifile;
+                        }
                         if ( strtolower( str_ireplace( '.jpeg', '.jpg', $ifile ) ) == 'folder.jpg' ) $cover = $ifile;
                     }
                 } else {
@@ -265,9 +279,12 @@ function listMedia( $t ){
                 } else {
                     $fext = '.none';
                 }
-                if ( !array_key_exists( $fext, $iall ) ) $iall[$fext] = array();
-                $iall[$fext][] = $ifile;
-                if ( in_array( $fext, md_mediaExtensions() ) ) $ifiles[] = $ifile;
+                if ( in_array( $fext, md_mediaExtensions() ) ) {
+                    $ifiles[] = $ifile;
+                } else {
+                    if ( !array_key_exists( $fext, $iall ) ) $iall[$fext] = array();
+                    $iall[$fext][] = $ifile;
+                }
                 $ipath = implode( '/', $apath );
             }
             // Encoding folder name
@@ -292,8 +309,10 @@ function listMedia( $t ){
             $countextra = 0;
             foreach ( md_packageExtensions() as $pext ) $countextra += count( $iall[$pext] );
             if ( $countextra ) {
+                $packagetitle = get_option( 'packagetitle' );
+                $packagetexts = get_option( 'packagetexts' );
                 $ihtml .= '<div class="md_wholebook">';
-                $ihtml .= '<h3 class="md_wholebook_title">' . _md( 'Compacted Files' ) . '</h3>';
+                if ( $packagetitle ) $ihtml .= '<h3 class="md_wholebook_title">' . $packagetitle . '</h3>';
                 $afolder = explode( '/', $folderalone );
                 for ( $a=0; $a<count($afolder); $a++ ) $afolder[$a] = rawurlencode( $afolder[$a] );
                 $cfolder = implode( '/', $afolder );
@@ -301,7 +320,11 @@ function listMedia( $t ){
                 foreach ( md_packageExtensions() as $pext ) {
                     $cpf = 0; if ( count( $iall[$pext] ) ) foreach( $iall[$pext] as $pf ) {
                         $cpf++;
-                        $ihtml .= '<li class="d' . strtoupper(substr($pext,0,1)) . substr($pext,1) . '"><a href="'.$mrelative.'/'.($cfolder).'/'.rawurlencode( $pf ).'" title="' . esc_attr( $pf ) . '">'._md( 'Download ' . strtoupper( $pext ) ).(count($iall[$pext])>1?' ('.$cpf.')':'').'</a></li>' ;
+                        $ptext = _md( 'Download ' . strtoupper( $pext ) );
+                        if ( array_key_exists( $pext, $packagetexts ) && $packagetexts[$pext] ) {
+                            $ptext = str_replace( '[filename]', $pf, $packagetexts[$pext] );
+                        }
+                        $ihtml .= '<li class="d' . strtoupper(substr($pext,0,1)) . substr($pext,1) . '"><a href="'.$mrelative.'/'.($cfolder).'/'.rawurlencode( $pf ).'" title="' . esc_attr( $pf ) . '">'.$ptext.(count($iall[$pext])>1?' ('.$cpf.')':'').'</a></li>' ;
                     }
                 }
                 $ihtml .= '</ul>';
@@ -309,9 +332,7 @@ function listMedia( $t ){
             }
 
             // Any MP3 file?
-            $countmedia = 0;
-            foreach ( md_mediaExtensions() as $mext ) $countmedia += count( $iall[$mext] );
-            if ( $countmedia ) {
+            if ( count( $ifiles ) ) {
                 // Calculating file "prefixes"
                 $prefix = calculatePrefix( $ifiles );
                 $hlevel = explode( '/', $folder ); $hlevel = array_pop( $hlevel );
@@ -836,7 +857,14 @@ function sanitizeWDir( $d ){
     return is_writeable( ABSPATH . $d ) ? $d : '' ;
 }
 function sanitizeArray( $i, $a ){
-    return in_array( $i, $a ) ? $i : '' ;
+    if ( is_array( $i ) ) {
+        return array_intersect( $i, $a );
+    } else {
+        return in_array( $i, $a ) ? $i : '' ;
+    }
+}
+function sanitizeMediaExtensions( $t ) {
+    return sanitizeArray( $t, md_mediaAllExtensions() );
 }
 function sanitizeSortingField( $t ){
     global $mdsortingfields;
