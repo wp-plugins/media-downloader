@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99.87
+Version: 0.1.99.88
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -298,36 +298,42 @@ function listMedia( $t ){
                 $ufolder = implode( '/', $afolder );
             }
             
-            if ( $mshowcover && $cover ) {
-                $coversrc = home_url($mdir) . '/' . ( $ufolder ? $ufolder . '/' : '' ) . $cover;
-                $icovermarkup = $covermarkup ? $covermarkup : '<img class="md_coverImage" src="[coverimage]" alt="' . _md( 'Album Cover' ) . '" />';
-                $ihtml .= str_replace( '[coverimage]', $coversrc, $icovermarkup );
-            }
-
-            // If any "extra" files, inserting an extra table
-            // (this was very case specific and remained here)
             $countextra = 0;
             foreach ( md_packageExtensions() as $pext ) $countextra += count( $iall[$pext] );
-            if ( $countextra ) {
-                $packagetitle = get_option( 'packagetitle' );
-                $packagetexts = get_option( 'packagetexts' );
-                $ihtml .= '<div class="md_wholebook">';
-                if ( $packagetitle ) $ihtml .= '<h3 class="md_wholebook_title">' . $packagetitle . '</h3>';
-                $afolder = explode( '/', $folderalone );
-                for ( $a=0; $a<count($afolder); $a++ ) $afolder[$a] = rawurlencode( $afolder[$a] );
-                $cfolder = implode( '/', $afolder );
-                $ihtml .= '<ul class="md_wholebook_list">';
-                foreach ( md_packageExtensions() as $pext ) {
-                    $cpf = 0; if ( count( $iall[$pext] ) ) foreach( $iall[$pext] as $pf ) {
-                        $cpf++;
-                        $ptext = _md( 'Download ' . strtoupper( $pext ) );
-                        if ( array_key_exists( $pext, $packagetexts ) && $packagetexts[$pext] ) {
-                            $ptext = str_replace( '[filename]', $pf, $packagetexts[$pext] );
-                        }
-                        $ihtml .= '<li class="d' . strtoupper(substr($pext,0,1)) . substr($pext,1) . '"><a href="'.$mrelative.'/'.($cfolder).'/'.rawurlencode( $pf ).'" title="' . esc_attr( $pf ) . '">'.$ptext.(count($iall[$pext])>1?' ('.$cpf.')':'').'</a></li>' ;
-                    }
+            if ( ( $mshowcover && $cover ) || $countextra ) {
+                $ihtml .= '<div class="md_albumInfo">';
+
+                if ( $mshowcover && $cover ) {
+                    $coversrc = home_url($mdir) . '/' . ( $ufolder ? $ufolder . '/' : '' ) . $cover;
+                    $icovermarkup = $covermarkup ? $covermarkup : '<img class="md_coverImage" src="[coverimage]" alt="' . _md( 'Album Cover' ) . '" />';
+                    $ihtml .= str_replace( '[coverimage]', $coversrc, $icovermarkup );
                 }
-                $ihtml .= '</ul>';
+
+                // If any "extra" files, inserting an extra table
+                // (this was very case specific and remained here)
+                if ( $countextra ) {
+                    $packagetitle = get_option( 'packagetitle' );
+                    $packagetexts = get_option( 'packagetexts' );
+                    $ihtml .= '<div class="md_wholebook">';
+                    if ( $packagetitle ) $ihtml .= '<h3 class="md_wholebook_title">' . $packagetitle . '</h3>';
+                    $afolder = explode( '/', $folderalone );
+                    for ( $a=0; $a<count($afolder); $a++ ) $afolder[$a] = rawurlencode( $afolder[$a] );
+                    $cfolder = implode( '/', $afolder );
+                    $ihtml .= '<ul class="md_wholebook_list">';
+                    foreach ( md_packageExtensions() as $pext ) {
+                        $cpf = 0; if ( count( $iall[$pext] ) ) foreach( $iall[$pext] as $pf ) {
+                            $cpf++;
+                            $ptext = _md( 'Download ' . strtoupper( $pext ) );
+                            if ( array_key_exists( $pext, $packagetexts ) && $packagetexts[$pext] ) {
+                                $ptext = str_replace( '[filename]', $pf, $packagetexts[$pext] );
+                            }
+                            $ihtml .= '<li class="d' . strtoupper(substr($pext,0,1)) . substr($pext,1) . '"><a href="'.$mrelative.'/'.($cfolder).'/'.rawurlencode( $pf ).'" title="' . esc_attr( $pf ) . '">'.$ptext.(count($iall[$pext])>1?' ('.$cpf.')':'').'</a></li>' ;
+                        }
+                    }
+                    $ihtml .= '</ul>';
+                    $ihtml .= '</div>';
+                }
+
                 $ihtml .= '</div>';
             }
 
