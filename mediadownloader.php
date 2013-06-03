@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99.88
+Version: 0.1.99.89
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -314,6 +314,7 @@ function listMedia( $t ){
                 if ( $countextra ) {
                     $packagetitle = get_option( 'packagetitle' );
                     $packagetexts = get_option( 'packagetexts' );
+                    if ( !$packagetexts ) $packagetexts = array();
                     $ihtml .= '<div class="md_wholebook">';
                     if ( $packagetitle ) $ihtml .= '<h3 class="md_wholebook_title">' . $packagetitle . '</h3>';
                     $afolder = explode( '/', $folderalone );
@@ -327,7 +328,7 @@ function listMedia( $t ){
                             if ( array_key_exists( $pext, $packagetexts ) && $packagetexts[$pext] ) {
                                 $ptext = str_replace( '[filename]', $pf, $packagetexts[$pext] );
                             }
-                            $ihtml .= '<li class="d' . strtoupper(substr($pext,0,1)) . substr($pext,1) . '"><a href="'.$mrelative.'/'.($cfolder).'/'.rawurlencode( $pf ).'" title="' . esc_attr( $pf ) . '">'.$ptext.(count($iall[$pext])>1?' ('.$cpf.')':'').'</a></li>' ;
+                            $ihtml .= '<li class="d' . strtoupper(substr($pext,0,1)) . substr($pext,1) . '"><a href="'.$mrelative.($mrelative!='/'?'/':'').($cfolder).'/'.rawurlencode( $pf ).'" title="' . esc_attr( $pf ) . '">'.$ptext.(count($iall[$pext])>1?' ('.$cpf.')':'').'</a></li>' ;
                         }
                     }
                     $ihtml .= '</ul>';
