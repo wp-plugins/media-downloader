@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99.89
+Version: 0.1.99.90
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -355,7 +355,7 @@ function listMedia( $t ){
                     // Getting ID3 info
                     $finfo = mediadownloaderFileInfo( $mrelative.'/'.$folderalone.'/'.$ifile, $iext );
                     // Loading all possible tags
-                    $ftags = $finfo;
+                    $ftags = array();
                     foreach ( array( 'id3v2', 'quicktime', 'ogg', 'asf', 'flac', 'real', 'riff', 'ape', 'id3v1', 'comments' ) as $poss ) {
                         if ( array_key_exists( $poss, $finfo['tags'] ) ) {
                             $ftags = array_merge( $finfo['tags'][$poss], $ftags );
@@ -370,10 +370,12 @@ function listMedia( $t ){
                     $ftags['directory'] = array( $hlevel );
                     $ftags['file'] = array( $ifile );
                     $ftags['sample_rate'] = array( hertz_convert( intval( '0' . $finfo['audio']['sample_rate'] ) ) );
+                    unset( $finfo );
                     $alltags[$ifile] = $ftags;
                     // Populating array of tag values with all tags
                     foreach ( $mdtags as $mshowtag )
                         $tagvalues[$mshowtag][$ifile.'.'.$iext] = ( 'comment' == $mshowtag ) ? Markdown( $ftags[$mshowtag][0] ) : $ftags[$mshowtag][0];
+                    unset( $ftags );
                 }
                 // Calculating tag "prefixes"
                 $tagprefixes = array();
