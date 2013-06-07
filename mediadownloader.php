@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99.90
+Version: 0.1.99.91
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -667,7 +667,7 @@ function mediadownloaderEnclosures( $adjacentmarkup = false ){
     $cont = listMedia( get_the_content( $post->ID ) );
     foreach ( md_mediaExtensions() as $mext ) {
         $ret = array();
-        preg_match_all( '/href=[\\\'"](.*)'.preg_quote($mext).'[\\\'"]/im', $cont, $matches );
+        preg_match_all( '/href=[\\\'"](.*)'.preg_quote('.'.$mext).'[\\\'"]/im', $cont, $matches );
         preg_match_all( '/href=[\\\'"].*getfile\.php\?\=(.*)[\\\'"]/im', $cont, $newmatches );
         // It makes no sense, "there can be only one", but just in case...
         if ( count( $matches ) && count( $matches[1] ) ) $ret = array_unique( array_merge( $matches[1], $newmatches[1] ) );
