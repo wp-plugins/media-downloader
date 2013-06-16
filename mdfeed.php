@@ -46,7 +46,13 @@ foreach ( md_mediaExtensions() as $mext ) {
         $ftags['bitrate'] = array( floatval( $finfo['audio']['bitrate'] ) / 1000 . 'kbps' );
         $ftags['filesize'] = array( byte_convert( $finfo['filesize'] ) );
         $ftags['filedaterss'] = array( date( DATE_RSS, filemtime( $finfo['filepath'] . '/' . $finfo['filename'] ) ) );
-        if ( array_key_exists( 'id3v2', $finfo ) && array_key_exists( 'comments', $finfo['id3v2'] ) && array_key_exists( 'recording_dates', $finfo['id3v2']['comments'] ) && is_array( $finfo['id3v2']['comments']['recording_dates'] ) ) $ftags['filedaterss'] = array( date( DATE_RSS, $finfo['id3v2']['comments']['recording_dates'][0] ) );
+        if ( array_key_exists( 'id3v2', $finfo ) && array_key_exists( 'comments', $finfo['id3v2'] ) ) {
+            $fcomm = $finfo['id3v2']['comments'];
+            if ( array_key_exists( 'recording_dates', $fcomm ) && is_array( $fcomm['recording_dates'] ) ) $ftags['filedaterss'] = array( date( DATE_RSS, strtotime( $fcomm['recording_dates'][0] ) ) );
+            if ( array_key_exists( 'original_release_year', $fcomm ) && is_array( $fcomm['original_release_year'] ) ) $ftags['filedaterss'] = array( date( DATE_RSS, strtotime( $fcomm['original_release_year'][0] . '-01-01' ) ) );
+            if ( array_key_exists( 'original_release_time', $fcomm ) && is_array( $fcomm['original_release_time'] ) ) $ftags['filedaterss'] = array( date( DATE_RSS, strtotime( $fcomm['original_release_time'][0] ) ) );
+            if ( array_key_exists( 'release_time', $fcomm ) && is_array( $fcomm['release_time'] ) ) $ftags['filedaterss'] = array( date( DATE_RSS, strtotime( $fcomm['release_time'][0] ) ) );
+        }
         $ftags['filedate'] = array( date_i18n( get_option('date_format'), filemtime( $finfo['filepath'] . '/' . $finfo['filename'] ) ) );
         $ftags['directory'] = array( $hlevel );
         $ftags['file'] = array( $ifile );
