@@ -46,6 +46,7 @@ foreach ( md_mediaExtensions() as $mext ) {
         $ftags['bitrate'] = array( floatval( $finfo['audio']['bitrate'] ) / 1000 . 'kbps' );
         $ftags['filesize'] = array( byte_convert( $finfo['filesize'] ) );
         $ftags['filedaterss'] = array( date( DATE_RSS, filemtime( $finfo['filepath'] . '/' . $finfo['filename'] ) ) );
+        if ( array_key_exists( 'id3v2', $finfo ) && array_key_exists( 'comments', $finfo['id3v2'] ) && array_key_exists( 'recording_dates', $finfo['id3v2']['comments'] ) && is_array( $finfo['id3v2']['comments']['recording_dates'] ) ) $ftags['filedaterss'] = array( date( DATE_RSS, $finfo['id3v2']['comments']['recording_dates'][0] ) );
         $ftags['filedate'] = array( date_i18n( get_option('date_format'), filemtime( $finfo['filepath'] . '/' . $finfo['filename'] ) ) );
         $ftags['directory'] = array( $hlevel );
         $ftags['file'] = array( $ifile );
@@ -64,7 +65,7 @@ foreach ( $allmatches as $mext => $matches ) {
         $t .= '<item>' . "\n";
         $t .= '<title>' . $ftags['title'][0] . '</title>' . "\n";
         $t .= '<link>' . ( $m . '.' . $mext ) . '</link>' . "\n";
-        $t .= '<description><![CDATA[' . $ftags['comment'][0] . ']]></description>' . "\n";
+        $t .= '<description><![CDATA[' . Markdown( $ftags['comment'][0] ) . ']]></description>' . "\n";
         $t .= '<pubDate>' . $ftags['filedaterss'][0] . '</pubDate>' . "\n";
         $t .= '<guid>' . ( $m . '.' . $mext ) . '</guid>' . "\n";
         $t .= '<enclosure url="' . ( $m . '.' . $mext ) . '" length="' . mediadownloaderFileSize( $m, $mext ) . '" type="audio/mpeg" />' . "\n";
