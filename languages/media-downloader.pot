@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Media Downloader 0.1.98.99\n"
+"Project-Id-Version: Media Downloader 0.1.99.96\n"
 "POT-Creation-Date: 2012-05-28 10:27:53+03:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -300,5 +300,9 @@ msgstr ""
 
 #: mediadownloader-options.php:76
 msgid "(though a very helpful \"magic\" sometimes, this feature behaves in a unpredictably wild way)"
+msgstr ""
+
+#: mediadownloader-options.php:168
+msgid "Overwrite feed link:"
 msgstr ""
 

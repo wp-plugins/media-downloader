@@ -4,7 +4,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Project-Id-Version: Media Downloader 0.1.98.99\n"
+"Project-Id-Version: Media Downloader 0.1.99.96\n"
 "Last-Translator: Ederson Peka <ederson@gmail.com>\n"
 "Language-Team: Ederson Peka <ederson@gmail.com>\n"
 
@@ -301,3 +301,8 @@ msgstr "Tentar calcular e remover um \"prefixo\" comum a todos os arquivos de um
 #: mediadownloader-options.php:76
 msgid "(though a very helpful \"magic\" sometimes, this feature behaves in a unpredictably wild way)"
 msgstr "(embora seja uma \"mágica\" muito útil às vezes, esta funcionalidade se comporta de maneira imprevisivelmente selvagem)"
+
+#: mediadownloader-options.php:168
+msgid "Overwrite feed link:"
+msgstr "Sobrescrever link do <em>feed</em>:"
+

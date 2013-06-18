@@ -164,6 +164,11 @@ foreach( $mdsettings as $mdsetting => $mdsanitizefunction ) $mdoptions[$mdsettin
 </label>
 </p>
 
+<p>
+<label for="md_overwritefeedlink"><?php _mde( 'Overwrite feed link:' ) ;?></label><br />
+<input type="text" id="md_overwritefeedlink" name="overwritefeedlink" size="75" value="<?php echo $mdoptions['overwritefeedlink'] ;?>" />
+</p>
+
 <p class="submit">
 <input type="submit" value="<?php _mde( 'Update Options' ) ;?>" />
 </p>

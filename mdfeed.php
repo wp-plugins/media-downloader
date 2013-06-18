@@ -94,8 +94,8 @@ echo '<?xml version="1.0" encoding="' . get_option( 'blog_charset' ) . '"?>' . "
 
 <channel>
     <title><?php bloginfo_rss('name'); wp_title_rss(); ?></title>
-    <atom:link href="<?php self_link(); ?>" rel="self" type="application/rss+xml" />
-    <link><?php self_link(); ?></link>
+    <atom:link href="<?php echo md_self_link(); ?>" rel="self" type="application/rss+xml" />
+    <link><?php echo md_self_link(); ?></link>
     <description><?php bloginfo( 'description' ); ?></description>
     <lastBuildDate><?php echo date( DATE_RSS ); ?></lastBuildDate>
     <language><?php bloginfo_rss( 'language' ); ?></language>

@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99.95
+Version: 0.1.99.96
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -41,6 +41,7 @@ $mdsettings = array(
     'cachedir' => 'sanitizeWDir',
     'scriptinfooter' => 'sanitizeBoolean',
     'handlefeed' => 'sanitizeBoolean',
+    'overwritefeedlink' => 'sanitizeURL',
     'calculateprefix' => 'sanitizeBoolean',
 );
 // Possible ID3 tags
@@ -865,6 +866,16 @@ function mediadownloader_settings() {
     foreach ( $mdembedplayerdefaultcolors as $mdcolor => $mddefault ) register_setting( 'md_more_options', $mdcolor . '_embed_color', 'sanitizeHEXColor' );
 }
 
+function md_self_link() {
+	$host = @parse_url( home_url() );
+	return esc_url( apply_filters( 'md_self_link', set_url_scheme( 'http://' . $host['host'] . stripslashes($_SERVER['REQUEST_URI']) ) ) );
+}
+function md_filter_feed_link( $link, $type = 'rss2' ) {
+    $overwritefeedlink = ( 'rss2' == $type ) ? trim( get_option( 'overwritefeedlink' ) ) : false;
+    return $overwritefeedlink ? $overwritefeedlink : $link;
+}
+add_filter( 'md_self_link', 'md_filter_feed_link' );
+add_filter( 'feed_link', 'md_filter_feed_link' );
 
 // Functions to sanitize user input
 function sanitizeRDir( $d ){
@@ -903,6 +914,9 @@ function sanitizeHEXColor( $c ){
 function sanitizeMarkupTemplate( $t ){
     global $mdmarkuptemplates;
     return sanitizeArray( $t, array_keys( $mdmarkuptemplates ) );
+}
+function sanitizeURL( $t ) {
+    return filter_var( $t, FILTER_VALIDATE_URL );
 }
 
 
