@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99.96
+Version: 0.1.99.97
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -16,6 +16,7 @@ $mdsortingfields = array(
     'none' => null,
     'title' => 'orderByTitle',
     'file date' => 'orderByFileDate',
+    'recording dates' => 'orderByRecordingDates',
     'year' => 'orderByYear',
     'track number' => 'orderByTrackNumber',
     'album' => 'orderByAlbum',
@@ -45,7 +46,7 @@ $mdsettings = array(
     'calculateprefix' => 'sanitizeBoolean',
 );
 // Possible ID3 tags
-$mdtags = array( 'title', 'artist', 'album', 'year', 'genre', 'comment', 'track_number', 'bitrate', 'filesize', 'filedate', 'directory', 'file', 'sample_rate' );
+$mdtags = array( 'title', 'artist', 'album', 'year', 'recording_dates', 'genre', 'comment', 'track_number', 'bitrate', 'filesize', 'filedate', 'directory', 'file', 'sample_rate' );
 
 // Markup settings and respective sanitize functions
 $mdmarkupsettings = array(
@@ -243,9 +244,6 @@ function listMedia( $t ){
             $iall = array();
             $ifiles = array();
             $ititles = array();
-            $zip = array();
-            $pdf = array();
-            $epub = array();
             $ipath = $mpath . '/' . $folder;
             // Populating arrays with respective files
             if ( is_dir( $ipath ) ) {
@@ -422,6 +420,12 @@ function listMedia( $t ){
                             // Encoding...
                             if ( 'file' == $mshowtag || 'directory' == $mshowtag ) {
                                 if ( $mdofnencode != 'UTF-8' ) $tagvalue = iconv( $mdofnencode, 'UTF-8', $tagvalue );
+                            } elseif ( 'recording_dates' == $mshowtag ) {
+                                if ( $tagtime = strtotime( $tagvalue ) ) {
+                                    $tagvalue = date_i18n( get_option('date_format'), $tagtime );
+                                } else {
+                                    $tagvalue = '';
+                                }
                             } elseif ( $mdoencode != 'UTF-8' ) {
                                 $tagvalue = iconv( $mdoencode, 'UTF-8', $tagvalue );
                             }
@@ -571,6 +575,9 @@ function orderByTitle( $a, $b ) {
 }
 function orderByFileDate( $a, $b ) {
     return orderByTag( $a, $b, 'filedate' );
+}
+function orderByRecordingDates( $a, $b ) {
+    return orderByTag( $a, $b, 'recording_dates', 'year', 'filedate' );
 }
 function orderByYear( $a, $b ) {
     return orderByTag( $a, $b, array( 'year', 'track_number', 'filedate' ) );
@@ -835,6 +842,8 @@ function mediadownloader_options() {
         require_once("mediadownloader-markup-options.php");
     } elseif ( isset( $_GET['more-options'] ) ) {
         require_once("mediadownloader-more-options.php");
+    } elseif ( isset( $_GET['tag-editor'] ) ) {
+        require_once("mediadownloader-tag-editor.php");
     } else {
         require_once("mediadownloader-options.php");
     }

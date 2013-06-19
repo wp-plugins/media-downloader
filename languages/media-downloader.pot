@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Media Downloader 0.1.99.96\n"
+"Project-Id-Version: Media Downloader 0.1.99.97\n"
 "POT-Creation-Date: 2012-05-28 10:27:53+03:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -105,6 +105,9 @@ msgid "Markup Options"
 msgstr ""
 
 msgid "More Options"
+msgstr ""
+
+msgid "Tag Editor"
 msgstr ""
 
 #: mediadownloader-options.php:18
@@ -304,5 +307,104 @@ msgstr ""
 
 #: mediadownloader-options.php:168
 msgid "Overwrite feed link:"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:101
+msgid "File saved!"
+msgstr ""
+
+msgid "&larr; Back"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:102
+msgid "Warnings:"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:106
+msgid "Failed!"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:107
+msgid "Errors:"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:136
+msgid "Editing File: <code>%s</code>"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:144
+msgid "Title"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:145
+msgid "Artist"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:146
+msgid "Album"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:147
+msgid "Year"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:148
+msgid "Genre"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:149
+msgid "Comment"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:150
+msgid "Formatted Comment"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:151
+msgid "Recording Date"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:152
+msgid "Track Number"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:182
+msgid "Picture:"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:194
+msgid "Cancel"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:195
+msgid "Save Changes"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:201,219
+msgid "Could not read: <code>%s</code>"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:232
+msgid "Directory: <code>%s</code>"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:238
+msgid "Name"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:239
+msgid "Size"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:240
+msgid "Modification Time"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:267,274
+msgid "%1$s \\a\\t %2$s"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:280
+msgid "Empty directory?"
 msgstr ""
 

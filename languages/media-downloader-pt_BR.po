@@ -1,10 +1,10 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-05-28 10:37:53+03:00\n"
+"PO-Revision-Date: 2013-06-18 23:59:53+03:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Project-Id-Version: Media Downloader 0.1.99.96\n"
+"Project-Id-Version: Media Downloader 0.1.99.97\n"
 "Last-Translator: Ederson Peka <ederson@gmail.com>\n"
 "Language-Team: Ederson Peka <ederson@gmail.com>\n"
 
@@ -106,6 +106,9 @@ msgstr "Opções de <em>Markup</em>"
 
 msgid "More Options"
 msgstr "Opções Adicionais"
+
+msgid "Tag Editor"
+msgstr "Editor de Tags"
 
 #: mediadownloader-options.php:18
 msgid "MP3 Folder:"
@@ -305,4 +308,103 @@ msgstr "(embora seja uma \"mágica\" muito útil às vezes, esta funcionalidade 
 #: mediadownloader-options.php:168
 msgid "Overwrite feed link:"
 msgstr "Sobrescrever link do <em>feed</em>:"
+
+#: mediadownloader-tag-editor.php:101
+msgid "File saved!"
+msgstr "Arquivo salvoo!"
+
+msgid "&larr; Back"
+msgstr "&larr; Voltar"
+
+#: mediadownloader-tag-editor.php:102
+msgid "Warnings:"
+msgstr "Avisos:"
+
+#: mediadownloader-tag-editor.php:106
+msgid "Failed!"
+msgstr "Falha!"
+
+#: mediadownloader-tag-editor.php:107
+msgid "Errors:"
+msgstr "Erros:"
+
+#: mediadownloader-tag-editor.php:136
+msgid "Editing File: <code>%s</code>"
+msgstr "Edição do Arquivo: <code>%s</code>"
+
+#: mediadownloader-tag-editor.php:144
+msgid "Title"
+msgstr "Título"
+
+#: mediadownloader-tag-editor.php:145
+msgid "Artist"
+msgstr "Artista"
+
+#: mediadownloader-tag-editor.php:146
+msgid "Album"
+msgstr "Álbum"
+
+#: mediadownloader-tag-editor.php:147
+msgid "Year"
+msgstr "Ano"
+
+#: mediadownloader-tag-editor.php:148
+msgid "Genre"
+msgstr "Gênero"
+
+#: mediadownloader-tag-editor.php:149
+msgid "Comment"
+msgstr "Descrição"
+
+#: mediadownloader-tag-editor.php:150
+msgid "Formatted Comment"
+msgstr "Descrição Formatada"
+
+#: mediadownloader-tag-editor.php:151
+msgid "Recording Date"
+msgstr "Data de Gravação"
+
+#: mediadownloader-tag-editor.php:152
+msgid "Track Number"
+msgstr "Número da Faixa"
+
+#: mediadownloader-tag-editor.php:182
+msgid "Picture:"
+msgstr "Imagem:"
+
+#: mediadownloader-tag-editor.php:194
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: mediadownloader-tag-editor.php:195
+msgid "Save Changes"
+msgstr "Salvar Alterações"
+
+#: mediadownloader-tag-editor.php:201,219
+msgid "Could not read: <code>%s</code>"
+msgstr "Não pude ler: <code>%s</code>"
+
+#: mediadownloader-tag-editor.php:232
+msgid "Directory: <code>%s</code>"
+msgstr "Diretório: <code>%s</code>"
+
+#: mediadownloader-tag-editor.php:238
+msgid "Name"
+msgstr "Nome"
+
+#: mediadownloader-tag-editor.php:239
+msgid "Size"
+msgstr "Tamanho"
+
+#: mediadownloader-tag-editor.php:240
+msgid "Modification Time"
+msgstr "Data de Modificação"
+
+#: mediadownloader-tag-editor.php:267,274
+msgid "%1$s \\a\\t %2$s"
+msgstr "%1$s \\à\\s %2$s"
+
+#: mediadownloader-tag-editor.php:280
+msgid "Empty directory?"
+msgstr "O diretório está vazio?"
 
