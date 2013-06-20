@@ -93,14 +93,61 @@ endforeach;
 	            'track'         => array( intval( '0' . $tags['track_number'] ) ),
     	        'recording_dates' => array( $tags['recording_dates'] ),
             );
+
+            if ( array_key_exists( 'comments', $ThisFileInfo ) && is_array( $ThisFileInfo['comments'] ) && array_key_exists( 'picture', $ThisFileInfo['comments'] ) && is_array( $ThisFileInfo['comments']['picture'] ) && is_array( $ThisFileInfo['comments']['picture'][0] ) && array_key_exists( 'data', $ThisFileInfo['comments']['picture'][0] ) ) :
+                $TagData['attached_picture'] = array(
+	                                        array(
+	                                                'data' => $ThisFileInfo['comments']['picture'][0]['data'],
+	                                                'picturetypeid' => 3,
+	                                                'description' => $tags['title'],
+	                                                'mime' => $ThisFileInfo['comments']['picture'][0]['image_mime'],
+	                                            ),
+	                                    );
+	        endif;
+
+            $picwarnings = array();
+            if ( is_array( $_FILES ) && array_key_exists( 'edit_tag_picture', $_FILES ) ) :
+                $uploadedfile = $_FILES['edit_tag_picture'];
+                if ( is_array( $uploadedfile ) && ( ( !array_key_exists( 'error', $uploadedfile ) ) || !$uploadedfile['error'] ) && array_key_exists( 'tmp_name', $uploadedfile ) && is_file( $uploadedfile['tmp_name'] ) && is_readable( $uploadedfile['tmp_name'] ) ) :
+                    if ( strpos( $uploadedfile['type'], 'image' ) === 0 ) :
+                        $filedata = file_get_contents( $uploadedfile['tmp_name'] );
+                        $TagData['attached_picture'] = array(
+	                                                        array(
+	                                                                'data' => $filedata,
+	                                                                'picturetypeid' => 3,
+	                                                                'description' => $uploadedfile['name'],
+	                                                                'mime' => $uploadedfile['type'],
+	                                                            ),
+	                                                    );
+	                else :
+    	                $picwarnings[] = sprintf( _md( 'File type not allowed: <code>%s</code>' ), $uploadedfile['type'] );
+	                endif;
+	            elseif ( is_array( $uploadedfile ) && array_key_exists( 'error', $uploadedfile ) && array_key_exists( 'name', $uploadedfile ) && $uploadedfile['name'] ) :
+	                $responses = array(
+                        'err_' . UPLOAD_ERR_OK => 'There is no error, the file uploaded with success.',
+                        'err_' . UPLOAD_ERR_INI_SIZE => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
+                        'err_' . UPLOAD_ERR_FORM_SIZE => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
+                        'err_' . UPLOAD_ERR_PARTIAL => 'The uploaded file was only partially uploaded.',
+                        'err_' . UPLOAD_ERR_NO_FILE => 'No file was uploaded.',
+                        'err_' . UPLOAD_ERR_NO_TMP_DIR => 'Missing a temporary folder. Introduced in PHP 4.3.10 and PHP 5.0.3.',
+                        'err_' . UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk. Introduced in PHP 5.1.0.',
+                        'err_' . UPLOAD_ERR_EXTENSION => 'File upload stopped by extension. Introduced in PHP 5.2.0.',
+                    );
+                    $ekey = 'err_' . $uploadedfile['error'];
+	                $picwarnings[] = _md( array_key_exists( $ekey, $responses ) ? $responses[ $ekey ] : 'Unknown upload error.' );
+	            endif;
+            endif;
+
             $tagwriter->tag_data = $TagData;
 
             $ret = array();
             // write tags
             if ( $tagwriter->WriteTags() ) {
 	            $ret[] = '<strong>' . _md( 'File saved!' ) . '</strong><br /><a href="' . add_query_arg( array( 'mdfile' => null ) ) . '">' . _md( '&larr; Back' ) . '</a>';
-	            if ( !empty( $tagwriter->warnings ) ) {
-		            $ret[] = '<p><em>' . _md( 'Warnings:' ) . '</em></p> <ul><li>' . implode( '</li><li>', $tagwriter->warnings ) . '</li></ul>';
+	            $allwarnings = $tagwriter->warnings;
+	            if ( !empty( $picwarnings ) ) $allwarnings = array_merge( $allwarnings, $picwarnings );
+	            if ( !empty( $allwarnings ) ) {
+		            $ret[] = '<p><em>' . _md( 'Warnings:' ) . '</em></p> <ul><li>' . implode( '</li><li>', $allwarnings ) . '</li></ul>';
 	            }
             } else {
 	            $ret[] = '<strong>' . _md( 'Failed!' ) . '</strong><br />';
@@ -125,17 +172,15 @@ endforeach;
             }
             $ftags['user_text'] = array_key_exists( 'text', $ftags ) ? $ftags['text'] : $ftags['comment'];
             
-            /* //TODO
             $current_img = '';
             if ( array_key_exists( 'comments', $finfo ) && is_array( $finfo['comments'] ) && array_key_exists( 'picture', $finfo['comments'] ) && is_array( $finfo['comments']['picture'] ) && is_array( $finfo['comments']['picture'][0] ) && array_key_exists( 'data', $finfo['comments']['picture'][0] ) )
                 $current_img = $finfo['comments']['picture'][0]['data'];
-            */
             
             unset( $finfo );
             ?>
             <h3><?php printf( _md( 'Editing File: <code>%s</code>' ), $mdbreadcrumbs . ' /' . stripslashes( $mdfile ) ); ?></h3>
             
-            <form method="post" action="<?php self_link(); ?>">
+            <form method="post" action="<?php self_link(); ?>" enctype="multipart/form-data">
             <input type="hidden" name="mdaction" value="updatefile" />
             <table class="widefat">
             <tbody>
@@ -182,7 +227,6 @@ endforeach;
                         </td>
                     </tr>
                 <?php endforeach; ?>
-                <?php /* //TODO
                 <tr>
                     <td>
                         <label for="edit_tag_picture">
@@ -190,16 +234,21 @@ endforeach;
                         </label>
                     </td>
                     <td>
-                        <?php if ( $current_img ) : ?><img src="data:image/jpeg;base64,<?php echo base64_encode( $current_img ); ?>" width="400" /><?php endif; ?>
+                        <?php if ( $current_img ) : ?>
+                            <img src="data:image/jpeg;base64,<?php echo base64_encode( $current_img ); ?>" class="audiofile_picture" alt="<?php echo esc_attr( stripslashes( $ftags[ 'title' ][0] ) ); ?>" />
+                            <label for="edit_tag_picture">
+                                <?php _mde( 'Replace picture:' ); ?>
+                            </label>
+                        <?php endif; ?>
+                        <input type="file" id="edit_tag_picture" name="edit_tag_picture" accept="image/*" />
                     </td>
                 </tr>
-                */ ?>
             </tbody>
             </table>
             
             <p class="submit">
             <input type="submit" value="<?php _mde( 'Save Changes' ) ;?>" class="button button-primary" />
-            <a href="<?php echo add_query_arg( array( 'mdfile' => null ) );?>" class="button alignright"><?php _mde( 'Cancel' ) ;?></a>
+            <a href="<?php echo add_query_arg( array( 'mdfile' => null ) );?>" class="button alignright button-cancel"><?php _mde( 'Cancel' ) ;?></a>
             </p>
             </fieldset>
 

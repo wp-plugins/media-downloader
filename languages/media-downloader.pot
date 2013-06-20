@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Media Downloader 0.1.99.97\n"
+"Project-Id-Version: Media Downloader 0.1.99.98\n"
 "POT-Creation-Date: 2012-05-28 10:27:53+03:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -372,6 +372,10 @@ msgstr ""
 msgid "Picture:"
 msgstr ""
 
+#: mediadownloader-tag-editor.php:189
+msgid "Replace picture:"
+msgstr ""
+
 #: mediadownloader-tag-editor.php:194
 msgid "Cancel"
 msgstr ""
@@ -406,5 +410,45 @@ msgstr ""
 
 #: mediadownloader-tag-editor.php:280
 msgid "Empty directory?"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:123
+msgid "File type not allowed: <code>%s</code>"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:127
+msgid "There is no error, the file uploaded with success."
+msgstr ""
+
+#: mediadownloader-tag-editor.php:128
+msgid "The uploaded file exceeds the upload_max_filesize directive in php.ini."
+msgstr ""
+
+#: mediadownloader-tag-editor.php:129
+msgid "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form."
+msgstr ""
+
+#: mediadownloader-tag-editor.php:130
+msgid "The uploaded file was only partially uploaded."
+msgstr ""
+
+#: mediadownloader-tag-editor.php:131
+msgid "No file was uploaded."
+msgstr ""
+
+#: mediadownloader-tag-editor.php:132
+msgid "Missing a temporary folder. Introduced in PHP 4.3.10 and PHP 5.0.3."
+msgstr ""
+
+#: mediadownloader-tag-editor.php:133
+msgid "Failed to write file to disk. Introduced in PHP 5.1.0."
+msgstr ""
+
+#: mediadownloader-tag-editor.php:134
+msgid "File upload stopped by extension. Introduced in PHP 5.2.0."
+msgstr ""
+
+#: mediadownloader-tag-editor.php:137
+msgid "Unknown upload error."
 msgstr ""
 
