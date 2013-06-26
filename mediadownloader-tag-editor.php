@@ -283,11 +283,48 @@ endforeach;
         }
         // If set, reversing array
         if ( $mreverse ) $ifiles = array_reverse( $ifiles );
+        
+        $iall = array_merge( $idirs, $ifiles );
+
+        $user = get_current_user_id();
+        $screen = get_current_screen();
+        $option = $screen->get_option( 'per_page', 'option' );
+        $ipp = get_user_meta( $user, $option, true );
+        if ( empty ( $ipp ) || $ipp < 1 ) $ipp = $screen->get_option( 'per_page', 'default' );
+        $ipages = ceil( count( $iall ) / $ipp );
+        $ipaged = array_key_exists( 'paged', $_REQUEST ) ? intval( $_REQUEST['paged'] ) : 1;
+        if ( $ipaged < 1 || $ipaged > $ipages ) $ipaged = 1;
+        $pageditems = array_slice( $iall, ( $ipp * ( $ipaged - 1 ) ), $ipp );
+
         ?>
 
-        <h3><?php printf( _md( 'Directory: <code>%s</code>' ), $mdbreadcrumbs ); ?></h3>
+        <?php if ( count( $iall ) ) : ?>
 
-        <?php if ( count( $ifiles ) + count( $idirs ) ) : ?>
+            <form method="get" action="?">
+                <?php
+                $furl = explode( '?', add_query_arg( array( 'paged' => null ) ) );
+                array_shift( $furl );
+                $furl = implode( '?', $furl );
+                foreach ( explode( '&', $furl ) as $parm ) : $parm = explode( '=', $parm ); ?>
+                    <input type="hidden" name="<?php echo array_shift( $parm ); ?>" <?php if ( count( $parm ) ) : ?>value="<?php echo implode( '=', $parm ); ?>" <?php endif; ?>/>
+                <?php endforeach; ?>
+                <div class="tablenav top">
+                <div class="alignleft">
+                    <h3><?php printf( _md( 'Directory: <code>%s</code>' ), $mdbreadcrumbs ); ?></h3>
+                </div>
+                <div class="tablenav-pages">
+                    <span class="displaying-num"><?php printf( _md( '%d items' ), count( $iall ) ); ?></span>
+                    <?php if ( $ipages > 1 ) : ?>
+                        <span class="pagination-links"><a class="first-page<?php if ( $ipaged <= 1 ) : ?> disabled<?php endif; ?>" title="<?php _mde( 'Ir para a primeira página' ); ?>" href="<?php echo add_query_arg( array( 'paged' => null ) ); ?>">«</a>
+                        <a class="prev-page<?php if ( $ipaged <= 1 ) : ?> disabled<?php endif; ?>" title="<?php _mde( 'Ir para a página anterior' ); ?>" href="<?php echo add_query_arg( array( 'paged' => $ipaged > 1 ? $ipaged - 1 : null ) ); ?>">‹</a>
+                        <span class="paging-input"><input class="current-page" title="<?php _mde( 'Página atual' ); ?>" type="text" name="paged" value="<?php echo $ipaged; ?>" size="1"> <?php _mde( 'de'); ?> <span class="total-pages"><?php echo $ipages; ?></span></span>
+                        <a class="next-page<?php if ( $ipaged >= $ipages ) : ?> disabled<?php endif; ?>" title="<?php _mde( 'Ir para a próxima página' ); ?>" href="<?php echo add_query_arg( array( 'paged' => min( $ipaged + 1, $ipages ) ) ); ?>">›</a>
+                        <a class="last-page<?php if ( $ipaged >= $ipages ) : ?> disabled<?php endif; ?>" title="<?php _mde( 'Ir para a última página' ); ?>" href="<?php echo add_query_arg( array( 'paged' => $ipages ) ); ?>">»</a></span>
+                    <?php endif; ?>
+                </div>
+                </div>
+            </form>
+
             <table class="widefat">
                 <thead>
                     <tr>
@@ -304,35 +341,37 @@ endforeach;
                             <td>&nbsp;</td>
                         </tr>
                     <?php endif; ?>
-                    <?php foreach ( $idirs as $idir ) : ?>
-                        <tr>
-                            <td class="dirlink"><a href="<?php echo add_query_arg( array( 'mdfolder' => $mdfolder . '/' . $idir ) ); ?>"><?php echo './' . $idir; ?></a></td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                        </tr>
-                    <?php endforeach; ?>
-                    <?php foreach ( $ifiles as $ifile ) :
-                        $arrfile = explode( '.', $ifile );
-                        $fext = '';
-                        if ( count( $arrfile ) > 1 ) $fext = array_pop( $arrfile );
-                        if ( in_array( $fext, md_mediaExtensions() ) ) :
-                            ?>
+                    <?php foreach ( $pageditems as $ifile ) :
+                        if ( is_dir( $ipath . '/' . $ifile ) ) : ?>
                             <tr>
-                                <td><a href="<?php echo add_query_arg( array( 'mdfile' => $ifile ) ); ?>"><?php echo $ifile; ?></a></td>
-                                <td><?php echo byte_convert( filesize( $ipath . '/' . $ifile ) ); ?></td>
-                                <td><?php $timemask = sprintf( _md( '%1$s \a\t %2$s' ), get_option('date_format'), get_option('time_format') ); echo date_i18n( $timemask, filemtime( $ipath . '/' . $ifile ) ); ?></td>                    
+                                <td class="dirlink"><a href="<?php echo add_query_arg( array( 'mdfolder' => $mdfolder . '/' . $ifile ) ); ?>"><?php echo './' . $ifile; ?></a></td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
                             </tr>
-                        <?php else: ?>
-                            <tr>
-                                <td><?php echo $ifile; ?></td>
-                                <td><?php echo byte_convert( filesize( $ipath . '/' . $ifile ) ); ?></td>
-                                <td><?php $timemask = sprintf( _md( '%1$s \a\t %2$s' ), get_option('date_format'), get_option('time_format') ); echo date_i18n( $timemask, filemtime( $ipath . '/' . $ifile ) ); ?></td>                    
-                            </tr>
+                        <?php else :
+                            $arrfile = explode( '.', $ifile );
+                            $fext = '';
+                            if ( count( $arrfile ) > 1 ) $fext = array_pop( $arrfile );
+                            if ( in_array( $fext, md_mediaExtensions() ) ) :
+                                ?>
+                                <tr>
+                                    <td><a href="<?php echo add_query_arg( array( 'mdfile' => $ifile ) ); ?>"><?php echo $ifile; ?></a></td>
+                                    <td><?php echo byte_convert( filesize( $ipath . '/' . $ifile ) ); ?></td>
+                                    <td><?php $timemask = sprintf( _md( '%1$s \a\t %2$s' ), get_option('date_format'), get_option('time_format') ); echo date_i18n( $timemask, filemtime( $ipath . '/' . $ifile ) ); ?></td>                    
+                                </tr>
+                            <?php else: ?>
+                                <tr>
+                                    <td><?php echo $ifile; ?></td>
+                                    <td><?php echo byte_convert( filesize( $ipath . '/' . $ifile ) ); ?></td>
+                                    <td><?php $timemask = sprintf( _md( '%1$s \a\t %2$s' ), get_option('date_format'), get_option('time_format') ); echo date_i18n( $timemask, filemtime( $ipath . '/' . $ifile ) ); ?></td>                    
+                                </tr>
+                            <?php endif; ?>
                         <?php endif; ?>
                     <?php endforeach; ?>
                 </tbody>
             </table>
         <?php else: ?>
+            <h3><?php printf( _md( 'Directory: <code>%s</code>' ), $mdbreadcrumbs ); ?></h3>
             <div class="error settings-error"><p><strong><?php _mde( 'Empty directory?' ); ?></strong></p></div>
         <?php endif; ?>
 

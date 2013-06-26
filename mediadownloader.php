@@ -826,6 +826,7 @@ function mediaDownloaderInit() {
     load_plugin_textdomain( 'media-downloader', false, $pdir . '/languages/' );
     */
     mediaDownloaderEnqueueScripts();
+    add_filter( 'set-screen-option', 'mediadownloader_adm_save_options', 10, 3 );
 }
 add_action( 'init', 'mediaDownloaderInit' );
 
@@ -850,6 +851,21 @@ function mediadownloader_menu() {
     $oppage = add_options_page( 'Media Downloader Options', 'Media Downloader', 'manage_options', 'mediadownloader-options', 'mediadownloader_options' );
     add_action( 'admin_print_styles-' . $oppage, 'md_admin_styles' );
     add_action( 'admin_print_scripts-' . $oppage, 'md_admin_scripts');
+    if ( array_key_exists( 'tag-editor', $_GET ) ) add_action( "load-$oppage", 'mediadownloader_adm_add_options' );
+}
+
+
+function mediadownloader_adm_add_options() {
+    $option = 'per_page'; 
+    $args = array(
+        'label' => sprintf( __( 'itens (mínimo: %d - máximo: %d)' ), 10, 100 ),
+        'default' => 50,
+        'option' => 'mediadownloader_adm_items_per_page'
+    );
+    add_screen_option( $option, $args );
+}
+function mediadownloader_adm_save_options( $status, $option, $value ) {
+    if ( 'mediadownloader_adm_items_per_page' == $option ) return ( $value >= 10 && $value <= 100 ) ? $value : false;
 }
 
 function mediadownloader_options() {
