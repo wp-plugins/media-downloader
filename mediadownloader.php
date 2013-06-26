@@ -858,7 +858,7 @@ function mediadownloader_menu() {
 function mediadownloader_adm_add_options() {
     $option = 'per_page'; 
     $args = array(
-        'label' => sprintf( __( 'itens (mínimo: %d - máximo: %d)' ), 10, 100 ),
+        'label' => sprintf( __( 'items (min: %d - max: %d)' ), 10, 100 ),
         'default' => 50,
         'option' => 'mediadownloader_adm_items_per_page'
     );

@@ -315,11 +315,11 @@ endforeach;
                 <div class="tablenav-pages">
                     <span class="displaying-num"><?php printf( _md( '%d items' ), count( $iall ) ); ?></span>
                     <?php if ( $ipages > 1 ) : ?>
-                        <span class="pagination-links"><a class="first-page<?php if ( $ipaged <= 1 ) : ?> disabled<?php endif; ?>" title="<?php _mde( 'Ir para a primeira página' ); ?>" href="<?php echo add_query_arg( array( 'paged' => null ) ); ?>">«</a>
-                        <a class="prev-page<?php if ( $ipaged <= 1 ) : ?> disabled<?php endif; ?>" title="<?php _mde( 'Ir para a página anterior' ); ?>" href="<?php echo add_query_arg( array( 'paged' => $ipaged > 1 ? $ipaged - 1 : null ) ); ?>">‹</a>
-                        <span class="paging-input"><input class="current-page" title="<?php _mde( 'Página atual' ); ?>" type="text" name="paged" value="<?php echo $ipaged; ?>" size="1"> <?php _mde( 'de'); ?> <span class="total-pages"><?php echo $ipages; ?></span></span>
-                        <a class="next-page<?php if ( $ipaged >= $ipages ) : ?> disabled<?php endif; ?>" title="<?php _mde( 'Ir para a próxima página' ); ?>" href="<?php echo add_query_arg( array( 'paged' => min( $ipaged + 1, $ipages ) ) ); ?>">›</a>
-                        <a class="last-page<?php if ( $ipaged >= $ipages ) : ?> disabled<?php endif; ?>" title="<?php _mde( 'Ir para a última página' ); ?>" href="<?php echo add_query_arg( array( 'paged' => $ipages ) ); ?>">»</a></span>
+                        <span class="pagination-links"><a class="first-page<?php if ( $ipaged <= 1 ) : ?> disabled<?php endif; ?>" title="<?php _mde( 'Go to first page' ); ?>" href="<?php echo add_query_arg( array( 'paged' => null ) ); ?>">«</a>
+                        <a class="prev-page<?php if ( $ipaged <= 1 ) : ?> disabled<?php endif; ?>" title="<?php _mde( 'Go to previous page' ); ?>" href="<?php echo add_query_arg( array( 'paged' => $ipaged > 1 ? $ipaged - 1 : null ) ); ?>">‹</a>
+                        <span class="paging-input"><?php printf( _md( '%s of <span class="total-pages">%d</span>' ), '<input class="current-page" title="' . _md( 'Current page' ) . '" type="text" name="paged" value="' . $ipaged . '" size="1">', $ipages ); ?></span>
+                        <a class="next-page<?php if ( $ipaged >= $ipages ) : ?> disabled<?php endif; ?>" title="<?php _mde( 'Go to next page' ); ?>" href="<?php echo add_query_arg( array( 'paged' => min( $ipaged + 1, $ipages ) ) ); ?>">›</a>
+                        <a class="last-page<?php if ( $ipaged >= $ipages ) : ?> disabled<?php endif; ?>" title="<?php _mde( 'Go to last page' ); ?>" href="<?php echo add_query_arg( array( 'paged' => $ipages ) ); ?>">»</a></span>
                     <?php endif; ?>
                 </div>
                 </div>

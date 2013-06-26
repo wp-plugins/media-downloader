@@ -452,3 +452,35 @@ msgstr ""
 msgid "Unknown upload error."
 msgstr ""
 
+#: mediadownloader.php:861
+msgid "items (min: %d - max: %d)"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:316
+msgid "%d items"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:318
+msgid "Go to first page"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:319
+msgid "Go to previous page"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:320
+msgid "%s of <span class=\"total-pages\">%d</span>"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:320
+msgid "Current page"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:321
+msgid "Go to next page"
+msgstr ""
+
+#: mediadownloader-tag-editor.php:322
+msgid "Go to last page"
+msgstr ""
+

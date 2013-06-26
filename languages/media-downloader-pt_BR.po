@@ -452,3 +452,35 @@ msgstr "O <em>upload</em> foi barrado pela extensão. Isto foi introduzido no PH
 msgid "Unknown upload error."
 msgstr "Erro desconhecido no <em>upload.</em>"
 
+#: mediadownloader.php:861
+msgid "items (min: %d - max: %d)"
+msgstr "itens (mínimo: %d - máximo: %d)"
+
+#: mediadownloader-tag-editor.php:316
+msgid "%d items"
+msgstr "%d itens"
+
+#: mediadownloader-tag-editor.php:318
+msgid "Go to first page"
+msgstr "Ir para a primeira página"
+
+#: mediadownloader-tag-editor.php:319
+msgid "Go to previous page"
+msgstr "Ir para a página anterior"
+
+#: mediadownloader-tag-editor.php:320
+msgid "%s of <span class=\"total-pages\">%d</span>"
+msgstr "%s de <span class=\"total-pages\">%d</span>"
+
+#: mediadownloader-tag-editor.php:320
+msgid "Current page"
+msgstr "Página atual"
+
+#: mediadownloader-tag-editor.php:321
+msgid "Go to next page"
+msgstr "Ir para a próxima página"
+
+#: mediadownloader-tag-editor.php:322
+msgid "Go to last page"
+msgstr "Ir para a última página"
+
