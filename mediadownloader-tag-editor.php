@@ -306,14 +306,14 @@ endforeach;
                 array_shift( $furl );
                 $furl = implode( '?', $furl );
                 foreach ( explode( '&', $furl ) as $parm ) : $parm = explode( '=', $parm ); ?>
-                    <input type="hidden" name="<?php echo array_shift( $parm ); ?>" <?php if ( count( $parm ) ) : ?>value="<?php echo implode( '=', $parm ); ?>" <?php endif; ?>/>
+                    <input type="hidden" name="<?php echo array_shift( $parm ); ?>" <?php if ( count( $parm ) ) : ?>value="<?php echo urldecode( implode( '=', $parm ) ); ?>" <?php endif; ?>/>
                 <?php endforeach; ?>
                 <div class="tablenav top">
                 <div class="alignleft">
                     <h3><?php printf( _md( 'Directory: <code>%s</code>' ), $mdbreadcrumbs ); ?></h3>
                 </div>
                 <div class="tablenav-pages">
-                    <span class="displaying-num"><?php printf( _md( '%d items' ), count( $iall ) ); ?></span>
+                    <span class="displaying-num"><?php printf( _mdn( '%d item', '%d items', count( $iall ) ), count( $iall ) ); ?></span>
                     <?php if ( $ipages > 1 ) : ?>
                         <span class="pagination-links"><a class="first-page<?php if ( $ipaged <= 1 ) : ?> disabled<?php endif; ?>" title="<?php _mde( 'Go to first page' ); ?>" href="<?php echo add_query_arg( array( 'paged' => null ) ); ?>">«</a>
                         <a class="prev-page<?php if ( $ipaged <= 1 ) : ?> disabled<?php endif; ?>" title="<?php _mde( 'Go to previous page' ); ?>" href="<?php echo add_query_arg( array( 'paged' => $ipaged > 1 ? $ipaged - 1 : null ) ); ?>">‹</a>

@@ -457,6 +457,10 @@ msgid "items (min: %d - max: %d)"
 msgstr "itens (mínimo: %d - máximo: %d)"
 
 #: mediadownloader-tag-editor.php:316
+msgid "%d item"
+msgstr "%d item"
+
+#: mediadownloader-tag-editor.php:316
 msgid "%d items"
 msgstr "%d itens"
 
