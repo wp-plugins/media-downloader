@@ -1,4 +1,9 @@
 jQuery( document ).ready( function () {
+    mdTagEditorPicture();
+    mdTagEditorBatchEdit();
+} );
+
+function mdTagEditorPicture() {
     var mdCancelText = jQuery( 'p.submit a.button-cancel' ).html();
     if ( !mdCancelText ) mdCancelText = 'Cancel';
     var mdCancelReplacePicture = jQuery( '<button id="mdCancelReplacePicture_button" />' )
@@ -34,4 +39,28 @@ jQuery( document ).ready( function () {
             }
         }
     } );
-} );
+}
+
+function mdTagEditorBatchEdit() {
+    jQuery( 'table.widefat.batchedit *[name^="edit_tag_"]' ).prop( 'disabled', 'disabled' ).addClass( 'disabled' );
+    jQuery( 'table.widefat.batchedit input[type="checkbox"][name="enable_tag[]"]' ).change( function () {
+        var tagname = jQuery( this ).val();
+        if ( 'user_text' == tagname ) {
+            var richarea = tinyMCE.get( 'edit_tag_user_text' );
+            richarea.getBody().setAttribute( 'contenteditable', this.checked );
+            richarea.getBody().style.backgroundColor = this.checked ? 'transparent' : '#CCC';
+            for ( i in richarea.controlManager.controls ) {
+                var richprop = richarea.controlManager.controls[i];
+                if ( richprop ) richprop.setDisabled( !this.checked );
+            }
+        } else {
+            var tagfield = jQuery( '*[name^="edit_tag_' + tagname + '"]', jQuery( this ).parents( 'table.widefat.batchedit' ) );
+            if ( this.checked ) {
+                tagfield.prop( 'disabled', null ).removeClass( 'disabled' ).focus();
+            } else {
+                tagfield.prop( 'disabled', 'disabled' ).addClass( 'disabled' );
+            }
+        }
+    } );
+    setTimeout( 'jQuery( \'table.widefat.batchedit input[type="checkbox"][name="enable_tag[]"][value="user_text"]\' ).change()', 500 );
+}

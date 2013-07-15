@@ -6,9 +6,12 @@ if( !function_exists( 'Markdown' ) ) include_once( 'markdown/markdown.php' );
 
 global $mdtags, $mdsortingfields;
 
-$mdfile = array_key_exists( 'mdfile', $_REQUEST ) ? $_REQUEST[ 'mdfile' ] : '';
+$mdfile = array_key_exists( 'mdfile', $_REQUEST ) ? str_replace( '../', '/', $_REQUEST[ 'mdfile' ] ) : '';
+while ( stripos( $mdfile, '//' ) !== false ) $mdfile = str_replace( '//', '/', $mdfile );
+if ( '/' == substr( $mdfile, 0, 1 ) ) $mdfile = substr( $mdfile, 1 );
 
 $mdfolder = array_key_exists( 'mdfolder', $_REQUEST ) ? str_replace( '../', '/', $_REQUEST[ 'mdfolder' ] ) : '';
+while ( stripos( $mdfolder, '//' ) !== false ) $mdfolder = str_replace( '//', '/', $mdfolder );
 if ( '/' == substr( $mdfolder, 0, 1 ) ) $mdfolder = substr( $mdfolder, 1 );
 
 // MP3 folder
@@ -55,206 +58,296 @@ endforeach;
     <?php include('mediadownloader-options-header.php'); ?>
 
     <?php if ( $mdfile ) :
-
+    
         $mdaction = array_key_exists( 'mdaction', $_REQUEST ) ? $_REQUEST[ 'mdaction' ] : '';
-        if ( 'updatefile' == $mdaction ) {
-            $getID3 = new getID3;
-            $getID3->setOption( array( 'encoding' => $mdoencode ) );
-            $tagwriter = new getid3_writetags;
-            $ThisFileInfo = $getID3->analyze( $mpath . '/' . $mdfolder . '/' . $mdfile );
-            $tags = $ThisFileInfo['tags']['id3v2'];
-            if ( is_array( $tags ) ) array_walk( $tags, 'array_sobe_nivel' );
-            foreach ( array( 'title', 'artist', 'band', 'album', 'year', 'genre', 'track_number', 'comment', 'user_text' ) as $atag ) if ( array_key_exists( 'edit_tag_' . $atag, $_POST ) ) $tags[ $atag ] = stripslashes( $_POST[ 'edit_tag_' . $atag ] );
-            if ( array_key_exists( 'edit_tag_recording_dates', $_POST ) && $_POST['edit_tag_recording_dates'] ) {
-                if ( $rd_timestamp = strtotime( $_POST['edit_tag_recording_dates'] ) ) {
-                    $tags['recording_dates'] = date( 'Y-m-d', $rd_timestamp );
-                    $tags['original_release_year'] = date( 'Y', $rd_timestamp );
-                }
-            } else {
-                $tags['recording_dates'] = '';
-            }
-
-            $tagwriter->filename = $mpath . '/' . $mdfolder . '/' . stripslashes( $mdfile );
-            $tagwriter->tagformats = array('id3v2.3');
-            $tagwriter->overwrite_tags = true;
-            $tagwriter->tag_encoding = $mdoencode;
-            $tagwriter->remove_other_tags = true;
-
-            // populate data array
-            $TagData = array(
-	            'title'         => array( $tags['title'] ),
-	            'artist'        => array( $tags['artist'] ),
-	            'band'          => array( $tags['band'] ),
-	            'album'         => array( $tags['album'] ),
-	            'year'          => array( $tags['year'] ),
-	            'genre'         => array( $tags['genre'] ),
-	            'comment'       => array( $tags['comment'] ),
-	            'user_text'     => array( $tags['user_text'] ),
-	            'track'         => array( intval( '0' . $tags['track_number'] ) ),
-    	        'recording_dates' => array( $tags['recording_dates'] ),
-            );
-
-            if ( array_key_exists( 'comments', $ThisFileInfo ) && is_array( $ThisFileInfo['comments'] ) && array_key_exists( 'picture', $ThisFileInfo['comments'] ) && is_array( $ThisFileInfo['comments']['picture'] ) && is_array( $ThisFileInfo['comments']['picture'][0] ) && array_key_exists( 'data', $ThisFileInfo['comments']['picture'][0] ) ) :
-                $TagData['attached_picture'] = array(
-	                                        array(
-	                                                'data' => $ThisFileInfo['comments']['picture'][0]['data'],
-	                                                'picturetypeid' => 3,
-	                                                'description' => $tags['title'],
-	                                                'mime' => $ThisFileInfo['comments']['picture'][0]['image_mime'],
-	                                            ),
-	                                    );
-	        endif;
-
-            $picwarnings = array();
-            if ( is_array( $_FILES ) && array_key_exists( 'edit_tag_picture', $_FILES ) ) :
-                $uploadedfile = $_FILES['edit_tag_picture'];
-                if ( is_array( $uploadedfile ) && ( ( !array_key_exists( 'error', $uploadedfile ) ) || !$uploadedfile['error'] ) && array_key_exists( 'tmp_name', $uploadedfile ) && is_file( $uploadedfile['tmp_name'] ) && is_readable( $uploadedfile['tmp_name'] ) ) :
-                    if ( strpos( $uploadedfile['type'], 'image' ) === 0 ) :
-                        $filedata = file_get_contents( $uploadedfile['tmp_name'] );
-                        $TagData['attached_picture'] = array(
-	                                                        array(
-	                                                                'data' => $filedata,
-	                                                                'picturetypeid' => 3,
-	                                                                'description' => $uploadedfile['name'],
-	                                                                'mime' => $uploadedfile['type'],
-	                                                            ),
-	                                                    );
-	                else :
-    	                $picwarnings[] = sprintf( _md( 'File type not allowed: <code>%s</code>' ), $uploadedfile['type'] );
-	                endif;
-	            elseif ( is_array( $uploadedfile ) && array_key_exists( 'error', $uploadedfile ) && array_key_exists( 'name', $uploadedfile ) && $uploadedfile['name'] ) :
-	                $responses = array(
-                        'err_' . UPLOAD_ERR_OK => 'There is no error, the file uploaded with success.',
-                        'err_' . UPLOAD_ERR_INI_SIZE => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
-                        'err_' . UPLOAD_ERR_FORM_SIZE => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
-                        'err_' . UPLOAD_ERR_PARTIAL => 'The uploaded file was only partially uploaded.',
-                        'err_' . UPLOAD_ERR_NO_FILE => 'No file was uploaded.',
-                        'err_' . UPLOAD_ERR_NO_TMP_DIR => 'Missing a temporary folder. Introduced in PHP 4.3.10 and PHP 5.0.3.',
-                        'err_' . UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk. Introduced in PHP 5.1.0.',
-                        'err_' . UPLOAD_ERR_EXTENSION => 'File upload stopped by extension. Introduced in PHP 5.2.0.',
-                    );
-                    $ekey = 'err_' . $uploadedfile['error'];
-	                $picwarnings[] = _md( array_key_exists( $ekey, $responses ) ? $responses[ $ekey ] : 'Unknown upload error.' );
-	            endif;
-            endif;
-
-            $tagwriter->tag_data = $TagData;
-
-            $ret = array();
-            // write tags
-            if ( $tagwriter->WriteTags() ) {
-	            $ret[] = '<strong>' . _md( 'File saved!' ) . '</strong><br /><a href="' . add_query_arg( array( 'mdfile' => null ) ) . '">' . _md( '&larr; Back' ) . '</a>';
-	            $allwarnings = $tagwriter->warnings;
-	            if ( !empty( $picwarnings ) ) $allwarnings = array_merge( $allwarnings, $picwarnings );
-	            if ( !empty( $allwarnings ) ) {
-		            $ret[] = '<p><em>' . _md( 'Warnings:' ) . '</em></p> <ul><li>' . implode( '</li><li>', $allwarnings ) . '</li></ul>';
-	            }
-            } else {
-	            $ret[] = '<strong>' . _md( 'Failed!' ) . '</strong><br />';
-	            $ret[] = '<p><em>' . _md( 'Errors:' ) . '</em></p><ul><li>' . implode( '</li><li>', $tagwriter->errors ) . '</li></ul>';
-            }
-            echo '<div id="setting-error-settings_updated" class="updated settings-error"><p>' . implode( "\n", $ret ) . '</p></div>';
+        if ( 'batchedit' == $mdaction ) {
+            die( '<div class="error settings-error"><p>' . _md( 'Batch save not implemented yet.' ) . ' <a href="' . add_query_arg() . '">' . _md( 'Back' ) . '</a></p></div>' );
         }
 
-        $ifile = explode( '.', $mdfile );
-        $iext = array_pop( $ifile );
-        $ifile = implode( '.', $ifile );
-        $finfo = mediadownloaderFileInfo( $mdir . '/' . $mdfolder . '/' . stripslashes( $ifile ), $iext );
-        if ( $finfo ) :
-            $ftags = array();
-            foreach ( array( 'id3v2', 'quicktime', 'ogg', 'asf', 'flac', 'real', 'riff', 'ape', 'id3v1', 'comments' ) as $poss ) {
-                if ( array_key_exists( 'tags', $finfo ) && array_key_exists( $poss, $finfo['tags'] ) ) {
-                    $ftags = array_merge( $finfo['tags'][$poss], $ftags );
-                    if ( array_key_exists( 'comments', $finfo['tags'][$poss] ) ) {
-                        $ftags = array_merge( $finfo['tags'][$poss]['comments'], $ftags );
+        if ( file_exists( $mpath . '/' . $mdfolder . '/' . $mdfile ) ) :
+
+            if ( 'updatefile' == $mdaction ) {
+                $getID3 = new getID3;
+                $getID3->setOption( array( 'encoding' => $mdoencode ) );
+                $tagwriter = new getid3_writetags;
+                $ThisFileInfo = $getID3->analyze( $mpath . '/' . $mdfolder . '/' . $mdfile );
+                $tags = $ThisFileInfo['tags']['id3v2'];
+                if ( is_array( $tags ) ) array_walk( $tags, 'array_sobe_nivel' );
+                foreach ( array( 'title', 'artist', 'band', 'album', 'year', 'genre', 'track_number', 'comment', 'user_text' ) as $atag ) if ( array_key_exists( 'edit_tag_' . $atag, $_POST ) ) $tags[ $atag ] = stripslashes( $_POST[ 'edit_tag_' . $atag ] );
+                if ( array_key_exists( 'edit_tag_recording_dates', $_POST ) && $_POST['edit_tag_recording_dates'] ) {
+                    if ( $rd_timestamp = strtotime( $_POST['edit_tag_recording_dates'] ) ) {
+                        $tags['recording_dates'] = date( 'Y-m-d', $rd_timestamp );
+                        $tags['original_release_year'] = date( 'Y', $rd_timestamp );
+                    }
+                } else {
+                    $tags['recording_dates'] = '';
+                }
+
+                $tagwriter->filename = $mpath . '/' . $mdfolder . '/' . stripslashes( $mdfile );
+                $tagwriter->tagformats = array('id3v2.3');
+                $tagwriter->overwrite_tags = true;
+                $tagwriter->tag_encoding = $mdoencode;
+                $tagwriter->remove_other_tags = true;
+
+                // populate data array
+                $TagData = array(
+	                'title'         => array( $tags['title'] ),
+	                'artist'        => array( $tags['artist'] ),
+	                'band'          => array( $tags['band'] ),
+	                'album'         => array( $tags['album'] ),
+	                'year'          => array( $tags['year'] ),
+	                'genre'         => array( $tags['genre'] ),
+	                'comment'       => array( $tags['comment'] ),
+	                'user_text'     => array( $tags['user_text'] ),
+	                'track'         => array( intval( '0' . $tags['track_number'] ) ),
+        	        'recording_dates' => array( $tags['recording_dates'] ),
+                );
+
+                if ( array_key_exists( 'comments', $ThisFileInfo ) && is_array( $ThisFileInfo['comments'] ) && array_key_exists( 'picture', $ThisFileInfo['comments'] ) && is_array( $ThisFileInfo['comments']['picture'] ) && is_array( $ThisFileInfo['comments']['picture'][0] ) && array_key_exists( 'data', $ThisFileInfo['comments']['picture'][0] ) ) :
+                    $TagData['attached_picture'] = array(
+	                                            array(
+	                                                    'data' => $ThisFileInfo['comments']['picture'][0]['data'],
+	                                                    'picturetypeid' => 3,
+	                                                    'description' => $tags['title'],
+	                                                    'mime' => $ThisFileInfo['comments']['picture'][0]['image_mime'],
+	                                                ),
+	                                        );
+	            endif;
+
+                $picwarnings = array();
+                if ( is_array( $_FILES ) && array_key_exists( 'edit_tag_picture', $_FILES ) ) :
+                    $uploadedfile = $_FILES['edit_tag_picture'];
+                    if ( is_array( $uploadedfile ) && ( ( !array_key_exists( 'error', $uploadedfile ) ) || !$uploadedfile['error'] ) && array_key_exists( 'tmp_name', $uploadedfile ) && is_file( $uploadedfile['tmp_name'] ) && is_readable( $uploadedfile['tmp_name'] ) ) :
+                        if ( strpos( $uploadedfile['type'], 'image' ) === 0 ) :
+                            $filedata = file_get_contents( $uploadedfile['tmp_name'] );
+                            $TagData['attached_picture'] = array(
+	                                                            array(
+	                                                                    'data' => $filedata,
+	                                                                    'picturetypeid' => 3,
+	                                                                    'description' => $uploadedfile['name'],
+	                                                                    'mime' => $uploadedfile['type'],
+	                                                                ),
+	                                                        );
+	                    else :
+        	                $picwarnings[] = sprintf( _md( 'File type not allowed: <code>%s</code>' ), $uploadedfile['type'] );
+	                    endif;
+	                elseif ( is_array( $uploadedfile ) && array_key_exists( 'error', $uploadedfile ) && array_key_exists( 'name', $uploadedfile ) && $uploadedfile['name'] ) :
+	                    $responses = array(
+                            'err_' . UPLOAD_ERR_OK => 'There is no error, the file uploaded with success.',
+                            'err_' . UPLOAD_ERR_INI_SIZE => 'The uploaded file exceeds the upload_max_filesize directive in php.ini.',
+                            'err_' . UPLOAD_ERR_FORM_SIZE => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
+                            'err_' . UPLOAD_ERR_PARTIAL => 'The uploaded file was only partially uploaded.',
+                            'err_' . UPLOAD_ERR_NO_FILE => 'No file was uploaded.',
+                            'err_' . UPLOAD_ERR_NO_TMP_DIR => 'Missing a temporary folder. Introduced in PHP 4.3.10 and PHP 5.0.3.',
+                            'err_' . UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk. Introduced in PHP 5.1.0.',
+                            'err_' . UPLOAD_ERR_EXTENSION => 'File upload stopped by extension. Introduced in PHP 5.2.0.',
+                        );
+                        $ekey = 'err_' . $uploadedfile['error'];
+	                    $picwarnings[] = _md( array_key_exists( $ekey, $responses ) ? $responses[ $ekey ] : 'Unknown upload error.' );
+	                endif;
+                endif;
+
+                $tagwriter->tag_data = $TagData;
+
+                $ret = array();
+                // write tags
+                if ( $tagwriter->WriteTags() ) {
+	                $ret[] = '<strong>' . _md( 'File saved!' ) . '</strong><br /><a href="' . add_query_arg( array( 'mdfile' => null ) ) . '">' . _md( '&larr; Back' ) . '</a>';
+	                $allwarnings = $tagwriter->warnings;
+	                if ( !empty( $picwarnings ) ) $allwarnings = array_merge( $allwarnings, $picwarnings );
+	                if ( !empty( $allwarnings ) ) {
+		                $ret[] = '<p><em>' . _md( 'Warnings:' ) . '</em></p> <ul><li>' . implode( '</li><li>', $allwarnings ) . '</li></ul>';
+	                }
+                } else {
+	                $ret[] = '<strong>' . _md( 'Failed!' ) . '</strong><br />';
+	                $ret[] = '<p><em>' . _md( 'Errors:' ) . '</em></p><ul><li>' . implode( '</li><li>', $tagwriter->errors ) . '</li></ul>';
+                }
+                echo '<div id="setting-error-settings_updated" class="updated settings-error"><p>' . implode( "\n", $ret ) . '</p></div>';
+            }
+
+            $ifile = explode( '.', $mdfile );
+            $iext = array_pop( $ifile );
+            $ifile = implode( '.', $ifile );
+            $finfo = mediadownloaderFileInfo( $mdir . '/' . $mdfolder . '/' . stripslashes( $ifile ), $iext );
+            if ( $finfo ) :
+                $ftags = array();
+                foreach ( array( 'id3v2', 'quicktime', 'ogg', 'asf', 'flac', 'real', 'riff', 'ape', 'id3v1', 'comments' ) as $poss ) {
+                    if ( array_key_exists( 'tags', $finfo ) && array_key_exists( $poss, $finfo['tags'] ) ) {
+                        $ftags = array_merge( $finfo['tags'][$poss], $ftags );
+                        if ( array_key_exists( 'comments', $finfo['tags'][$poss] ) ) {
+                            $ftags = array_merge( $finfo['tags'][$poss]['comments'], $ftags );
+                        }
                     }
                 }
-            }
-            $ftags['user_text'] = array_key_exists( 'text', $ftags ) ? $ftags['text'] : $ftags['comment'];
-            
-            $current_img = '';
-            if ( array_key_exists( 'comments', $finfo ) && is_array( $finfo['comments'] ) && array_key_exists( 'picture', $finfo['comments'] ) && is_array( $finfo['comments']['picture'] ) && is_array( $finfo['comments']['picture'][0] ) && array_key_exists( 'data', $finfo['comments']['picture'][0] ) )
-                $current_img = $finfo['comments']['picture'][0]['data'];
-            
-            unset( $finfo );
-            ?>
-            <h3><?php printf( _md( 'Editing File: <code>%s</code>' ), $mdbreadcrumbs . ' /' . stripslashes( $mdfile ) ); ?></h3>
-            
-            <form method="post" action="<?php self_link(); ?>" enctype="multipart/form-data">
-            <input type="hidden" name="mdaction" value="updatefile" />
-            <table class="widefat">
-            <tbody>
-                <?php
-                $edit_tags = array(
-                                    'title' => array( 'Title', 'text' ),
-                                    'artist' => array( 'Artist', 'text' ),
-                                    'album' => array( 'Album', 'text' ),
-                                    'year' => array( 'Year', 'number' ),
-                                    'genre' => array( 'Genre', 'genre' ),
-                                    'comment' => array( 'Comment', 'textarea' ),
-                                    'user_text' => array( 'Formatted Comment', 'richtext' ),
-                                    'recording_dates' => array( 'Recording Date', 'date' ),
-                                    'track_number' => array( 'Track Number', 'number' ),
-                                );
-                foreach ( $edit_tags as $mdtag => $tagoptions ) :
-                    $tagvalue = stripslashes( $ftags[ $mdtag ][0] );
-                    if ( $mdoencode != 'UTF-8' ) $tagvalue = iconv( $mdoencode, 'UTF-8', $tagvalue );
-                    ?>
+                $ftags['user_text'] = array_key_exists( 'text', $ftags ) ? $ftags['text'] : $ftags['comment'];
+                
+                $current_img = '';
+                if ( array_key_exists( 'comments', $finfo ) && is_array( $finfo['comments'] ) && array_key_exists( 'picture', $finfo['comments'] ) && is_array( $finfo['comments']['picture'] ) && is_array( $finfo['comments']['picture'][0] ) && array_key_exists( 'data', $finfo['comments']['picture'][0] ) )
+                    $current_img = $finfo['comments']['picture'][0]['data'];
+                
+                unset( $finfo );
+                ?>
+                <h3><?php printf( _md( 'Editing File: <code>%s</code>' ), $mdbreadcrumbs . ' /' . stripslashes( $mdfile ) ); ?></h3>
+                
+                <form method="post" action="<?php self_link(); ?>" enctype="multipart/form-data">
+                <input type="hidden" name="mdaction" value="updatefile" />
+                <table class="widefat">
+                <tbody>
+                    <?php
+                    $edit_tags = array(
+                                        'title' => array( 'Title', 'text' ),
+                                        'artist' => array( 'Artist', 'text' ),
+                                        'album' => array( 'Album', 'text' ),
+                                        'year' => array( 'Year', 'number' ),
+                                        'genre' => array( 'Genre', 'genre' ),
+                                        'comment' => array( 'Comment', 'textarea' ),
+                                        'user_text' => array( 'Formatted Comment', 'richtext' ),
+                                        'recording_dates' => array( 'Recording Date', 'date' ),
+                                        'track_number' => array( 'Track Number', 'number' ),
+                                    );
+                    foreach ( $edit_tags as $mdtag => $tagoptions ) :
+                        $tagvalue = stripslashes( $ftags[ $mdtag ][0] );
+                        if ( $mdoencode != 'UTF-8' ) $tagvalue = iconv( $mdoencode, 'UTF-8', $tagvalue );
+                        ?>
+                        <tr>
+                            <td>
+                                <label for="edit_tag_<?php echo $mdtag; ?>">
+                                    <?php _mde( $tagoptions[0] ); ?>
+                                </label>
+                            </td>
+                            <td>
+                                <?php if ( 'genre' == $tagoptions[1] ) : ?>
+                                    <select id="edit_tag_<?php echo $mdtag; ?>" name="edit_tag_<?php echo $mdtag; ?>">
+                                        <?php foreach ( list_genres() as $lgenre ) : ?>
+                                            <option value="<?php echo esc_attr( $lgenre ); ?>"<?php if ( $tagvalue == $lgenre ) echo ' selected="selected"'; ?>><?php echo htmlentities( $lgenre, ENT_COMPAT, 'UTF-8' ); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                <?php elseif ( 'textarea' == $tagoptions[1] ) : ?>
+                                    <textarea id="edit_tag_<?php echo $mdtag; ?>" name="edit_tag_<?php echo $mdtag; ?>" cols="150" rows="10" class="widefat"><?php echo $tagvalue; ?></textarea>
+                                <?php elseif ( 'richtext' == $tagoptions[1] ) : ?>
+                                    <?php wp_editor( $tagvalue, 'edit_tag_' . $mdtag, array( 'media_buttons' => false, 'textarea_rows' => 10, 'quicktags' => false ) ); ?>
+                                <?php elseif ( 'text' == $tagoptions[1] ) : ?>
+                                    <input id="edit_tag_<?php echo $mdtag; ?>" name="edit_tag_<?php echo $mdtag; ?>" type="text" size="150" class="widefat" value="<?php echo esc_attr( $tagvalue ); ?>" />
+                                <?php elseif ( 'number' == $tagoptions[1] ) : ?>
+                                    <input id="edit_tag_<?php echo $mdtag; ?>" name="edit_tag_<?php echo $mdtag; ?>" type="number" size="4" class="small-text" value="<?php echo esc_attr( $tagvalue ); ?>" />
+                                <?php else : ?>
+                                    <input id="edit_tag_<?php echo $mdtag; ?>" name="edit_tag_<?php echo $mdtag; ?>" type="<?php echo $tagoptions[1]; ?>" class="medium-text feature-filter" value="<?php echo $tagvalue; ?>" />
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
                     <tr>
                         <td>
-                            <label for="edit_tag_<?php echo $mdtag; ?>">
-                                <?php _mde( $tagoptions[0] ); ?>
+                            <label for="edit_tag_picture">
+                                <?php _mde( 'Picture:' ); ?>
                             </label>
                         </td>
                         <td>
-                            <?php if ( 'genre' == $tagoptions[1] ) : ?>
-                                <select id="edit_tag_<?php echo $mdtag; ?>" name="edit_tag_<?php echo $mdtag; ?>">
-                                    <?php foreach ( list_genres() as $lgenre ) : ?>
-                                        <option value="<?php echo esc_attr( $lgenre ); ?>"<?php if ( $tagvalue == $lgenre ) echo ' selected="selected"'; ?>><?php echo htmlentities( $lgenre, ENT_COMPAT, 'UTF-8' ); ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            <?php elseif ( 'textarea' == $tagoptions[1] ) : ?>
-                                <textarea id="edit_tag_<?php echo $mdtag; ?>" name="edit_tag_<?php echo $mdtag; ?>" cols="150" rows="10" class="widefat"><?php echo $tagvalue; ?></textarea>
-                            <?php elseif ( 'richtext' == $tagoptions[1] ) : ?>
-                                <?php wp_editor( $tagvalue, 'edit_tag_' . $mdtag, array( 'media_buttons' => false, 'textarea_rows' => 10, 'quicktags' => false ) ); ?>
-                            <?php elseif ( 'text' == $tagoptions[1] ) : ?>
-                                <input id="edit_tag_<?php echo $mdtag; ?>" name="edit_tag_<?php echo $mdtag; ?>" type="text" size="150" class="widefat" value="<?php echo esc_attr( $tagvalue ); ?>" />
-                            <?php elseif ( 'number' == $tagoptions[1] ) : ?>
-                                <input id="edit_tag_<?php echo $mdtag; ?>" name="edit_tag_<?php echo $mdtag; ?>" type="number" size="4" class="small-text" value="<?php echo esc_attr( $tagvalue ); ?>" />
-                            <?php else : ?>
-                                <input id="edit_tag_<?php echo $mdtag; ?>" name="edit_tag_<?php echo $mdtag; ?>" type="<?php echo $tagoptions[1]; ?>" class="medium-text feature-filter" value="<?php echo $tagvalue; ?>" />
+                            <?php if ( $current_img ) : ?>
+                                <img src="data:image/jpeg;base64,<?php echo base64_encode( $current_img ); ?>" class="audiofile_picture" alt="<?php echo esc_attr( stripslashes( $ftags[ 'title' ][0] ) ); ?>" />
+                                <label for="edit_tag_picture">
+                                    <?php _mde( 'Replace picture:' ); ?>
+                                </label>
                             <?php endif; ?>
+                            <input type="file" id="edit_tag_picture" name="edit_tag_picture" accept="image/*" />
                         </td>
                     </tr>
-                <?php endforeach; ?>
-                <tr>
-                    <td>
-                        <label for="edit_tag_picture">
-                            <?php _mde( 'Picture:' ); ?>
-                        </label>
-                    </td>
-                    <td>
-                        <?php if ( $current_img ) : ?>
-                            <img src="data:image/jpeg;base64,<?php echo base64_encode( $current_img ); ?>" class="audiofile_picture" alt="<?php echo esc_attr( stripslashes( $ftags[ 'title' ][0] ) ); ?>" />
-                            <label for="edit_tag_picture">
-                                <?php _mde( 'Replace picture:' ); ?>
-                            </label>
-                        <?php endif; ?>
-                        <input type="file" id="edit_tag_picture" name="edit_tag_picture" accept="image/*" />
-                    </td>
-                </tr>
-            </tbody>
-            </table>
-            
-            <p class="submit">
-            <input type="submit" value="<?php _mde( 'Save Changes' ) ;?>" class="button button-primary" />
-            <a href="<?php echo add_query_arg( array( 'mdfile' => null ) );?>" class="button alignright button-cancel"><?php _mde( 'Cancel' ) ;?></a>
-            </p>
-            </fieldset>
+                </tbody>
+                </table>
+                
+                <p class="submit">
+                <input type="submit" value="<?php _mde( 'Save Changes' ) ;?>" class="button button-primary" />
+                <a href="<?php echo add_query_arg( array( 'mdfile' => null ) );?>" class="button alignright button-cancel"><?php _mde( 'Cancel' ) ;?></a>
+                </p>
 
-            </form>
+                </form>
+            <?php else: ?>
+                <div class="error settings-error"><p><strong><?php printf( _md( 'Could not read: <code>%s</code>' ), $mdfolder . '/' . stripslashes( $mdfile ) ); ?></strong></p></div>
+            <?php endif; ?>
+
+        <?php elseif ( '*' == $mdfile ) : ?>
+        
+                <h3><?php printf( _md( 'Batch editing: <code>%s</code>' ), $mdbreadcrumbs . ' /' . stripslashes( $mdfile ) ); ?></h3>
+                
+                <form method="post" action="<?php self_link(); ?>" enctype="multipart/form-data">
+                <input type="hidden" name="mdaction" value="batchedit" />
+
+                <table class="widefat batchedit">
+                <thead>
+                    <tr>
+                        <th><?php _mde( 'Overwrite Tag' ); ?></th>
+                        <th><?php _mde( 'Value' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $edit_tags = array(
+                                        'title' => array( 'Title', 'text' ),
+                                        'artist' => array( 'Artist', 'text' ),
+                                        'album' => array( 'Album', 'text' ),
+                                        'year' => array( 'Year', 'number' ),
+                                        'genre' => array( 'Genre', 'genre' ),
+                                        'comment' => array( 'Comment', 'textarea' ),
+                                        'user_text' => array( 'Formatted Comment', 'richtext' ),
+                                        'recording_dates' => array( 'Recording Date', 'date' ),
+                                        'track_number' => array( 'Track Number', 'number' ),
+                                    );
+                    foreach ( $edit_tags as $mdtag => $tagoptions ) :
+                        $tagvalue = stripslashes( $_REQUEST[ 'edit_tag_' . $mdtag ] );
+                        ?>
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="enable_tag[]" id="enable_<?php echo $mdtag; ?>" value="<?php echo $mdtag; ?>" <?php if ( $_REQUEST['enable_' . $mdtag] ) : ?>checked="checked" <?php endif; ?>/>
+                                <label for="enable_<?php echo $mdtag; ?>">
+                                    <?php _mde( $tagoptions[0] ); ?>
+                                </label>
+                            </td>
+                            <td>
+                                <?php if ( 'genre' == $tagoptions[1] ) : ?>
+                                    <select id="edit_tag_<?php echo $mdtag; ?>" name="edit_tag_<?php echo $mdtag; ?>">
+                                        <?php foreach ( list_genres() as $lgenre ) : ?>
+                                            <option value="<?php echo esc_attr( $lgenre ); ?>"<?php if ( $tagvalue == $lgenre ) echo ' selected="selected"'; ?>><?php echo htmlentities( $lgenre, ENT_COMPAT, 'UTF-8' ); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                <?php elseif ( 'textarea' == $tagoptions[1] ) : ?>
+                                    <textarea id="edit_tag_<?php echo $mdtag; ?>" name="edit_tag_<?php echo $mdtag; ?>" cols="150" rows="10" class="widefat"><?php echo $tagvalue; ?></textarea>
+                                <?php elseif ( 'richtext' == $tagoptions[1] ) : ?>
+                                    <?php wp_editor( $tagvalue, 'edit_tag_' . $mdtag, array( 'media_buttons' => false, 'textarea_rows' => 10, 'quicktags' => false ) ); ?>
+                                <?php elseif ( 'text' == $tagoptions[1] ) : ?>
+                                    <input id="edit_tag_<?php echo $mdtag; ?>" name="edit_tag_<?php echo $mdtag; ?>" type="text" size="150" class="widefat" value="<?php echo esc_attr( $tagvalue ); ?>" />
+                                <?php elseif ( 'number' == $tagoptions[1] ) : ?>
+                                    <input id="edit_tag_<?php echo $mdtag; ?>" name="edit_tag_<?php echo $mdtag; ?>" type="number" size="4" class="small-text" value="<?php echo esc_attr( $tagvalue ); ?>" />
+                                <?php else : ?>
+                                    <input id="edit_tag_<?php echo $mdtag; ?>" name="edit_tag_<?php echo $mdtag; ?>" type="<?php echo $tagoptions[1]; ?>" class="medium-text feature-filter" value="<?php echo $tagvalue; ?>" />
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="enable_tag[]" id="enable_picture" value="picture" <?php if ( $_REQUEST['enable_picture'] ) : ?>checked="checked" <?php endif; ?>/>
+                            <label for="edit_tag_picture">
+                                <?php _mde( 'Picture:' ); ?>
+                            </label>
+                        </td>
+                        <td>
+                            <input type="file" id="edit_tag_picture" name="edit_tag_picture" accept="image/*" />
+                        </td>
+                    </tr>
+                </tbody>
+                </table>
+
+                <p class="submit">
+                <input type="submit" value="<?php _mde( 'Save Changes' ) ;?>" class="button button-primary" />
+                <a href="<?php echo add_query_arg( array( 'mdfile' => null ) );?>" class="button alignright button-cancel"><?php _mde( 'Cancel' ) ;?></a>
+                </p>
+
+                </form>
+
         <?php else: ?>
+
             <div class="error settings-error"><p><strong><?php printf( _md( 'Could not read: <code>%s</code>' ), $mdfolder . '/' . stripslashes( $mdfile ) ); ?></strong></p></div>
+
         <?php endif; ?>
 
     <?php else :
@@ -283,6 +376,14 @@ endforeach;
         }
         // If set, reversing array
         if ( $mreverse ) $ifiles = array_reverse( $ifiles );
+
+        $counteditables = 0;
+        foreach ( $ifiles as $ifile ) :
+            $fext = '';
+            $arrfile = explode( '.', $ifile );
+            if ( count( $arrfile ) > 1 ) $fext = array_pop( $arrfile );
+            if ( in_array( $fext, md_mediaExtensions() ) ) $counteditables++;
+        endforeach;
         
         $iall = array_merge( $idirs, $ifiles );
 
@@ -309,7 +410,7 @@ endforeach;
                     <input type="hidden" name="<?php echo array_shift( $parm ); ?>" <?php if ( count( $parm ) ) : ?>value="<?php echo urldecode( implode( '=', $parm ) ); ?>" <?php endif; ?>/>
                 <?php endforeach; ?>
                 <div class="tablenav top">
-                <div class="alignleft">
+                <div class="alignleft actions">
                     <h3><?php printf( _md( 'Directory: <code>%s</code>' ), $mdbreadcrumbs ); ?></h3>
                 </div>
                 <div class="tablenav-pages">
@@ -322,6 +423,11 @@ endforeach;
                         <a class="last-page<?php if ( $ipaged >= $ipages ) : ?> disabled<?php endif; ?>" title="<?php _mde( 'Go to last page' ); ?>" href="<?php echo add_query_arg( array( 'paged' => $ipages ) ); ?>">»</a></span>
                     <?php endif; ?>
                 </div>
+                <?php /* if ( $counteditables > 1 ) : ?>
+                    <div class="alignright actions batchedit">
+                        <a href="<?php echo add_query_arg( array( 'mdfile' => '*' ) ); ?>"><?php printf( _md( 'Batch edit %d files in this folder!' ), $counteditables ); ?></a>
+                    </div>
+                <?php endif; */ ?>
                 </div>
             </form>
 

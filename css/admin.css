@@ -3,4 +3,16 @@ img.audiofile_picture {
     margin-bottom: 7px;
     width: 30%;
 }
-
+div.batchedit {
+    margin-top: 4px;
+}
+div.batchedit a {
+    margin: 0 40px;
+    text-decoration: none;
+}
+div.batchedit a:hover {
+    text-decoration: underline;
+}
+table.batchedit select.disabled {
+    background-color: #ccc;
+}
