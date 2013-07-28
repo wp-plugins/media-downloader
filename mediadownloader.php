@@ -599,7 +599,10 @@ function orderBySampleRate( $a, $b ) {
 }
 
 function md_plugin_dir() {
-    return array_shift( explode( DIRECTORY_SEPARATOR, plugin_basename(__FILE__) ) );
+    return array_shift( explode( DIRECTORY_SEPARATOR, plugin_basename( array_pop( explode( DIRECTORY_SEPARATOR, __DIR__ ) ) ) ) );
+}
+function md_plugin_url() {
+    return WP_PLUGIN_URL . '/' . md_plugin_dir();
 }
 
 function mediadownloader( $t ) {
@@ -783,14 +786,14 @@ function mediaDownloaderEnqueueScripts() {
     // If any custom css, we enqueue our php that throws this css
     $customcss = trim( get_option( 'customcss' ) );
     if ( '' != $customcss ) {
-        wp_register_style( 'mediadownloaderCss', WP_PLUGIN_URL . '/' . md_plugin_dir() . '/css/mediadownloader-css.php' );
+        wp_register_style( 'mediadownloaderCss', md_plugin_url() . '/css/mediadownloader-css.php' );
         wp_enqueue_style( 'mediadownloaderCss' );
     }
 
     // Enqueuing JQPlugin (browser plugins detection)
-    wp_enqueue_script( 'jqplugin', WP_PLUGIN_URL . '/' . md_plugin_dir() . '/js/jquery.jqplugin.1.0.2.min.js', array('jquery'), date( 'YmdHis', filemtime( dirname(__FILE__) . '/js/jquery.jqplugin.1.0.2.min.js' ) ), get_option( 'scriptinfooter' ) );
+    wp_enqueue_script( 'jqplugin', md_plugin_url() . '/js/jquery.jqplugin.1.0.2.min.js', array('jquery'), date( 'YmdHis', filemtime( dirname(__FILE__) . '/js/jquery.jqplugin.1.0.2.min.js' ) ), get_option( 'scriptinfooter' ) );
     // Enqueuing our javascript
-    wp_enqueue_script( 'mediadownloaderJs', WP_PLUGIN_URL . '/' . md_plugin_dir() . '/js/mediadownloader.js', array('jquery'), date( 'YmdHis', filemtime( dirname(__FILE__) . '/js/mediadownloader.js' ) ), get_option( 'scriptinfooter' ) );
+    wp_enqueue_script( 'mediadownloaderJs', md_plugin_url() . '/js/mediadownloader.js', array('jquery'), date( 'YmdHis', filemtime( dirname(__FILE__) . '/js/mediadownloader.js' ) ), get_option( 'scriptinfooter' ) );
     
     // Passing options to our javascript
     add_action( 'get_header', 'mediaDownloaderLocalizeScript' );
@@ -809,7 +812,7 @@ function mediaDownloaderLocalizeScript() {
     if ( array_key_exists( 'play', $replaceheaders ) ) $playheader = $replaceheaders['play'];
     wp_localize_script( 'mediadownloaderJs', 'mdEmbedColors', $mdembedcolors );
     wp_localize_script( 'mediadownloaderJs', 'mdStringTable', array(
-        'pluginURL' => WP_PLUGIN_URL . '/' . md_plugin_dir() . '/',
+        'pluginURL' => md_plugin_url() . '/',
         'playColumnText' => $playheader,
         'downloadTitleText' => _md( 'Download:' ),
         'playTitleText' => _md( 'Play:' ),
@@ -831,11 +834,11 @@ function mediaDownloaderInit() {
 add_action( 'init', 'mediaDownloaderInit' );
 
 
-add_action( 'admin_init', 'md_init' );
+add_action( 'admin_init', 'md_admin_init' );
 
-function md_init() {
-    wp_register_style( 'md-admin-css', plugins_url( 'css/admin.css', __FILE__ ) );
-    wp_register_script( 'md-admin-script', plugins_url( 'js/admin.js', __FILE__ ) );
+function md_admin_init() {
+    wp_register_style( 'md-admin-css', md_plugin_url() . '/css/admin.css' );
+    wp_register_script( 'md-admin-script', md_plugin_url() . '/js/admin.js' );
 }
 function md_admin_styles() {
     wp_enqueue_style( 'md-admin-css' );
@@ -884,7 +887,7 @@ function mediadownloader_options() {
 // Add Settings link to plugins - code from GD Star Ratings
 // (as seen in http://www.whypad.com/posts/wordpress-add-settings-link-to-plugins-page/785/ )
 function mediadownloader_settings_link( $links, $file ) {
-    $this_plugin = plugin_basename(__FILE__);
+    $this_plugin = plugin_basename( array_pop( explode( DIRECTORY_SEPARATOR, __DIR__ ) ) );
     if ( $file == $this_plugin ) {
         $settings_link = '<a href="options-general.php?page=mediadownloader-options">' . _md( 'Settings' ) . '</a>';
         array_unshift( $links, $settings_link );
