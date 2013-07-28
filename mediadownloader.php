@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99.99
+Version: 0.1.99.999
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -187,7 +187,9 @@ function listMedia( $t ){
     // MP3 folder
     $mdir = '/' . get_option( 'mp3folder' );
     // MP3 folder URL
+    if ( function_exists( 'switch_to_blog' ) ) switch_to_blog(1);
     $murl = get_option( 'siteurl' ) . $mdir;
+    if ( function_exists( 'restore_current_blog' ) ) restore_current_blog();
     // MP3 folder relative URL
     $mrelative = str_replace('http'.(isset($_SERVER['HTTPS'])?'s':'').'://','',$murl); $mrelative = explode( '/', $mrelative ); array_shift($mrelative); $mrelative = '/'.implode('/', $mrelative);
     $mpath = ABSPATH . substr($mdir, 1);
@@ -303,7 +305,7 @@ function listMedia( $t ){
                 $ihtml .= '<div class="md_albumInfo">';
 
                 if ( $mshowcover && $cover ) {
-                    $coversrc = home_url($mdir) . '/' . ( $ufolder ? $ufolder . '/' : '' ) . $cover;
+                    $coversrc = network_home_url($mdir) . '/' . ( $ufolder ? $ufolder . '/' : '' ) . $cover;
                     $icovermarkup = $covermarkup ? $covermarkup : '<img class="md_coverImage" src="[coverimage]" alt="' . _md( 'Album Cover' ) . '" />';
                     $ihtml .= str_replace( '[coverimage]', $coversrc, $icovermarkup );
                 }
@@ -539,7 +541,7 @@ function listMedia( $t ){
                     $ititletext = $iartisttext . $ititletext;
                     if ( $ititletext ) $irel[] = 'mediaDownloaderTitleText:' . htmlentities( $ititletext, ENT_COMPAT, 'UTF-8' );
                     $irel = implode( ';', $irel );
-                    $ihtml .= '<td class="mediaDownload"><a href="'.home_url($mdir).'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.'.$iext.'" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" ' . ( $irel ? 'rel="' . $irel . '"' : '' ) . ' id="mdfile_' . sanitize_title( $ifile ) . '">'.$idownloadtext.'</a></td>'."\n" ;
+                    $ihtml .= '<td class="mediaDownload"><a href="'.network_home_url($mdir).'/'.($ufolder?$ufolder.'/':'').rawurlencode( $ifile ).'.'.$iext.'" title="' . htmlentities( $showifile, ENT_COMPAT, 'UTF-8' ) . '" ' . ( $irel ? 'rel="' . $irel . '"' : '' ) . ' id="mdfile_' . sanitize_title( $ifile ) . '">'.$idownloadtext.'</a></td>'."\n" ;
                     $ihtml .= '</tr>'."\n" ;
                 }
                 $ihtml .= '</tbody></table>'."\n" ;
