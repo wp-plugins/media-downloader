@@ -601,7 +601,9 @@ function orderBySampleRate( $a, $b ) {
 }
 
 function md_plugin_dir() {
-    return array_shift( explode( DIRECTORY_SEPARATOR, plugin_basename( array_pop( explode( DIRECTORY_SEPARATOR, __DIR__ ) ) ) ) );
+    $vdir = __DIR__;
+    if ( '__DIR__' == $vdir ) $vdir = dirname( __FILE__ );
+    return array_shift( explode( DIRECTORY_SEPARATOR, plugin_basename( array_pop( explode( DIRECTORY_SEPARATOR, $vdir ) ) ) ) );
 }
 function md_plugin_url() {
     return WP_PLUGIN_URL . '/' . md_plugin_dir();
@@ -644,7 +646,9 @@ function mediadownloaderFileLength( $filename ) {
 // Get ID3 tags from file
 function mediadownloaderFileInfo( $f, $ext ) {
     // File path
+    if ( function_exists( 'switch_to_blog' ) ) switch_to_blog(1);
     $relURL = str_replace( 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://'.$_SERVER['SERVER_NAME'], '', get_option( 'siteurl' ) );
+    if ( function_exists( 'restore_current_blog' ) ) restore_current_blog();
     if ( stripos( $f, $relURL ) === 0 ) $f = substr( $f, strlen( $relURL ) );
     $f = ABSPATH . $f . '.' . $ext;
     $f = preg_replace( '|/+|ims', '/', $f );
@@ -889,7 +893,7 @@ function mediadownloader_options() {
 // Add Settings link to plugins - code from GD Star Ratings
 // (as seen in http://www.whypad.com/posts/wordpress-add-settings-link-to-plugins-page/785/ )
 function mediadownloader_settings_link( $links, $file ) {
-    $this_plugin = plugin_basename( array_pop( explode( DIRECTORY_SEPARATOR, __DIR__ ) ) );
+    $this_plugin = plugin_basename( array_pop( explode( DIRECTORY_SEPARATOR, dirname( __FILE__ ) ) ) );
     if ( $file == $this_plugin ) {
         $settings_link = '<a href="options-general.php?page=mediadownloader-options">' . _md( 'Settings' ) . '</a>';
         array_unshift( $links, $settings_link );
