@@ -3,13 +3,16 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.99.999
+Version: 0.1.991
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
 
 // Possible encodings
 $mdencodings = array( 'UTF-8', 'ISO-8859-1', 'ISO-8859-15', 'cp866', 'cp1251', 'cp1252', 'KOI8-R', 'BIG5', 'GB2312', 'BIG5-HKSCS', 'Shift_JIS', 'EUC-JP' );
+$md_comp_encs = array();
+foreach ( $mdencodings as $mdenc ) if ( 'ISO-8859-1'!=$mdenc ) $md_comp_encs[] = 'ISO-8859-1 + '.$mdenc;
+$mdencodings = array_merge( $mdencodings, $md_comp_encs );
 // Possible fields by which file list should be sorted,
 // and respective sorting functions
 $mdsortingfields = array(
@@ -203,10 +206,12 @@ function listMedia( $t ){
     // Should we re-encode the tags?
     $mdoencode = get_option( 'tagencoding' );
     if ( !$mdoencode ) $mdoencode = 'UTF-8';
+    $mdoencode = array_pop( explode( ' + ', $mdoencode ) );
 
     // Should we re-encode the file names?
     $mdofnencode = get_option( 'filenameencoding' );
     if ( !$mdofnencode ) $mdofnencode = 'UTF-8';
+    $mdofnencode = array_pop( explode( ' + ', $mdofnencode ) );
     
     // How should we sort the files?
     $msort = get_option( 'sortfiles' );
@@ -236,9 +241,9 @@ function listMedia( $t ){
     preg_match_all( '/\[media:([^\]]*)\]/i', $t, $matches );
     // Any?
     if ( count( $matches ) ) {
-        $cover = '';
         // Each...
         foreach ( $matches[1] as $folder ) {
+            $cover = '';
             // Removing paragraph
             $t = str_replace('<p>[media:'.$folder.']</p>', '[media:'.$folder.']', $t);
             // Initializing variables
@@ -670,6 +675,9 @@ function mediadownloaderFileInfo( $f, $ext ) {
         require_once('getid3/getid3.php');
         // Initialize getID3 engine
         $getID3 = new getID3;
+        $mdoencode = get_option( 'tagencoding' );
+        $mdoencode = array_shift( explode( ' + ', $mdoencode ) );
+        if ( 'UTF-8' != $mdoencode ) $getID3->setOption( array( 'encoding' => $mdoencode ) );
         // Analyze file and store returned data in $ThisFileInfo
         if ( $ThisFileInfo = $getID3->analyze( $f ) ) {
             // Saving cache

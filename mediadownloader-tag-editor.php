@@ -25,10 +25,13 @@ $mpath = ABSPATH . substr($mdir, 1);
 // Should we re-encode the tags?
 $mdoencode = get_option( 'tagencoding' );
 if ( !$mdoencode ) $mdoencode = 'UTF-8';
+$mdoencode_writing = array_shift( explode( ' + ', $mdoencode ) );
+$mdoencode = array_pop( explode( ' + ', $mdoencode ) );
 
 // Should we re-encode the file names?
 $mdofnencode = get_option( 'filenameencoding' );
 if ( !$mdofnencode ) $mdofnencode = 'UTF-8';
+$mdofnencode = array_pop( explode( ' + ', $mdofnencode ) );
 
 // How should we sort the files?
 $msort = get_option( 'sortfiles' );
@@ -68,12 +71,21 @@ endforeach;
 
             if ( 'updatefile' == $mdaction ) {
                 $getID3 = new getID3;
-                $getID3->setOption( array( 'encoding' => $mdoencode ) );
+                $getID3->setOption( array( 'encoding' => $mdoencode_writing ) );
                 $tagwriter = new getid3_writetags;
                 $ThisFileInfo = $getID3->analyze( $mpath . '/' . $mdfolder . '/' . $mdfile );
                 $tags = $ThisFileInfo['tags']['id3v2'];
                 if ( is_array( $tags ) ) array_walk( $tags, 'array_sobe_nivel' );
-                foreach ( array( 'title', 'artist', 'band', 'album', 'year', 'genre', 'track_number', 'comment', 'user_text' ) as $atag ) if ( array_key_exists( 'edit_tag_' . $atag, $_POST ) ) $tags[ $atag ] = stripslashes( $_POST[ 'edit_tag_' . $atag ] );
+                foreach ( array( 'title', 'artist', 'band', 'album', 'year', 'genre', 'track_number', 'comment', 'user_text' ) as $atag ) if ( array_key_exists( 'edit_tag_' . $atag, $_POST ) ) {
+                    $tvalue = stripslashes( $_POST[ 'edit_tag_' . $atag ] );
+                    $tconvvalue = iconv( 'UTF-8', $mdoencode . '//TRANSLIT', $tvalue );
+                    $tunconvvalue = iconv( $mdoencode, 'UTF-8' . '//TRANSLIT', $tconvvalue );
+                    if ( $tvalue != $tunconvvalue ) {
+                        $tconvvalue = htmlentities( $tvalue, ENT_QUOTES, 'UTF-8' );
+                        $tconvvalue = iconv( 'UTF-8', $mdoencode . '//TRANSLIT', $tconvvalue );
+                    }
+                    $tags[ $atag ] = $tconvvalue;
+                }
                 if ( array_key_exists( 'edit_tag_recording_dates', $_POST ) && $_POST['edit_tag_recording_dates'] ) {
                     if ( $rd_timestamp = strtotime( $_POST['edit_tag_recording_dates'] ) ) {
                         $tags['recording_dates'] = date( 'Y-m-d', $rd_timestamp );
@@ -86,7 +98,7 @@ endforeach;
                 $tagwriter->filename = $mpath . '/' . $mdfolder . '/' . stripslashes( $mdfile );
                 $tagwriter->tagformats = array('id3v2.3');
                 $tagwriter->overwrite_tags = true;
-                $tagwriter->tag_encoding = $mdoencode;
+                $tagwriter->tag_encoding = $mdoencode_writing;
                 $tagwriter->remove_other_tags = true;
 
                 // populate data array
