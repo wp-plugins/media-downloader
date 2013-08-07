@@ -1,0 +1,273 @@
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2012-05-28 10:37:53+03:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Project-Id-Version: Media Downloader 0.1.98.99\n"
+"Last-Translator: Ederson Peka <ederson@gmail.com>\n"
+"Language-Team: Ederson Peka <ederson@gmail.com>\n"
+
+#: mediadownloader-markup-options.php:19
+msgid "General tag info template"
+msgstr "Modelo geral para as informações das <em>tags</em>"
+
+#: mediadownloader-markup-options.php:27
+msgid "<strong>\"DL\" mode:</strong> One table cell containing a definition list (one definition term for each tag)"
+msgstr "<strong>modo \"DL\":</strong> Uma célula da tabela contém uma lista de definições (um termo de definição para cada <em>tag</em> do arquivo)"
+
+msgid "<strong>\"TR\" mode:</strong> One table cell for each tag"
+msgstr "<strong>modo \"TR\":</strong> Uma célula da tabela para cada <em>tag</em> do arquivo"
+
+#: mediadownloader-markup-options.php:31
+msgid "List options"
+msgstr "Opções da lista de <em>tags</em>"
+
+#: mediadownloader-markup-options.php:33
+msgid "Replace ID3 tags column headers"
+msgstr "Substituir cabeçalhos das colunas"
+
+#: mediadownloader-markup-options.php:36
+msgid "Replaces default columns headers (ie: \"title\", \"comments\") with custom values:"
+msgstr "Substitui o cabeçalho padrão das colunas (ie: \"title\", \"comments\") por valores personalizados:"
+
+#: mediadownloader-markup-options.php:38
+msgid "Syntax example: <br /><code>comments:Description</code><br /><code>title:Episode</code>"
+msgstr "Exemplo de sintaxe: <br /><code>comments:Descrição</code><br /><code>title:Episódio</code>"
+
+#: mediadownloader-markup-options.php:42
+#: mediadownloader-markup-options.php:67
+#: mediadownloader-more-options.php:55
+#: mediadownloader-options.php:31
+#: mediadownloader-options.php:54
+#: mediadownloader-options.php:138
+msgid "Update Options"
+msgstr "Atualizar Opções"
+
+#: mediadownloader-markup-options.php:50
+msgid "Each item options"
+msgstr "Opções para cada item"
+
+#: mediadownloader-markup-options.php:52
+msgid "Wildcards:"
+msgstr "Curingas:"
+
+#: mediadownloader-markup-options.php:55
+msgid "Download Text:"
+msgstr "Texto do link \"download\":"
+
+#: mediadownloader-markup-options.php:61
+msgid "Play Text:"
+msgstr "Texto do link \"play\":"
+
+#: mediadownloader-more-options.php:44
+msgid "Embed Player Colors:"
+msgstr "Cores do <em>Player</em> Embutido:"
+
+#: mediadownloader-more-options.php:48
+msgid "%1$s color:"
+msgstr "Propriedade <em>\"%1$s\"</em>:"
+
+#: mediadownloader-markup-options.php:57
+#: mediadownloader-markup-options.php:63
+#: mediadownloader-more-options.php:50
+#: mediadownloader-options.php:45
+msgid "Default:"
+msgstr "Padrão:"
+
+#: mediadownloader-options-header.php:5
+msgid "Media Downloader:"
+msgstr "Media Downloader:"
+
+#: mediadownloader-options-header.php:22
+msgid "General Options"
+msgstr "Opções Gerais"
+
+msgid "Markup Options"
+msgstr "Opções de <em>Markup</em>"
+
+msgid "More Options"
+msgstr "Opções Adicionais"
+
+#: mediadownloader-options.php:18
+msgid "MP3 Folder:"
+msgstr "Diretório de MP3"
+
+#: mediadownloader-options.php:21
+msgid "(must be <a href=\"%s\">readable</a>)"
+msgstr "(exige <a href=\"%s\">permissão de leitura</a>)"
+
+#: mediadownloader-options.php:25
+msgid "Folder successfully read."
+msgstr "Foi possível ler o diretório com sucesso."
+
+msgid "Could not read folder."
+msgstr "Não foi possível ler o diretório."
+
+#: mediadownloader-options.php:38
+msgid "Show MP3 Info:"
+msgstr "Mostrar Informações do MP3:"
+
+#: mediadownloader-options.php:40
+msgid "Comma-separated MP3 info to show for each file on the list."
+msgstr "Campos a serem exibidos para cada arquivo MP3 da lista, separados por vírgula."
+
+#: mediadownloader-options.php:43
+msgid "Possible values:"
+msgstr "Valores possíveis:"
+
+#: mediadownloader-options.php:48
+msgid "Custom CSS:"
+msgstr "CSS Personalizado"
+
+#: mediadownloader-options.php:61
+msgid "Advanced:"
+msgstr "Avançado"
+
+#: mediadownloader-options.php:65
+msgid "Remove \".mp3\" from download URL"
+msgstr "Esconder a extensão \".mp3\" na URL de download"
+
+#: mediadownloader-options.php:67
+msgid "(checking it may cause some server overloading)"
+msgstr "(marcar esta opção pode sobrecarregar o servidor)"
+
+#: mediadownloader-options.php:73
+msgid "Embed player"
+msgstr "Embutir um <em>player</em> de MP3 na página"
+
+#: mediadownloader-options.php:78
+msgid "Place embed player's javascript at the bottom of the <code>&lt;body&gt;</code> in <abbr title=\"HyperText Markup Language\">HTML</abbr> code"
+msgstr "Colocar o javascript do <em>player</em> no final do <code>&lt;body&gt;</code> no código <abbr title=\"HyperText Markup Language\">HTML</abbr>"
+
+#: mediadownloader-options.php:82
+msgid "Embed player's button position:"
+msgstr "Posição dos botões do <em>player</em> embutido:"
+
+#: mediadownloader-options.php:84
+msgid "Before download link"
+msgstr "Antes do link de download"
+
+#: mediadownloader-options.php:85
+msgid "After download link"
+msgstr "Após o link de download"
+
+#: mediadownloader-options.php:90
+msgid "Sort by:"
+msgstr "Ordenar por:"
+
+#: mediadownloader-options.php:98
+msgid "Reverse order"
+msgstr "Ordem inversa"
+
+#: mediadownloader-options.php:102
+msgid "MP3 tag encoding:"
+msgstr "<em>Encoding</em> de caracteres das tags MP3:"
+
+#: mediadownloader-options.php:111
+msgid "File name encoding:"
+msgstr "<em>Encoding</em> de caracteres dos nomes de arquivos:"
+
+#: mediadownloader-options.php:120
+msgid "Cache dir:"
+msgstr "Diretório de <em>cache:</em>"
+
+#: mediadownloader-options.php:121
+msgid "(must be <a href=\"%s\">writable</a>)"
+msgstr "(exige <a href=\"%s\">permissão de escrita</a>)"
+
+#: mediadownloader-options.php:125
+msgid "Folder successfully written on."
+msgstr "É possível escrever no diretório."
+
+msgid "Could not write on folder."
+msgstr "Não é possível escrever no diretório."
+
+#: mediadownloader-options.php:133
+msgid "Include MP3 files in wordpress feeds"
+msgstr "Incluir os arquivos MP3 nos <em>feeds</em> do wordpress"
+
+#: mediadownloader-options.php:146
+msgid "Sample Usage"
+msgstr "Exemplo de Utilização"
+
+#: mediadownloader-options.php:147
+msgid "Media Downloader plugin lists MP3 files from a folder by replacing the <code>[media]</code> smart tag."
+msgstr "O plugin Media Downloader lista os arquivos MP3 de um diretório, substituindo a <em>smart tag</em> <code>[media]</code>."
+
+#: mediadownloader-options.php:149
+msgid "An example may help... Say you have a folder called <em>\"music\"</em> under your root folder, and it has some subfolders, as: <em>\"Beethoven\",</em> <em>\"Mozart\",</em> <em>\"Bach\"</em> and <em>\"Haendel\".</em>"
+msgstr "Um exemplo deve ajudar... Digamos que você tenha um diretório chamado <em>\"musica\"</em> dentro do seu diretório raiz, e por sua vez ele tenha subdiretórios, como: <em>\"Villa-Lobos\",</em> <em>\"Jobim\",</em> <em>\"Pixinguinha\"</em> e <em>\"Martins\".</em>"
+
+#: mediadownloader-options.php:151
+msgid "First of all, you should configure Media Downloader by typing <em>\"music\"</em> in the <label for=\"md_mp3folder\"><em>\"MP3 Folder\"</em> field.</label> That done, you can edit a post talking about Johann Sebastian Bach and insert anywhere on it the smart tag <code>[media:Bach]</code>, then Media Downloader will create a list of all files under the <em>\"music/Bach\"</em> directory."
+msgstr "Antes de tudo, você deve configurar o Media Downloader, digitando <em>\"musica\"</em> no campo <label for=\"md_mp3folder\"><em>\"MP3 Folder.\"</em></label> Feito isto, você pode editar um post falando sobre João Carlos Martins e inserir em qualquer lugar a <em>smart tag:</em> <code>\"[media:Martins]\"</code>. O Media Downloader vai criar uma lista de todos os arquivos no diretório <em>\"musica/Martins\".</em>"
+
+#: mediadownloader.php:208
+msgid "Could not read: %1$s"
+msgstr "Não foi possível ler: %1$s"
+
+#: mediadownloader.php:271
+# 'title', 'artist', 'album', 'year', 'genre', 'comments', 'track_number', 'bitrate', 'filesize', 'filedate', 'directory', 'file'
+
+#: mediadownloader.php:308
+msgid "By Chapter"
+msgstr "Por Capítulos"
+
+#: mediadownloader.php:309
+msgid "Whole Book"
+msgstr "Livro Completo"
+
+#: mediadownloader.php:330
+#: mediadownloader.php:424
+msgid "Download"
+msgstr "Download"
+
+#: mediadownloader.php:395
+msgid "Download ZIP"
+msgstr "Baixar arquivo ZIP"
+
+msgid "(Audio chapters)"
+msgstr "(Capítulos em áudio)"
+
+#: mediadownloader.php:399
+msgid "Download PDF"
+msgstr "Baixar arquivo PDF"
+
+#: mediadownloader.php:399
+#: mediadownloader.php:403
+msgid "(Text file)"
+msgstr "(Arquivo de texto)"
+
+#: mediadownloader.php:403
+msgid "Download EPUB"
+msgstr "Baixar EPUB"
+
+#: mediadownloader.php:447
+msgid "Error:"
+msgstr "Erro:"
+
+#: mediadownloader.php:499
+msgid "(See attached files...)"
+msgstr "(Veja os arquivos anexos...)"
+
+#: mediadownloader.php:588
+#: mediadownloader.php:590
+msgid "Attached file: %1$s - %2$s"
+msgstr "Arquivo anexo: %1$s - %2$s"
+
+#: mediadownloader.php:634
+msgid "Play"
+msgstr "Play"
+
+#: mediadownloader.php:669
+msgid "Settings"
+msgstr "Configurações"
+
+#: mediadownloader-options.php:73
+msgid "Try to guess and remove a common \"prefix\" to all the files of the same folder"
+msgstr "Tentar calcular e remover um \"prefixo\" comum a todos os arquivos de um mesmo diretório"
+
+#: mediadownloader-options.php:76
+msgid "(though a very helpful \"magic\" sometimes, this feature behaves in a unpredictably wild way)"
+msgstr "(embora seja uma \"mágica\" muito útil às vezes, esta funcionalidade se comporta de maneira imprevisivelmente selvagem)"
