@@ -3,7 +3,7 @@
 Plugin Name: Media Downloader
 Plugin URI: http://ederson.peka.nom.br
 Description: Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag.
-Version: 0.1.991
+Version: 0.1.992
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
 */
@@ -835,6 +835,7 @@ function mediaDownloaderLocalizeScript() {
 }
 
 function mediaDownloaderInit() {
+    load_textdomain( 'media-downloader', WP_LANG_DIR . '/mediadownloader/mediadownloader-' . apply_filters( 'plugin_locale', get_locale(), 'media-downloader' ) . '.mo' );
     load_plugin_textdomain( 'media-downloader', false, basename( dirname( __FILE__ ) ) . '/languages' );
     /*
     // I'm testing the lines below to avoid problems with symlinks,
