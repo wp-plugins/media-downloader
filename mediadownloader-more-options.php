@@ -35,7 +35,7 @@ $colordescriptions = array(
 
 <div class="wrap">
 
-<?php include('mediadownloader-options-header.php'); ?>
+<?php include( dirname( __FILE__ ) . '/mediadownloader-options-header.php' ); ?>
 
 <form method="post" action="options.php">
 <?php settings_fields( 'md_more_options' ); ?>
@@ -69,7 +69,7 @@ $colordescriptions = array(
 </table>
 
 <p class="submit">
-<input type="submit" value="<?php _mde( 'Update Options' ) ;?>" />
+<input type="submit" class="button button-primary" value="<?php _mde( 'Update Options' ) ;?>" />
 </p>
 </fieldset>
 

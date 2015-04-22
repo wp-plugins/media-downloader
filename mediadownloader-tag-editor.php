@@ -1,8 +1,8 @@
 <?php
 
-require_once( 'getid3/getid3.php' );
-require_once( 'getid3/write.php' );
-if( !function_exists( 'Markdown' ) ) include_once( 'markdown/markdown.php' );
+require_once( dirname( __FILE__ ) . '/getid3/getid3.php' );
+require_once( dirname( __FILE__ ) . '/getid3/write.php' );
+if( !function_exists( 'Markdown' ) ) include_once( dirname( __FILE__ ) . '/markdown/markdown.php' );
 
 global $mdtags, $mdsortingfields;
 
@@ -58,7 +58,7 @@ endforeach;
 
 <div class="wrap">
 
-    <?php include('mediadownloader-options-header.php'); ?>
+    <?php include( dirname( __FILE__ ) . '/mediadownloader-options-header.php' ); ?>
 
     <?php if ( $mdfile ) :
     

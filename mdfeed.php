@@ -1,16 +1,18 @@
 <?php
-// Load WordPress "framework"
-require_once('../../../wp-load.php');
 
-// Load Media Downloader "framework"
-require_once('mediadownloader.php');
+// Backwards compatibility: redirecting old parameters
+if ( array_key_exists( 'folder', $_GET ) && !array_key_exists( 'md_feed', $_GET ) ) :
+    $r = explode( 'wp-content', $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
+    header( 'Location: ' . '//' . $r[0] . '?md_feed=' . $_GET['folder'] );
+    exit();
+endif;
 
 function mdfeed_die() {
     header( 'Location: ' . get_bloginfo( 'rss2_url' ) );
     exit();
 }
 
-$folder = array_key_exists( 'folder', $_GET ) ? $_GET['folder'] : '';
+$folder = array_key_exists( 'md_feed', $_GET ) ? $_GET['md_feed'] : '';
 
 if ( !$folder ) mdfeed_die();
 
@@ -22,7 +24,7 @@ $allmatches = array();
 foreach ( md_mediaExtensions() as $mext ) {
     $ret = array();
     preg_match_all( '/href=[\\\'"](.*)'.preg_quote('.'.$mext).'[\\\'"]/im', $cont, $matches );
-    preg_match_all( '/href=[\\\'"].*getfile\.php\?\=(.*)[\\\'"]/im', $cont, $newmatches );
+    preg_match_all( '/href=[\\\'"].*\?md_getfile\&f\=(.*)[\\\'"]/im', $cont, $newmatches );
     // It makes no sense, "there can be only one", but just in case...
     if ( count( $matches ) && count( $matches[1] ) ) $ret = array_unique( array_merge( $matches[1], $newmatches[1] ) );
 

@@ -8,6 +8,9 @@ msgstr ""
 "Last-Translator: Ederson Peka <ederson@gmail.com>\n"
 "Language-Team: Ederson Peka <ederson@gmail.com>\n"
 
+msgid "Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag."
+msgstr ""
+
 #: mediadownloader-markup-options.php:19
 msgid "General tag info template"
 msgstr ""

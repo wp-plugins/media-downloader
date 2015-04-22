@@ -6,7 +6,67 @@ Description: Media Downloader plugin lists MP3 files from a folder by replacing 
 Version: 0.1.993
 Author: Ederson Peka
 Author URI: http://ederson.peka.nom.br
+Text Domain: media-downloader
 */
+
+
+// Pre-2.6 compatibility ( From: http://codex.wordpress.org/Determining_Plugin_and_Content_Directories )
+if ( ! defined( 'WP_CONTENT_URL' ) )
+      define( 'WP_CONTENT_URL', get_option( 'siteurl' ) . '/wp-content' );
+if ( ! defined( 'WP_CONTENT_DIR' ) )
+      define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
+if ( ! defined( 'WP_PLUGIN_URL' ) )
+      define( 'WP_PLUGIN_URL', WP_CONTENT_URL. '/plugins' );
+if ( ! defined( 'WP_PLUGIN_DIR' ) )
+      define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
+
+// MarkDown, used for text formatting
+if( !function_exists( 'Markdown' ) ) include_once( dirname( __FILE__ ) . '/markdown/markdown.php' );
+
+
+if ( !class_exists( 'media_downloader' ) ) :
+
+class media_downloader {
+
+    // Init
+    function init() {
+        // Internationalization
+        load_plugin_textdomain( 'media-downloader', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+        // Hooking into admin's screens
+        add_action( 'admin_init', array( __CLASS__, 'admin_init' ) );
+        // If query string 'md_getfile' parameter is set, we stream the file and quit
+        if ( array_key_exists( 'md_getfile', $_GET ) ) :
+            include( dirname( __FILE__ ) . '/getfile.php' );
+            exit();
+        // If query string 'md_feed' parameter is set, we stream the RSS feed and quit
+        elseif ( array_key_exists( 'md_feed', $_GET ) ) :
+            include( dirname( __FILE__ ) . '/mdfeed.php' );
+            exit();
+        endif;
+    }
+
+    function admin_init() {
+        // Create "settings" link for this plugin on plugins list
+        add_filter( 'plugin_action_links', array( __CLASS__, 'settings_link' ), 10, 2 );
+    }
+
+    // Add Settings link to plugins - code from GD Star Ratings
+    // (as seen in http://www.whypad.com/posts/wordpress-add-settings-link-to-plugins-page/785/ )
+    function settings_link( $links, $file ) {
+        $this_plugin = plugin_basename(__FILE__);
+        if ( $file == $this_plugin ) {
+            $settings_link = '<a href="' . admin_url( 'options-general.php?page=mediadownloader-options' ) . '">' . __( 'Settings', 'media-downloader' ) . '</a>';
+            array_unshift( $links, $settings_link );
+        }
+        return $links;
+    }
+
+}
+
+// Initialize
+add_action( 'init', array( 'media_downloader', 'init' ) );
+
+endif;
 
 // Possible encodings
 $mdencodings = array( 'UTF-8', 'ISO-8859-1', 'ISO-8859-15', 'cp866', 'cp1251', 'cp1252', 'KOI8-R', 'BIG5', 'GB2312', 'BIG5-HKSCS', 'Shift_JIS', 'EUC-JP' );
@@ -87,18 +147,6 @@ $mdembedplayerdefaultcolors = array(
     'skip' => '666666',
 );
 
-// Pre-2.6 compatibility ( From: http://codex.wordpress.org/Determining_Plugin_and_Content_Directories )
-if ( ! defined( 'WP_CONTENT_URL' ) )
-      define( 'WP_CONTENT_URL', get_option( 'siteurl' ) . '/wp-content' );
-if ( ! defined( 'WP_CONTENT_DIR' ) )
-      define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
-if ( ! defined( 'WP_PLUGIN_URL' ) )
-      define( 'WP_PLUGIN_URL', WP_CONTENT_URL. '/plugins' );
-if ( ! defined( 'WP_PLUGIN_DIR' ) )
-      define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
-
-// MarkDown, used for text formatting
-if( !function_exists( 'Markdown' ) ) include_once( "markdown/markdown.php" );
 
 // Friendly file size
 if( !function_exists( 'byte_convert' ) ){
@@ -620,7 +668,7 @@ function mediadownloader( $t ) {
         if ( TRUE == get_option( 'removeextension' ) ) {
             $t = preg_replace(
                 '/href\=[\\\'\"](.*)'.preg_quote('.mp3').'[\\\'\"]/im',
-                "href=\"".WP_PLUGIN_URL."/".md_plugin_dir()."/getfile.php?f=$1\"",
+                "href=\"?md_getfile&amp;f=$1\"",
                 $t
             );
         };
@@ -672,7 +720,7 @@ function mediadownloaderFileInfo( $f, $ext ) {
     if ( !$return ) {
 
         // include getID3() library (can be in a different directory if full path is specified)
-        require_once('getid3/getid3.php');
+        require_once( dirname( __FILE__ ) . '/getid3/getid3.php' );
         // Initialize getID3 engine
         $getID3 = new getID3;
         $mdoencode = get_option( 'tagencoding' );
@@ -835,14 +883,6 @@ function mediaDownloaderLocalizeScript() {
 }
 
 function mediaDownloaderInit() {
-    load_textdomain( 'media-downloader', WP_LANG_DIR . '/mediadownloader/mediadownloader-' . apply_filters( 'plugin_locale', get_locale(), 'media-downloader' ) . '.mo' );
-    load_plugin_textdomain( 'media-downloader', false, basename( dirname( __FILE__ ) ) . '/languages' );
-    /*
-    // I'm testing the lines below to avoid problems with symlinks,
-    // but it's not over yet...
-    $pdir = array_key_exists( 'SCRIPT_FILENAME', $_SERVER ) ? array_shift( explode( '/wp-', $_SERVER["SCRIPT_FILENAME"] ) ) . '/wp-content/plugins/media-downloader' : dirname( plugin_basename( __FILE__ ) );
-    load_plugin_textdomain( 'media-downloader', false, $pdir . '/languages/' );
-    */
     mediaDownloaderEnqueueScripts();
     add_filter( 'set-screen-option', 'mediadownloader_adm_save_options', 10, 3 );
 }
@@ -876,7 +916,7 @@ function mediadownloader_menu() {
 function mediadownloader_adm_add_options() {
     $option = 'per_page'; 
     $args = array(
-        'label' => sprintf( __( 'items (min: %d - max: %d)' ), 10, 100 ),
+        'label' => sprintf( __( 'items (min: %d - max: %d)', 'media-downloader' ), 10, 100 ),
         'default' => 50,
         'option' => 'mediadownloader_adm_items_per_page'
     );
@@ -889,13 +929,13 @@ function mediadownloader_adm_save_options( $status, $option, $value ) {
 function mediadownloader_options() {
     // Basically, user input forms...
     if ( isset( $_GET['markup-options'] ) ) {
-        require_once("mediadownloader-markup-options.php");
+        require_once( dirname( __FILE__ ) . '/mediadownloader-markup-options.php' );
     } elseif ( isset( $_GET['more-options'] ) ) {
-        require_once("mediadownloader-more-options.php");
+        require_once( dirname( __FILE__ ) . '/mediadownloader-more-options.php' );
     } elseif ( isset( $_GET['tag-editor'] ) ) {
-        require_once("mediadownloader-tag-editor.php");
+        require_once( dirname( __FILE__ ) . '/mediadownloader-tag-editor.php' );
     } else {
-        require_once("mediadownloader-options.php");
+        require_once( dirname( __FILE__ ) . '/mediadownloader-options.php' );
     }
 }
 
@@ -943,12 +983,14 @@ function sanitizeRDir( $d ){
 function sanitizeWDir( $d ){
     return is_writeable( ABSPATH . $d ) ? $d : '' ;
 }
+if ( !function_exists( 'sanitizeArray' ) ) {
 function sanitizeArray( $i, $a ){
     if ( is_array( $i ) ) {
         return array_intersect( $i, $a );
     } else {
         return in_array( $i, $a ) ? $i : '' ;
     }
+}
 }
 function sanitizeMediaExtensions( $t ) {
     return sanitizeArray( $t, md_mediaAllExtensions() );

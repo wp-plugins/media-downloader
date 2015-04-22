@@ -1,6 +1,4 @@
 <?php
-// Load WordPress "framework"
-require_once('../../../wp-load.php');
 
 // Calculate file path
 $file = urldecode( $_GET['f'] );
@@ -12,9 +10,9 @@ if(substr($file,0,1)=='/') $file=substr($file,1);
 dl_file_resumable($filepath);
 
 // Resumable Download ( From: http://www.php.net/fread )
-function dl_file_resumable($file, $is_resume=TRUE)
+function dl_file_resumable( $file, $is_resume = TRUE )
 {
-    //First, see if the file exists
+    //First, check if the file exists
     if ( !is_file($file) && ( $file = stripslashes( $file ) ) && !is_file($file) )
     {
         die("<b>404 File not found! <!-- Searched for file: \"" . htmlentities( $file ) . "\" --></b>");

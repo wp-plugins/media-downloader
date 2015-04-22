@@ -24,8 +24,8 @@ function initMediaDownloader() {
         }
     } );
     jQuery('table.mediaTable.embedPlayer td.mediaDownload a').each( function () {
-        if ( jQuery(this).attr('href').indexOf('getfile.php')>-1 ) {
-          var link = jQuery(this).attr('href').split('getfile.php?f=')[1]+'.mp3';
+        if ( jQuery(this).attr('href').indexOf('md_getfile')>-1 ) {
+          var link = jQuery(this).attr('href').split('md_getfile&f=')[1]+'.mp3';
         } else {
           var link = jQuery(this).attr('href');
         }

@@ -9,7 +9,7 @@ foreach( $mdmarkupsettings as $mdmarkupsetting => $mdsanitizefunction ) $mdoptio
 
 <div class="wrap">
 
-<?php include('mediadownloader-options-header.php'); ?>
+<?php include( dirname( __FILE__ ) . '/mediadownloader-options-header.php' ); ?>
 
 <form method="post" action="options.php">
 <?php settings_fields( 'md_markup_options' ); ?>
@@ -39,7 +39,7 @@ if ( !sanitizeMarkupTemplate( $markuptemplate ) ) $markuptemplate = array_shift(
 </p>
 
 <p class="submit">
-<input type="submit" value="<?php _mde( 'Update Options' ) ;?>" />
+<input type="submit" class="button button-primary" value="<?php _mde( 'Update Options' ) ;?>" />
 </p>
 </fieldset>
 
@@ -56,7 +56,7 @@ if ( !sanitizeMarkupTemplate( $markuptemplate ) ) $markuptemplate = array_shift(
 </p>
 
 <p class="submit">
-<input type="submit" value="<?php _mde( 'Update Options' ) ;?>" />
+<input type="submit" class="button button-primary" value="<?php _mde( 'Update Options' ) ;?>" />
 </p>
 </fieldset>
 
@@ -85,7 +85,7 @@ if ( count( $pexts ) ) :
     <h4><?php _mde( 'Wildcards:' ) ;?> <code>[filename]</code></h4>
     
     <p class="submit">
-    <input type="submit" value="<?php _mde( 'Update Options' ) ;?>" />
+    <input type="submit" class="button button-primary" value="<?php _mde( 'Update Options' ) ;?>" />
     </p>
     </fieldset>
 
@@ -117,7 +117,7 @@ if ( count( $pexts ) ) :
 </p>
 
 <p class="submit">
-<input type="submit" value="<?php _mde( 'Update Options' ) ;?>" />
+<input type="submit" class="button button-primary" value="<?php _mde( 'Update Options' ) ;?>" />
 </p>
 </fieldset>
 

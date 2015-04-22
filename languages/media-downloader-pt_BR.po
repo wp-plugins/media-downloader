@@ -1,12 +1,15 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-06-18 23:59:53+03:00\n"
+"PO-Revision-Date: 2015-04-21 19:59:53+03:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Project-Id-Version: Media Downloader 0.1.99.98\n"
 "Last-Translator: Ederson Peka <ederson@gmail.com>\n"
 "Language-Team: Ederson Peka <ederson@gmail.com>\n"
+
+msgid "Media Downloader plugin lists MP3 files from a folder by replacing the [media] smarttag."
+msgstr "O plugin Media Downloader lista os arquivos MP3 de um diretório, substituindo a \"smart tag\" [media]."
 
 #: mediadownloader-markup-options.php:19
 msgid "General tag info template"
