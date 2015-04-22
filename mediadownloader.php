@@ -668,7 +668,7 @@ function mediadownloader( $t ) {
         if ( TRUE == get_option( 'removeextension' ) ) {
             $t = preg_replace(
                 '/href\=[\\\'\"](.*)'.preg_quote('.mp3').'[\\\'\"]/im',
-                "href=\"?md_getfile&amp;f=$1\"",
+                "href=\"?md_getfile=$1\"",
                 $t
             );
         };
@@ -749,7 +749,7 @@ function mediadownloaderEnclosures( $adjacentmarkup = false ){
     foreach ( md_mediaExtensions() as $mext ) {
         $ret = array();
         preg_match_all( '/href=[\\\'"](.*)'.preg_quote('.'.$mext).'[\\\'"]/im', $cont, $matches );
-        preg_match_all( '/href=[\\\'"].*getfile\.php\?\=(.*)[\\\'"]/im', $cont, $newmatches );
+        preg_match_all( '/href=[\\\'"].*\?md_getfile\=(.*)[\\\'"]/im', $cont, $newmatches );
         // It makes no sense, "there can be only one", but just in case...
         if ( count( $matches ) && count( $matches[1] ) ) $ret = array_unique( array_merge( $matches[1], $newmatches[1] ) );
     

@@ -1,7 +1,14 @@
 <?php
 
+// Backwards compatibility: redirecting old parameters
+if ( array_key_exists( 'f', $_GET ) && !array_key_exists( 'md_getfile', $_GET ) ) :
+    $r = explode( 'wp-content', $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
+    header( 'Location: ' . '//' . $r[0] . '?md_getfile=' . $_GET['f'] );
+    exit();
+endif;
+
 // Calculate file path
-$file = urldecode( $_GET['f'] );
+$file = urldecode( $_GET['md_getfile'] );
 $file = str_replace( get_option( 'siteurl' ), '', $file );
 $relURL=str_replace( 'http'.(isset($_SERVER['HTTPS'])?'s':'').'://'.$_SERVER['SERVER_NAME'], '', get_option( 'siteurl' ) );
 $filepath = ABSPATH . str_replace( $relURL, '', $file ) . '.mp3';
