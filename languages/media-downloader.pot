@@ -491,3 +491,7 @@ msgstr ""
 msgid "Go to last page"
 msgstr ""
 
+#: getfile.php:25
+msgid "Error 404: File not found!"
+msgstr ""
+

@@ -22,7 +22,7 @@ function dl_file_resumable( $file, $is_resume = TRUE )
     //First, check if the file exists
     if ( !is_file($file) && ( $file = stripslashes( $file ) ) && !is_file($file) )
     {
-        die("<b>404 File not found! <!-- Searched for file: \"" . htmlentities( $file ) . "\" --></b>");
+        die( '<b>' . _md( 'Error 404: File not found!' ) . '</b>' );
     }
 
     //Gather relevent info about file
