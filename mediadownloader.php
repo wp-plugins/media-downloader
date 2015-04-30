@@ -924,6 +924,7 @@ function mediadownloader_adm_add_options() {
 }
 function mediadownloader_adm_save_options( $status, $option, $value ) {
     if ( 'mediadownloader_adm_items_per_page' == $option ) return ( $value >= 10 && $value <= 100 ) ? $value : false;
+    //return $value; // I can't remember why I did that... :-/
 }
 
 function mediadownloader_options() {
