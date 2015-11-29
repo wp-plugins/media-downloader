@@ -739,7 +739,7 @@ function mediadownloaderFileSize( $f, $ext ){
     if ( 0 === stripos( $f, get_option( 'siteurl' ) ) ) $f = str_replace( get_option( 'siteurl' ), '', $f );
     $f = ABSPATH . substr( $f, 1 ) . '.' . $ext;
     if ( !file_exists( $f ) ) $f = urldecode( $f );
-    return filesize( $f );
+    return file_exists( $f ) ? filesize( $f ) : 0;
 }
 // Extract MP3 links form post content
 function mediadownloaderEnclosures( $adjacentmarkup = false ){
